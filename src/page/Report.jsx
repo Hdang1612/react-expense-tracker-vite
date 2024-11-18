@@ -7,7 +7,7 @@ import { PieStatisticMonth } from "../component/chart/PieStatistic";
 import { PieStatisticGeneral } from "../component/chart/PieStatistic";
 import FilterContainer from "../component/FilterMonth";
 import ModalExpense from "../component/modal/ModalTransaction";
-import { toggleModal, resetTransactionData } from "../redux-toolkit/modalSlice";
+import { toggleModal, resetTransactionData } from "../feature/modalSlice";
 function Report() {
   const dispatch = useDispatch();
   const [selectedMonth, setSelectedMonth] = useState("Nov");

@@ -10,7 +10,7 @@ import {
   toggleModal,
   setModalTitle,
   setTransactionData,
-} from "../redux-toolkit/modalSlice";
+} from "../feature/modalSlice";
 import { useDispatch } from "react-redux";
 function Menu() {
   const dispatch = useDispatch();

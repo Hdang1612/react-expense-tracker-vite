@@ -5,14 +5,14 @@ import {
   addTransaction,
   updateTransaction,
   removeTransaction,
-} from "../../redux-toolkit/transactionSlice.jsx";
-import { showSuccessToast, showErrorToast } from "../../untils/Toaste.jsx";
+} from "../../feature/transactionSlice.js";
+import { showSuccessToast, showErrorToast } from "../../utils/Toaste.jsx";
 import { v4 as uuidv4 } from "uuid";
 import { transactionTypes } from "../TransactionItem.jsx";
 import {
   toggleModal,
   resetTransactionData,
-} from "../../redux-toolkit/modalSlice.jsx";
+} from "../../feature/modalSlice.js";
 
 const ModalExpense = () => {
   const dispatch = useDispatch();

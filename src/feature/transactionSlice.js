@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getFromStorage, saveToStorage } from "./localStorage.jsx";
-import { sortTransactionsByDate, formatDate } from "../untils/date.jsx";
+import { getFromStorage, saveToStorage } from "./localStorage.js";
+import { sortTransactionsByDate, formatDate } from "../utils/date.jsx";
 const calculateInitialBalances = (transactions) => {
   const income = transactions
     .filter((transaction) => transaction.transactionType === "income")
