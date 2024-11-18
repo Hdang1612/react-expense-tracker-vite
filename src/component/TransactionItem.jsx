@@ -23,15 +23,15 @@ export const transactionTypes = [
 const ExpenseItem = ({ transaction, updateAction }) => {
   const [isOpen, setIsOpen] = useState(false);
   const transactionType = transactionTypes.find(
-    (type) => type.type === transaction.category
+    (type) => type.type === transaction.category,
   );
   const icon = transactionType ? transactionType.icon : null;
   const borderColor =
     transaction.amount > 0
       ? "border-green-500"
       : transaction.amount < 0
-      ? "border-red-500"
-      : "";
+        ? "border-red-500"
+        : "";
   const dispatch = useDispatch();
   const handleToggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -110,11 +110,7 @@ const ExpenseItem = ({ transaction, updateAction }) => {
         height="60%"
         className=""
       >
-        <img
-          src={transaction.receipt}
-          alt="Receipt"
-          className=""
-        />
+        <img src={transaction.receipt} alt="Receipt" className="" />
       </Modal>
     </div>
   );

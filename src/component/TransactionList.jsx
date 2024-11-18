@@ -1,22 +1,22 @@
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from "react-redux";
 
-import { Empty } from 'antd'
+import { Empty } from "antd";
 import {
   selectTodayTransactions,
   selectMonthlyTransactions,
   selectWeeklyTransactions,
-} from '../redux-toolkit/transactionSlice'
-import { setTransactionData, toggleModal } from '../redux-toolkit/modalSlice'
-import ExpenseItem from './TransactionItem'
+} from "../redux-toolkit/transactionSlice";
+import { setTransactionData, toggleModal } from "../redux-toolkit/modalSlice";
+import ExpenseItem from "./TransactionItem";
 
 export const TransactionListPagination = ({ transactions }) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const handleItemClick = (transaction) => {
-    dispatch(setTransactionData(transaction))
-    dispatch(toggleModal(true))
-  }
+    dispatch(setTransactionData(transaction));
+    dispatch(toggleModal(true));
+  };
   return (
-    <div >
+    <div>
       {transactions.length > 0 ? (
         transactions.map((transaction) => (
           <ExpenseItem
@@ -29,17 +29,17 @@ export const TransactionListPagination = ({ transactions }) => {
         <Empty description="No transaction " />
       )}
     </div>
-  )
-}
+  );
+};
 export const TransactionList = ({ transactions }) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const handleItemClick = (transaction) => {
-    dispatch(setTransactionData(transaction))
-    dispatch(toggleModal(true))
-  }
+    dispatch(setTransactionData(transaction));
+    dispatch(toggleModal(true));
+  };
 
   return (
-    <div className='h-[720px] md:h-[640px] '>
+    <div className="h-[720px] md:h-[640px] ">
       {Array.isArray(transactions) && transactions.length > 0 ? (
         transactions.map((group, index) => {
           if (group.transactions) {
@@ -55,7 +55,7 @@ export const TransactionList = ({ transactions }) => {
                   />
                 ))}
               </div>
-            )
+            );
           } else {
             // Nếu là danh sách giao dịch đơn lẻ, render mỗi giao dịch
             return (
@@ -66,30 +66,30 @@ export const TransactionList = ({ transactions }) => {
                   updateAction={() => handleItemClick(group)}
                 />
               </div>
-            )
+            );
           }
         })
       ) : (
         <Empty description="No transaction " />
       )}
     </div>
-  )
-}
+  );
+};
 
 export const TodayTransactionsList = () => {
-  const transactions = useSelector(selectTodayTransactions)
-  console.log(transactions)
-  return <TransactionList transactions={transactions} />
-}
+  const transactions = useSelector(selectTodayTransactions);
+  console.log(transactions);
+  return <TransactionList transactions={transactions} />;
+};
 
 export const WeeklyTransactionsList = () => {
-  const transactions = useSelector(selectWeeklyTransactions)
+  const transactions = useSelector(selectWeeklyTransactions);
 
-  return <TransactionList transactions={transactions} />
-}
+  return <TransactionList transactions={transactions} />;
+};
 
 export const MonthlyTransactionsList = () => {
-  const transactions = useSelector(selectMonthlyTransactions)
+  const transactions = useSelector(selectMonthlyTransactions);
 
-  return <TransactionList transactions={transactions} />
-}
+  return <TransactionList transactions={transactions} />;
+};
