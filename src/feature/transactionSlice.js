@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getFromStorage, saveToStorage } from "./localStorage.js";
-import { sortTransactionsByDate, formatDate } from "../utils/date.jsx";
+import { sortTransactionsByDate, formatDate } from "../utils/date.js";
 const calculateInitialBalances = (transactions) => {
   const income = transactions
     .filter((transaction) => transaction.transactionType === "income")
@@ -13,7 +13,7 @@ const calculateInitialBalances = (transactions) => {
   return {
     totalIncome: income,
     totalExpense: expense,
-    totalBalance: income + expense,
+    totalBalance: income - expense,
   };
 };
 
@@ -96,7 +96,7 @@ const updateTotalBalance = (state) => {
     .reduce((acc, transaction) => acc + transaction.amount, 0);
   state.totalIncome = income;
   state.totalExpense = expense;
-  state.totalBalance = income + expense;
+  state.totalBalance = income - expense;
 };
 
 //các nhóm transaction

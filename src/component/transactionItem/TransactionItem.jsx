@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { showSuccessToast } from "../utils/Toaste";
+import { showSuccessToast } from "../../utils/Toaste";
 import { Modal } from "antd";
-import { removeTransaction } from "../feature/transactionSlice";
+import { removeTransaction } from "../../feature/transactionSlice";
+import "./style.css";
 import {
   ShoppingCartOutlined,
   FileTextOutlined,
   DollarCircleOutlined,
   GiftOutlined,
   FileUnknownOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
-import { formatCurrency } from "../utils/number";
+import { formatCurrency } from "../../utils/number";
 export const transactionTypes = [
   { type: "Shopping", icon: <ShoppingCartOutlined /> },
   { type: "Bill", icon: <FileTextOutlined /> },
@@ -20,6 +22,7 @@ export const transactionTypes = [
   { type: "Unknown", icon: <FileUnknownOutlined /> },
 ];
 
+
 const ExpenseItem = ({ transaction, updateAction }) => {
   const [isOpen, setIsOpen] = useState(false);
   const transactionType = transactionTypes.find(
@@ -27,9 +30,9 @@ const ExpenseItem = ({ transaction, updateAction }) => {
   );
   const icon = transactionType ? transactionType.icon : null;
   const borderColor =
-    transaction.amount > 0
+    transaction.transactionType === "income"
       ? "border-green-500"
-      : transaction.amount < 0
+      : transaction.transactionType === "expense"
         ? "border-red-500"
         : "";
   const dispatch = useDispatch();
@@ -57,11 +60,11 @@ const ExpenseItem = ({ transaction, updateAction }) => {
         onClick={handleToggleDropdown}
       >
         <div
-          className={`w-[47px] h-[47px] flex items-center justify-center rounded-full text-black bg-[#CFBBD4] text-[20px] md:w-[70px] md:h-[70px] md:text-[30px]  `}
+          className={`w-[47px] h-[47px] flex items-center justify-center rounded-full text-black bg-[#CFBBD4] text-[20px] md:w-[70px] md:h-[70px] md:text-[30px]`}
         >
           {icon}
         </div>
-        <div className="ml-3">
+        <div className="ml-3 flex-grow">
           <p className="text-[16px] md:text-2xl font-regular text-[#000000]">
             {transaction.category}
           </p>
@@ -69,27 +72,37 @@ const ExpenseItem = ({ transaction, updateAction }) => {
             {transaction.description}
           </p>
         </div>
-        <div className="ml-auto text-[16px] md:text-2xl font-semibold text-[#000000]">
+        <div className={`text-[16px] md:text-2xl font-semibold ${transaction.transactionType === 'income' ? "text-green-500" : "text-red-500"}`}>
           {formatCurrency(transaction.amount)}
         </div>
+        <div
+          className={`md:mx-3 ml-1 transition-transform duration-300 ${
+            isOpen ? "rotate-180" : "rotate-0"
+          }`}
+        >
+          <DownOutlined />
+        </div>
       </div>
-      {isOpen && (
-        <div className=" flex mt-2  bg-gray-100 p-4 rounded-md shadow-lg w-full">
+
+      <div className={`dropdown-content ${isOpen ? "dropdown-open" : ""}`}>
+        <div className="flex mt-2 bg-gray-100 p-4 rounded-md shadow-lg pb-[20px] w-full">
           <div>
             <p className="font-bold mb-2">Receipt image</p>
-
-            <img
-              src={transaction.receipt}
-              alt="Receipt"
-              className="object-cover w-[200px] h-[200px] mb-3 cursor-pointer"
-              onClick={showImage} // Khi nhấp vào ảnh, mở modal
-            />
+            {transaction.receipt ? (
+              <img
+                src={transaction.receipt}
+                alt="Receipt"
+                className="object-cover md:w-[200px] md:h-[200px] w-[160px] h-[160px] mb-3 cursor-pointer"
+                onClick={showImage}
+              />
+            ) : (
+              <p className="text-gray-500 text-sm">No receipt</p>
+            )}
           </div>
-
-          <div className="flex flex-col space-y-4  w-1/5 mt-4 ml-auto">
+          <div className="flex flex-col space-y-4 md:w-1/5 w-1/3 mt-4 ml-auto">
             <button
               onClick={updateAction}
-              className="bg-[#EF8767] text-white px-4 py-2 rounded-md"
+              className="bg-[#EF8767] text-white px-4 py-2 rounded-md mt-[12px]"
             >
               Update
             </button>
@@ -101,13 +114,13 @@ const ExpenseItem = ({ transaction, updateAction }) => {
             </button>
           </div>
         </div>
-      )}
+      </div>
       <Modal
         visible={isModalOpen}
         footer={null}
         onCancel={handleCancel}
-        width="60%"
-        height="60%"
+        width="600px"
+        height="600px"
         className=""
       >
         <img src={transaction.receipt} alt="Receipt" className="" />

@@ -6,13 +6,10 @@ import {
   updateTransaction,
   removeTransaction,
 } from "../../feature/transactionSlice.js";
-import { showSuccessToast, showErrorToast } from "../../utils/Toaste.jsx";
+import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
 import { v4 as uuidv4 } from "uuid";
-import { transactionTypes } from "../TransactionItem.jsx";
-import {
-  toggleModal,
-  resetTransactionData,
-} from "../../feature/modalSlice.js";
+import { transactionTypes } from "../transactionItem/TransactionItem.jsx";
+import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 
 const ModalExpense = () => {
   const dispatch = useDispatch();
@@ -32,8 +29,8 @@ const ModalExpense = () => {
       setDate(transactionData.date || "");
       setCategory(transactionData.category || "Shopping");
       setDescription(transactionData.description || "");
-      setAmount(Math.abs(transactionData.amount) || "");
-      setIsExpense(transactionData.amount < 0);
+      setAmount(transactionData.amount || "");
+      setIsExpense(transactionData.transactionType==="expense");
       setReceipt(transactionData.receipt || null);
     } else {
       const today = new Date().toISOString().split("T")[0];
@@ -41,9 +38,21 @@ const ModalExpense = () => {
     }
   }, [transactionData]);
 
+  const validateAmount = (amount) => {
+    if (isNaN(amount) || amount.trim() === "" || amount <= 0) {
+      return false;
+    }
+    return true;
+  };
+
   const handleSave = () => {
     if (!date || !category || !amount) {
       showErrorToast("Vui lòng nhập đầy đủ");
+      return;
+    }
+  
+    if (!validateAmount(amount)) {
+      showErrorToast("Vui lòng nhập chỉ nhập số dương");
       return;
     }
 
@@ -52,7 +61,7 @@ const ModalExpense = () => {
       date,
       category,
       description,
-      amount: isExpense ? -amount : +amount,
+      amount:Number(amount),
       receipt,
       transactionType: isExpense ? "expense" : "income",
     };
