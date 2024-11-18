@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import { DollarOutlined } from "@ant-design/icons";
 import Menu from "../layout/Menu";
-import { formatCurrency } from "../untils/number";
+import { formatCurrency } from "../utils/number";
 import ModalExpense from "../component/modal/ModalTransaction";
 import {
   TodayTransactionsList,

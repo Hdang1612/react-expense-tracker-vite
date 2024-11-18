@@ -5,8 +5,8 @@ import {
   selectTodayTransactions,
   selectMonthlyTransactions,
   selectWeeklyTransactions,
-} from "../redux-toolkit/transactionSlice";
-import { setTransactionData, toggleModal } from "../redux-toolkit/modalSlice";
+} from "../feature/transactionSlice";
+import { setTransactionData, toggleModal } from "../feature/modalSlice";
 import ExpenseItem from "./TransactionItem";
 
 export const TransactionListPagination = ({ transactions }) => {

@@ -4,12 +4,12 @@ import { ArrowRightOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import {
   setCurrentPage,
   setItemsPerPage,
-} from "../redux-toolkit/transactionSlice";
+} from "../feature/transactionSlice";
 import Header from "../layout/Header";
 import Menu from "../layout/Menu";
 import { TransactionListPagination } from "../component/TransactionList";
 import ModalExpense from "../component/modal/ModalTransaction";
-import { toggleModal, resetTransactionData } from "../redux-toolkit/modalSlice";
+import { toggleModal, resetTransactionData } from "../feature/modalSlice";
 
 function TransactionPage() {
   const dispatch = useDispatch();

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { showSuccessToast } from "../untils/Toaste";
+import { showSuccessToast } from "../utils/Toaste";
 import { Modal } from "antd";
-import { removeTransaction } from "../redux-toolkit/transactionSlice";
+import { removeTransaction } from "../feature/transactionSlice";
 import {
   ShoppingCartOutlined,
   FileTextOutlined,
@@ -10,7 +10,7 @@ import {
   GiftOutlined,
   FileUnknownOutlined,
 } from "@ant-design/icons";
-import { formatCurrency } from "../untils/number";
+import { formatCurrency } from "../utils/number";
 export const transactionTypes = [
   { type: "Shopping", icon: <ShoppingCartOutlined /> },
   { type: "Bill", icon: <FileTextOutlined /> },
