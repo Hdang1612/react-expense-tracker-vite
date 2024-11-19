@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Modal, Button, Upload } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+
+
+import { Modal, Button, Upload } from "antd";
 import {
   addTransaction,
   updateTransaction,
@@ -8,7 +10,7 @@ import {
 } from "../../feature/transactionSlice.js";
 import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
 import { v4 as uuidv4 } from "uuid";
-import { transactionTypes } from "../transaction_item/TransactionItem.jsx";
+import { transactionTypes } from "../transaction_item/transactionType.jsx";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 
 const ModalExpense = () => {
@@ -23,7 +25,7 @@ const ModalExpense = () => {
   const [amount, setAmount] = useState("");
   const [receipt, setReceipt] = useState(null);
   const [isExpense, setIsExpense] = useState(true);
-
+  const [uploadError, setUploadError] = useState(false);
   useEffect(() => {
     if (transactionData) {
       setDate(transactionData.date || "");
@@ -44,6 +46,33 @@ const ModalExpense = () => {
     }
     return true;
   };
+
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file.type.startsWith("image/")) {
+      showErrorToast("Chỉ cho phép upload tệp ảnh ");
+      setUploadError(true);
+      return;
+    }
+
+    try {
+      const fileBase64 = await convertToBase64(file);
+      setReceipt(fileBase64);
+      setUploadError(false);
+    } catch (error) {
+      setUploadError(true);
+      console.error("Có lỗi khi upload ảnh:", error);
+    }
+  };
+
   const handleSave = () => {
     if (!date || !category || !amount) {
       showErrorToast("Vui lòng nhập đầy đủ");
@@ -51,6 +80,11 @@ const ModalExpense = () => {
     }
     if (!validateAmount(amount)) {
       showErrorToast("Vui lòng nhập số dương");
+      return;
+    }
+
+    if (uploadError) {
+      showErrorToast("Vui lòng tải lên tệp ảnh hợp lệ");
       return;
     }
 
@@ -162,8 +196,7 @@ const ModalExpense = () => {
           </label>
           <Upload
             beforeUpload={(file) => {
-              const fileUrl = URL.createObjectURL(file);
-              setReceipt(fileUrl);
+              handleFileUpload(file);
               return false;
             }}
           >

@@ -1,26 +1,13 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+
 import { showSuccessToast } from "../../utils/Toaste";
 import { Modal } from "antd";
 import { removeTransaction } from "../../feature/transactionSlice";
-import "./style.css";
-import {
-  ShoppingCartOutlined,
-  FileTextOutlined,
-  DollarCircleOutlined,
-  GiftOutlined,
-  FileUnknownOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
+import { transactionTypes } from "./transactionType";
+import { DownOutlined } from "@ant-design/icons";
 import { formatCurrency } from "../../utils/number";
-export const transactionTypes = [
-  { type: "Shopping", icon: <ShoppingCartOutlined /> },
-  { type: "Bill", icon: <FileTextOutlined /> },
-  { type: "Salary", icon: <DollarCircleOutlined /> },
-  { type: "Food", icon: <GiftOutlined /> },
-  { type: "Entertainment", icon: <ShoppingCartOutlined /> },
-  { type: "Unknown", icon: <FileUnknownOutlined /> },
-];
+import "./style.css";
 
 const ExpenseItem = ({ transaction, updateAction }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,12 +15,14 @@ const ExpenseItem = ({ transaction, updateAction }) => {
     (type) => type.type === transaction.category,
   );
   const icon = transactionType ? transactionType.icon : null;
+
   const borderColor =
     transaction.transactionType === "income"
       ? "border-green-500"
       : transaction.transactionType === "expense"
         ? "border-red-500"
         : "";
+
   const dispatch = useDispatch();
   const handleToggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -99,7 +88,7 @@ const ExpenseItem = ({ transaction, updateAction }) => {
               <p className="text-gray-500 text-sm">No receipt </p>
             )}
           </div>
-          <div className="flex flex-col space-y-4 w-1/3  md:w-1/5 mt-4 ml-auto">
+          <div className="flex flex-col space-y-4 w-1/3  md:w-1/5 mt-4 ml-auto mt-[30px]">
             <button
               onClick={updateAction}
               className="bg-[#EF8767] text-white px-4 py-2 rounded-md"
@@ -119,8 +108,8 @@ const ExpenseItem = ({ transaction, updateAction }) => {
         visible={isModalOpen}
         footer={null}
         onCancel={handleCancel}
-        width="60%"
-        height="60%"
+        width="600px"
+        height="600px"
         className=""
       >
         <img src={transaction.receipt} alt="Receipt" className="" />
