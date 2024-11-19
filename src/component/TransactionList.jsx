@@ -7,7 +7,7 @@ import {
   selectWeeklyTransactions,
 } from "../feature/transactionSlice";
 import { setTransactionData, toggleModal } from "../feature/modalSlice";
-import ExpenseItem from "./TransactionItem";
+import ExpenseItem from "./transaction_item/TransactionItem";
 
 export const TransactionListPagination = ({ transactions }) => {
   const dispatch = useDispatch();

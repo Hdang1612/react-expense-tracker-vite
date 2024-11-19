@@ -73,7 +73,8 @@ function TransactionPage() {
           <div className="overflow-y-auto h-[600px] md:h-[500px]">
             <TransactionListPagination transactions={paginatedTransactions} />
           </div>
-          <div className="mt-6 flex md:ml-[47%] ml-[33%] space-x-2">
+          <div className="mt-6 flex justify-center m-0  space-x-2">
+            <div></div>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
