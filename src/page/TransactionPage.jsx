@@ -1,10 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 
 import { ArrowRightOutlined, ArrowLeftOutlined } from "@ant-design/icons";
-import {
-  setCurrentPage,
-  setItemsPerPage,
-} from "../feature/transactionSlice";
+import { setCurrentPage, setItemsPerPage } from "../feature/transactionSlice";
 import Header from "../layout/Header";
 import Menu from "../layout/Menu";
 import { TransactionListPagination } from "../component/TransactionList";
