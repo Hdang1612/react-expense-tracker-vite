@@ -4,10 +4,10 @@ import { useDispatch } from "react-redux";
 import { showSuccessToast } from "../../utils/Toaste";
 import { Modal } from "antd";
 import { removeTransaction } from "../../feature/transactionSlice";
-import { transactionTypes } from "./transactionType";
+import { transactionTypes } from "../constants/transactionType";
 import { DownOutlined } from "@ant-design/icons";
 import { formatCurrency } from "../../utils/number";
-import "./style.css";
+import "./styleDropdown.css";
 
 const ExpenseItem = ({ transaction, updateAction }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,14 +18,15 @@ const ExpenseItem = ({ transaction, updateAction }) => {
 
   const borderColor =
     transaction.transactionType === "income"
-      ? "border-green-500"
+      ? "border-r-green-500"
       : transaction.transactionType === "expense"
-        ? "border-red-500"
+        ? "border-r-red-500"
         : "";
 
   const dispatch = useDispatch();
   const handleToggleDropdown = () => {
     setIsOpen(!isOpen);
+    console.log(isOpen)
   };
 
   const handleDelete = () => {
@@ -44,9 +45,10 @@ const ExpenseItem = ({ transaction, updateAction }) => {
   return (
     <div>
       <div
-        className={`flex items-center p-2 rounded-2xl cursor-pointer shadow-lg mb-3 ${borderColor} border-r-[18px]`}
-        onClick={handleToggleDropdown}
+        className={`flex flex-col justify-center p-2 rounded-2xl  shadow-lg mb-3  border-[#EEEFEF] border-[1px] ${borderColor}  border-r-[18px]`}
+        
       >
+        <div className="flex flex-row items-center cursor-pointer" onClick={handleToggleDropdown}>
         <div
           className={`w-[47px] h-[47px] flex items-center justify-center rounded-full text-black bg-[#CFBBD4] text-[20px] md:w-[70px] md:h-[70px] md:text-[30px]  `}
         >
@@ -72,11 +74,12 @@ const ExpenseItem = ({ transaction, updateAction }) => {
         >
           <DownOutlined />
         </div>
-      </div>
+
+        </div>
       <div className={`dropdown-content ${isOpen ? "dropdown-open" : ""}`}>
-        <div className="flex mt-2 bg-gray-100 p-4 rounded-md shadow-lg w-full">
+        <div className="flex mt-2 bg-transparent p-4 rounded-md shadow-lg w-full">
           <div>
-            <p className="font-bold mb-2">Receipt image</p>
+            <p className="font-bold mb-2">{transaction.transactionType === "income" ? "Income Receipt" : "Expense Receipt"}</p>
             {transaction.receipt ? (
               <img
                 src={transaction.receipt}
@@ -103,6 +106,7 @@ const ExpenseItem = ({ transaction, updateAction }) => {
             </button>
           </div>
         </div>
+      </div>
       </div>
       <Modal
         visible={isModalOpen}

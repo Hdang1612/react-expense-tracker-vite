@@ -10,7 +10,7 @@ import {
 } from "../../feature/transactionSlice.js";
 import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
 import { v4 as uuidv4 } from "uuid";
-import { transactionTypes } from "../transaction_item/transactionType.jsx";
+import { transactionTypes } from "../constants/transactionType.jsx";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 
 const ModalExpense = () => {
@@ -101,7 +101,6 @@ const ModalExpense = () => {
     if (transactionData) {
       dispatch(updateTransaction(newTransaction));
       showSuccessToast("Cập nhật thành công");
-      console.log("save");
     } else {
       dispatch(addTransaction(newTransaction));
       showSuccessToast("Thêm thành công");
@@ -200,7 +199,7 @@ const ModalExpense = () => {
               return false;
             }}
           >
-            <Button>Upload Receipt</Button>
+            <Button className="ms-4">Upload Receipt</Button>
           </Upload>
         </div>
         <div className="flex justify-between mt-4">
