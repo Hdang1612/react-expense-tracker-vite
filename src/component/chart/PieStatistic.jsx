@@ -65,9 +65,9 @@ const calculateMonthlyTotals = (transactions) => {
     const monthIndex = date.getMonth(); // 0 = January, 11 = December
 
     if (transaction.transactionType === "income") {
-      totals[monthIndex].income += transaction.amount;
+      totals[monthIndex].income += Number(transaction.amount);
     } else if (transaction.transactionType === "expense") {
-      totals[monthIndex].expense += transaction.amount;
+      totals[monthIndex].expense += Number(transaction.amount);
     }
   });
 
