@@ -4,12 +4,12 @@ import { Empty } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
 import ExpenseItem from "./transaction_item/TransactionItem";
+import { setTransactionData, toggleModal } from "../feature/modalSlice";
 import {
   selectTodayTransactions,
   selectMonthlyTransactions,
   selectWeeklyTransactions,
 } from "../feature/transactionSlice";
-import { setTransactionData, toggleModal } from "../feature/modalSlice";
 
 export const TransactionListPagination = ({ transactions }) => {
   const [openItemId, setOpenItemId] = useState(null);
