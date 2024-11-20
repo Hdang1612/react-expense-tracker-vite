@@ -57,27 +57,29 @@ function TransactionPage() {
   const handleCategoryChange = (e) => {
     const selectedCategory = e.target.value;
     setCategory(selectedCategory);
-    
-    // Lọc các giao dịch theo category
+
     const filteredByCategory = transactions.filter((transaction) =>
-      selectedCategory ? transaction.category === selectedCategory : true
+      selectedCategory ? transaction.category === selectedCategory : true,
     );
 
-    // Lọc theo description và category
     const filtered = filteredByCategory.filter((transaction) =>
-      transaction.description.toLowerCase().includes(searchValue.toLowerCase())
+      transaction.description.toLowerCase().includes(searchValue.toLowerCase()),
     );
 
     dispatch(
       setFilteredTransactions({
         filteredTransactions: filtered,
         searchKeyword: searchValue,
-      })
+      }),
     );
+  };
+  const handleCloseModal = () => {
+    dispatch(toggleModal(false));
+    dispatch(resetTransactionData());
   };
 
   const totalPages =
-    filteredTransactions.length  > 0 && filteredTransactions
+    filteredTransactions && filteredTransactions.length > 0
       ? Math.ceil(filteredTransactions.length / itemsPerPage)
       : Math.ceil(transactions.length / itemsPerPage);
   const handlePageChange = (page) => {
@@ -88,14 +90,15 @@ function TransactionPage() {
   };
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
+
   const paginatedTransactions = (
-    filteredTransactions.length > 0 ? filteredTransactions : transactions
+    filteredTransactions && filteredTransactions.length >= 0
+      ? filteredTransactions
+      : transactions
   ).slice(startIndex, endIndex);
 
-  const handleCloseModal = () => {
-    dispatch(toggleModal(false));
-    dispatch(resetTransactionData());
-  };
+  
+
   const pageNumbers = [];
   let startPage = currentPage - 2 > 0 ? currentPage - 2 : 1;
   let endPage = currentPage + 2 <= totalPages ? currentPage + 2 : totalPages;
@@ -111,7 +114,7 @@ function TransactionPage() {
   }
   const showEllipsisBefore = startPage > 1;
   const showEllipsisAfter = endPage < totalPages;
-
+  
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center ">
       <div className="w-full  h-[100vh] bg-white relative ">
@@ -132,7 +135,7 @@ function TransactionPage() {
               <option value={10}>10</option>
             </select>
           </div>
-          <div className="mb-5">
+          <div className="mb-5 flex">
             <Search
               className=""
               onSearch={handleSearchDescription}
@@ -147,16 +150,16 @@ function TransactionPage() {
               }}
             />
             <select
-          className="w-full rounded-[15px] h-[32px] md:h-[60px] md:rounded-full md:text-2xl md:ps-5 bg-[#D9D9D9] font-bold text-[14px] px-3"
-          value={category}
-          onChange={handleCategoryChange}
-        >
-          {transactionCategory.map((item) => (
-            <option key={item.type} value={item.type}>
-              {item.type}
-            </option>
-          ))}
-        </select>
+              className="w-full rounded-[15px] h-[32px] md:h-[60px] md:rounded-full md:text-2xl md:ps-5 bg-[#D9D9D9] font-bold text-[14px] px-3"
+              value={category}
+              onChange={handleCategoryChange}
+            >
+              {transactionCategory.map((item) => (
+                <option key={item.type} value={item.type}>
+                  {item.type}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="overflow-y-auto h-[600px] md:h-[500px]">

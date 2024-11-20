@@ -40,14 +40,17 @@ const transactionSlice = createSlice({
       state.transactions = sortTransactionsByDate(state.transactions);
       saveToStorage("transactions-list", state.transactions);
       updateTotalBalance(state);
+
+      //update lại filteredtransaction 
       if (state.searchKeyword) {
         state.filteredTransactions = state.transactions.filter((transaction) =>
           transaction.description
             .toLowerCase()
             .includes(state.searchKeyword.toLowerCase()),
         );
-      } else {
-        state.filteredTransactions = [];
+      }      
+      else {
+        state.filteredTransactions = state.transactions;
       }
     },
 
@@ -72,7 +75,7 @@ const transactionSlice = createSlice({
             .includes(state.searchKeyword.toLowerCase()),
         );
       } else {
-        state.filteredTransactions = [];
+        state.filteredTransactions = state.transactions;
       }
     },
 
@@ -90,7 +93,7 @@ const transactionSlice = createSlice({
             .includes(state.searchKeyword.toLowerCase()),
         );
       } else {
-        state.filteredTransactions = [];
+        state.filteredTransactions = state.transactions;
       }
     },
 
