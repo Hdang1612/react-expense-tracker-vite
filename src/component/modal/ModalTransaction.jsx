@@ -11,13 +11,6 @@ import {
   updateTransaction,
   removeTransaction,
 } from "../../feature/transactionSlice.js";
-import { showSuccessToast, showErrorToast } from "../../utils/Toaste.jsx";
-import { v4 as uuidv4 } from "uuid";
-import { transactionTypes } from "../TransactionItem.jsx";
-import {
-  toggleModal,
-  resetTransactionData,
-} from "../../feature/modalSlice.js";
 
 const ModalExpense = () => {
   const transactionTypes = [
@@ -46,8 +39,12 @@ const ModalExpense = () => {
       setDate(transactionData.date || "");
       setCategory(transactionData.category || "Shopping");
       setDescription(transactionData.description || "");
-      setAmount(Math.abs(transactionData.amount) || "");
-      setIsExpense(transactionData.amount < 0);
+      setAmount(transactionData.amount || "");
+<<<<<<< HEAD
+      setIsExpense(transactionData.transactionType==="expense");
+=======
+      setIsExpense(transactionData.transactionType === "income" ? false : true);
+>>>>>>> bdeb2b754b67eed0ea800f42ce249379820072c3
       setReceipt(transactionData.receipt || null);
     } else {
       const today = new Date().toISOString().split("T")[0];
@@ -55,9 +52,60 @@ const ModalExpense = () => {
     }
   }, [transactionData]);
 
+<<<<<<< HEAD
+  const validateAmount = (amount) => {
+    if (isNaN(amount) || amount.trim() === "" || amount <= 0) {
+      return false;
+    }
+    return true;
+=======
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    if (/^[0-9\b]+$/.test(value)) {
+      setAmount(value);
+    }
+  };
+
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file.type.startsWith("image/")) {
+      showErrorToast("Chỉ cho phép upload tệp ảnh ");
+      setUploadError(true);
+      return;
+    }
+
+    try {
+      const fileBase64 = await convertToBase64(file);
+      setReceipt(fileBase64);
+      setUploadError(false);
+    } catch (error) {
+      setUploadError(true);
+      console.error("Có lỗi khi upload ảnh:", error);
+    }
+>>>>>>> bdeb2b754b67eed0ea800f42ce249379820072c3
+  };
+
   const handleSave = () => {
     if (!date || !category || !amount) {
       showErrorToast("Vui lòng nhập đầy đủ");
+      return;
+    }
+  
+    if (!validateAmount(amount)) {
+      showErrorToast("Vui lòng nhập chỉ nhập số dương");
+      return;
+    }
+
+    if (uploadError) {
+      showErrorToast("Vui lòng tải lên tệp ảnh hợp lệ");
       return;
     }
 
@@ -66,7 +114,11 @@ const ModalExpense = () => {
       date,
       category,
       description,
-      amount: isExpense ? -amount : +amount,
+<<<<<<< HEAD
+      amount:Number(amount),
+=======
+      amount,
+>>>>>>> bdeb2b754b67eed0ea800f42ce249379820072c3
       receipt,
       transactionType: isExpense ? "expense" : "income",
     };
