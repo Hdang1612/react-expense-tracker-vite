@@ -176,14 +176,15 @@ function TransactionPage() {
           </div>
           <div className="mb-5 flex md:flex-row  flex-col md:items-center items-start justify-start gap-5  ">
             <Search
-              className="md:w-1/3 w-full"
+              className="lg:w-1/3 w-full"
               onSearch={handleSearchDescription}
               placeholder="Input description ..."
               value={searchValue}
               onChange={handleInputChange}
             />
+            <div className="w-full">
             <select
-              className="md:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px] "
+              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px] "
               value={category}
               onChange={handleCategoryChange}
             >
@@ -195,7 +196,7 @@ function TransactionPage() {
               ))}
             </select>
             <select
-              className="md:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
+              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
               value={transactionType}
               onChange={handleTransactionTypeChange}
             >
@@ -204,7 +205,7 @@ function TransactionPage() {
               <option value="expense">Expense</option>
             </select>
             <select
-              className="md:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
+              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
               value={transactionAmount}
               onChange={handleAmountChange}
             >
@@ -215,6 +216,8 @@ function TransactionPage() {
               <option value="500000-1000000">500.000 - 1000.000</option>
               <option value="over1000000">Over 1.000.000</option>
             </select>
+
+            </div>
           </div>
 
           <div className="overflow-y-auto h-[520px] md:h-[480px]">
