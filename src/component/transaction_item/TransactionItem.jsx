@@ -1,16 +1,25 @@
 import { useState } from "react";
+
 import { useDispatch } from "react-redux";
+import { Modal } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 
 import { showSuccessToast } from "../../utils/Toaste";
-import { Modal } from "antd";
 import { removeTransaction } from "../../feature/transactionSlice";
 import { transactionTypes } from "../constants/transactionType";
-import { DownOutlined } from "@ant-design/icons";
 import { formatCurrency } from "../../utils/number";
-import "./styleDropdown.css";
 
-const ExpenseItem = ({ transaction, updateAction }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const ExpenseItem = ({
+  transaction,
+  updateAction,
+  openItemId,
+  setOpenItemId,
+}) => {
+  const isOpen = openItemId === transaction.id;
+
+  const handleToggleDropdown = () => {
+    setOpenItemId(isOpen ? null : transaction.id);
+  };
   const transactionType = transactionTypes.find(
     (type) => type.type === transaction.category,
   );
@@ -24,14 +33,11 @@ const ExpenseItem = ({ transaction, updateAction }) => {
         : "";
 
   const dispatch = useDispatch();
-  const handleToggleDropdown = () => {
-    setIsOpen(!isOpen);
-    console.log(isOpen)
-  };
 
   const handleDelete = () => {
     dispatch(removeTransaction(transaction.id));
     showSuccessToast("Xóa thành công");
+    if (isOpen) setOpenItemId(null);
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -46,67 +52,72 @@ const ExpenseItem = ({ transaction, updateAction }) => {
     <div>
       <div
         className={`flex flex-col justify-center p-2 rounded-2xl  shadow-lg mb-3  border-[#EEEFEF] border-[1px] ${borderColor}  border-r-[18px]`}
-        
       >
-        <div className="flex flex-row items-center cursor-pointer" onClick={handleToggleDropdown}>
         <div
-          className={`w-[47px] h-[47px] flex items-center justify-center rounded-full text-black bg-[#CFBBD4] text-[20px] md:w-[70px] md:h-[70px] md:text-[30px]  `}
+          className="flex flex-row items-center cursor-pointer"
+          onClick={handleToggleDropdown}
         >
-          {icon}
-        </div>
-        <div className="ml-3">
-          <p className="text-[16px] md:text-2xl font-regular text-[#000000]">
-            {transaction.category}
-          </p>
-          <p className="text-[12px] md:text-xl font-semibold text-[#AEABAB]">
-            {transaction.description}
-          </p>
-        </div>
-        <div
-          className={`ml-auto text-[16px] md:text-2xl font-semibold ${transaction.transactionType === "income" ? "text-green-500" : "text-red-500"} `}
-        >
-          {formatCurrency(transaction.amount)}
-        </div>
-        <div
-          className={`ml-2 md:mx-3 transition-transform duration-300 ${
-            isOpen ? "rotate-180" : "rotate-0"
-          }`}
-        >
-          <DownOutlined />
-        </div>
-
-        </div>
-      <div className={`dropdown-content ${isOpen ? "dropdown-open" : ""}`}>
-        <div className="flex mt-2 bg-transparent p-4 rounded-md shadow-lg w-full">
-          <div>
-            <p className="font-bold mb-2">{transaction.transactionType === "income" ? "Income Receipt" : "Expense Receipt"}</p>
-            {transaction.receipt ? (
-              <img
-                src={transaction.receipt}
-                alt="Receipt"
-                className="object-cover md:w-[200px] md:h-[200px] w-[160px] h-[160px] mb-3 cursor-pointer"
-                onClick={showImage}
-              />
-            ) : (
-              <p className="text-gray-500 text-sm">No receipt </p>
-            )}
+          <div
+            className={`w-[47px] h-[47px] flex items-center justify-center rounded-full text-black bg-[#CFBBD4] text-[20px] md:w-[70px] md:h-[70px] md:text-[30px]  `}
+          >
+            {icon}
           </div>
-          <div className="flex flex-col space-y-4 w-1/3  md:w-1/5 mt-4 ml-auto mt-[30px]">
-            <button
-              onClick={updateAction}
-              className="bg-[#EF8767] text-white px-4 py-2 rounded-md"
-            >
-              Update
-            </button>
-            <button
-              onClick={() => handleDelete()}
-              className="bg-[#CFBBD4] text-white px-4 py-2 rounded-md mx-0"
-            >
-              Delete
-            </button>
+          <div className="ml-3">
+            <p className="text-[16px] md:text-2xl font-regular text-[#000000]">
+              {transaction.category}
+            </p>
+            <p className="text-[12px] md:text-xl font-semibold text-[#AEABAB]">
+              {transaction.description}
+            </p>
+          </div>
+          <div
+            className={`ml-auto text-[16px] md:text-2xl font-semibold ${transaction.transactionType === "income" ? "text-green-500" : "text-red-500"} `}
+          >
+            {formatCurrency(transaction.amount)}
+          </div>
+          <div
+            className={`ml-2 md:mx-3 transition-transform duration-300 ${
+              isOpen ? "rotate-180" : "rotate-0"
+            }`}
+          >
+            <DownOutlined />
           </div>
         </div>
-      </div>
+        <div className={`dropdown-content ${isOpen ? "dropdown-open" : ""}`}>
+          <div className="flex mt-2 bg-transparent p-4 rounded-md shadow-lg w-full">
+            <div>
+              <p className="font-bold mb-2">
+                {transaction.transactionType === "income"
+                  ? "Income Receipt"
+                  : "Expense Receipt"}
+              </p>
+              {transaction.receipt ? (
+                <img
+                  src={transaction.receipt}
+                  alt="Receipt"
+                  className="object-cover md:w-[200px] md:h-[200px] w-[160px] h-[160px] mb-3 cursor-pointer"
+                  onClick={showImage}
+                />
+              ) : (
+                <p className="text-gray-500 text-sm">No receipt </p>
+              )}
+            </div>
+            <div className="flex flex-col space-y-4 w-1/3  md:w-1/5 mt-4 ml-auto mt-[30px]">
+              <button
+                onClick={updateAction}
+                className="bg-[#EF8767] text-white px-4 py-2 rounded-md"
+              >
+                Update
+              </button>
+              <button
+                onClick={() => handleDelete()}
+                className="bg-[#CFBBD4] text-white px-4 py-2 rounded-md mx-0"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       <Modal
         visible={isModalOpen}

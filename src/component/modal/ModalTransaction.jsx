@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-
+import { v4 as uuidv4 } from "uuid";
 import { Modal, Button, Upload } from "antd";
+
+import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
+import { transactionTypes } from "../constants/transactionType.jsx";
+import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 import {
   addTransaction,
   updateTransaction,
   removeTransaction,
 } from "../../feature/transactionSlice.js";
-import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
-import { v4 as uuidv4 } from "uuid";
-import { transactionTypes } from "../constants/transactionType.jsx";
-import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 
 const ModalExpense = () => {
   const dispatch = useDispatch();
@@ -40,11 +40,11 @@ const ModalExpense = () => {
     }
   }, [transactionData]);
 
-  const validateAmount = (amount) => {
-    if (isNaN(amount) || amount.trim() === "" || amount <= 0) {
-      return false;
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    if (/^[0-9\b]+$/.test(value)) {
+      setAmount(value);
     }
-    return true;
   };
 
   const convertToBase64 = (file) => {
@@ -76,10 +76,6 @@ const ModalExpense = () => {
   const handleSave = () => {
     if (!date || !category || !amount) {
       showErrorToast("Vui lòng nhập đầy đủ");
-      return;
-    }
-    if (!validateAmount(amount)) {
-      showErrorToast("Vui lòng nhập số dương");
       return;
     }
 
@@ -186,12 +182,12 @@ const ModalExpense = () => {
             className="w-full rounded-[15px] h-[32px] md:h-[60px] md:rounded-full md:text-2xl md:ps-5 bg-[#D9D9D9] font-bold text-[14px] px-3"
             placeholder="Amount"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={handleAmountChange}
           />
         </div>
         <div>
           <label className="text-sm font-semibold md-text-xl">
-            Expense Receipt Image
+            {isExpense ? "Expense upload receipt" : "Income upload receipt"}
           </label>
           <Upload
             beforeUpload={(file) => {

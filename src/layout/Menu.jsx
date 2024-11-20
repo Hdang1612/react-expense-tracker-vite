@@ -1,3 +1,6 @@
+import { useDispatch } from "react-redux";
+
+import { Link, useLocation } from "react-router-dom";
 import {
   BellOutlined,
   InfoCircleOutlined,
@@ -5,13 +8,11 @@ import {
   BarChartOutlined,
   HomeOutlined,
 } from "@ant-design/icons";
-import { Link, useLocation } from "react-router-dom";
 import {
   toggleModal,
   setModalTitle,
   setTransactionData,
 } from "../feature/modalSlice";
-import { useDispatch } from "react-redux";
 function Menu() {
   const dispatch = useDispatch();
   const location = useLocation();

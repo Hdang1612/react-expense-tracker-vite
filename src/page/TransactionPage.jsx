@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 
-import { ArrowRightOutlined, ArrowLeftOutlined } from "@ant-design/icons";
-import { setCurrentPage, setItemsPerPage } from "../feature/transactionSlice";
 import Header from "../layout/Header";
 import Menu from "../layout/Menu";
-import { TransactionListPagination } from "../component/TransactionList";
 import ModalExpense from "../component/modal/ModalTransaction";
+import { ArrowRightOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { setCurrentPage, setItemsPerPage } from "../feature/transactionSlice";
+import { TransactionListPagination } from "../component/TransactionList";
 import { toggleModal, resetTransactionData } from "../feature/modalSlice";
 
 function TransactionPage() {

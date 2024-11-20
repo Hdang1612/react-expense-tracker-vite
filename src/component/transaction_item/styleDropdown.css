@@ -6,7 +6,7 @@
 }
 
 .dropdown-content.dropdown-open {
-  max-height: 500px; 
+  max-height: 500px;
   opacity: 1;
 }
 

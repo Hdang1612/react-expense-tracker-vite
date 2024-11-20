@@ -1,10 +1,11 @@
 import { useState } from "react";
+
 import { useSelector } from "react-redux";
 
-import { DollarOutlined } from "@ant-design/icons";
 import Menu from "../layout/Menu";
-import { formatCurrency } from "../utils/number";
 import ModalExpense from "../component/modal/ModalTransaction";
+import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
+import { formatCurrency } from "../utils/number";
 import {
   TodayTransactionsList,
   WeeklyTransactionsList,
@@ -13,6 +14,11 @@ import {
 function HomePage() {
   const balance = useSelector((state) => state.transactions.totalBalance);
   const [filter, setFilter] = useState("weekly");
+  const [showBalance, setShowBalance] = useState(true);
+
+  const handleToggleBalance = () => {
+    setShowBalance(!showBalance);
+  };
 
   const handleFilterChange = (filterType) => {
     setFilter(filterType);
@@ -28,21 +34,23 @@ function HomePage() {
             <p className="font-sans font-normal text-[16px] text-start text-black md:text-2xl">
               Balance
             </p>
-            <div className="flex items-center text-[#42224A]">
-              <DollarOutlined className="text-xl mr-2" />
-              <span className="font-extrabold text-[28px] sm:text-[46px] ">
-                {balance !== null ? formatCurrency(balance) : "0.00"}
+            <div className="flex items-center text-[#42224A] ">
+              <span className="font-extrabold text-[28px] sm:text-[46px] mr-3">
+                {showBalance
+                  ? balance !== null
+                    ? formatCurrency(balance)
+                    : "0.00"
+                  : "**********"}
               </span>
+              <button onClick={handleToggleBalance} className="text-[#42224A] ">
+                {showBalance ? (
+                  <EyeInvisibleOutlined className="text-[20px] md:text-[32px]" />
+                ) : (
+                  <EyeOutlined className="text-[20px] md:text-[32px]" />
+                )}
+              </button>
             </div>
           </div>
-          {/* <div className='statistic-container w-full  h-[200px] flex gap-4 '>
-            <div className=' w-full block bg-gray-200 rounded-[10px] mt-4 md:w-1/3 '>
-            </div>
-            <div className='hidden md:block bg-gray-200 rounded-[10px] mt-4 md:w-1/3 '>
-            </div>
-            <div className='hidden md:block bg-gray-200 rounded-[10px] mt-4 md:w-1/3 '>
-            </div>
-          </div> */}
           <div>
             <div className="flex justify-between mt-4 gap-2 md:gap-5 ">
               <button
@@ -79,10 +87,7 @@ function HomePage() {
             </div>
           </div>
         </div>
-        <Menu
-          // onAddExpenseClick={handleOpenAddModal}
-          className="absolute bottom-0 left-0 w-full "
-        ></Menu>
+        <Menu className="absolute bottom-0 left-0 w-full "></Menu>
         {modalStatus.isShow && (
           <ModalExpense
             isVisible={modalStatus.isShow}
