@@ -1,20 +1,27 @@
 import { useEffect, useState } from "react";
-import { Modal, Button, Upload } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+
+import { v4 as uuidv4 } from "uuid";
+import { Modal, Button, Upload } from "antd";
+
+import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
+import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 import {
   addTransaction,
   updateTransaction,
   removeTransaction,
 } from "../../feature/transactionSlice.js";
-import { showSuccessToast, showErrorToast } from "../../utils/Toaste.jsx";
-import { v4 as uuidv4 } from "uuid";
-import { transactionTypes } from "../TransactionItem.jsx";
-import {
-  toggleModal,
-  resetTransactionData,
-} from "../../feature/modalSlice.js";
 
 const ModalExpense = () => {
+  const transactionTypes = [
+    { type: "Shopping" },
+    { type: "Bill" },
+    { type: "Salary" },
+    { type: "Food" },
+    { type: "Entertainment" },
+    { type: "Unknown" },
+  ];
+
   const dispatch = useDispatch();
   const { isShow, title, transactionData } = useSelector(
     (state) => state.modal,
@@ -26,14 +33,14 @@ const ModalExpense = () => {
   const [amount, setAmount] = useState("");
   const [receipt, setReceipt] = useState(null);
   const [isExpense, setIsExpense] = useState(true);
-
+  const [uploadError, setUploadError] = useState(false);
   useEffect(() => {
     if (transactionData) {
       setDate(transactionData.date || "");
       setCategory(transactionData.category || "Shopping");
       setDescription(transactionData.description || "");
-      setAmount(Math.abs(transactionData.amount) || "");
-      setIsExpense(transactionData.amount < 0);
+      setAmount(transactionData.amount || "");
+      setIsExpense(transactionData.transactionType === "income" ? false : true);
       setReceipt(transactionData.receipt || null);
     } else {
       const today = new Date().toISOString().split("T")[0];
@@ -41,9 +48,47 @@ const ModalExpense = () => {
     }
   }, [transactionData]);
 
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    if (/^[0-9\b]+$/.test(value)) {
+      setAmount(value);
+    }
+  };
+
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file.type.startsWith("image/")) {
+      showErrorToast("Chỉ cho phép upload tệp ảnh ");
+      setUploadError(true);
+      return;
+    }
+
+    try {
+      const fileBase64 = await convertToBase64(file);
+      setReceipt(fileBase64);
+      setUploadError(false);
+    } catch (error) {
+      setUploadError(true);
+      console.error("Có lỗi khi upload ảnh:", error);
+    }
+  };
+
   const handleSave = () => {
     if (!date || !category || !amount) {
       showErrorToast("Vui lòng nhập đầy đủ");
+      return;
+    }
+
+    if (uploadError) {
+      showErrorToast("Vui lòng tải lên tệp ảnh hợp lệ");
       return;
     }
 
@@ -52,7 +97,7 @@ const ModalExpense = () => {
       date,
       category,
       description,
-      amount: isExpense ? -amount : +amount,
+      amount,
       receipt,
       transactionType: isExpense ? "expense" : "income",
     };
@@ -65,7 +110,7 @@ const ModalExpense = () => {
       showSuccessToast("Thêm thành công");
     }
 
-    dispatch(toggleModal(false)); // Đóng modal
+    dispatch(toggleModal(false));
     dispatch(resetTransactionData());
   };
 
@@ -142,25 +187,23 @@ const ModalExpense = () => {
         </div>
         <div>
           <input
-            type="number"
             className="w-full rounded-[15px] h-[32px] md:h-[60px] md:rounded-full md:text-2xl md:ps-5 bg-[#D9D9D9] font-bold text-[14px] px-3"
             placeholder="Amount"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={handleAmountChange}
           />
         </div>
         <div>
           <label className="text-sm font-semibold md-text-xl">
-            Expense Receipt Image
+            {isExpense ? "Expense upload receipt" : "Income upload receipt"}
           </label>
           <Upload
             beforeUpload={(file) => {
-              const fileUrl = URL.createObjectURL(file);
-              setReceipt(fileUrl);
+              handleFileUpload(file);
               return false;
             }}
           >
-            <Button>Upload Receipt</Button>
+            <Button className="ms-4">Upload Receipt</Button>
           </Upload>
         </div>
         <div className="flex justify-between mt-4">
