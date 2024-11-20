@@ -1,15 +1,18 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
 
 import { Empty } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+
+import ExpenseItem from "./transaction_item/TransactionItem";
+import { setTransactionData, toggleModal } from "../feature/modalSlice";
 import {
   selectTodayTransactions,
   selectMonthlyTransactions,
   selectWeeklyTransactions,
 } from "../feature/transactionSlice";
-import { setTransactionData, toggleModal } from "../feature/modalSlice";
-import ExpenseItem from "./transactionItem/TransactionItem";
 
 export const TransactionListPagination = ({ transactions }) => {
+  const [openItemId, setOpenItemId] = useState(null);
   const dispatch = useDispatch();
   const handleItemClick = (transaction) => {
     dispatch(setTransactionData(transaction));
@@ -23,6 +26,8 @@ export const TransactionListPagination = ({ transactions }) => {
             key={transaction.id}
             transaction={transaction}
             updateAction={() => handleItemClick(transaction)}
+            openItemId={openItemId}
+            setOpenItemId={setOpenItemId}
           />
         ))
       ) : (
@@ -33,6 +38,7 @@ export const TransactionListPagination = ({ transactions }) => {
 };
 export const TransactionList = ({ transactions }) => {
   const dispatch = useDispatch();
+  const [openItemId, setOpenItemId] = useState(null);
   const handleItemClick = (transaction) => {
     dispatch(setTransactionData(transaction));
     dispatch(toggleModal(true));
@@ -52,6 +58,8 @@ export const TransactionList = ({ transactions }) => {
                     key={transaction.id}
                     transaction={transaction}
                     updateAction={() => handleItemClick(transaction)}
+                    openItemId={openItemId}
+                    setOpenItemId={setOpenItemId}
                   />
                 ))}
               </div>
@@ -64,6 +72,8 @@ export const TransactionList = ({ transactions }) => {
                   key={group.id}
                   transaction={group}
                   updateAction={() => handleItemClick(group)}
+                  openItemId={openItemId}
+                  setOpenItemId={setOpenItemId}
                 />
               </div>
             );

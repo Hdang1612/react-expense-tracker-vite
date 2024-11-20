@@ -4,11 +4,11 @@ import { sortTransactionsByDate, formatDate } from "../utils/date.js";
 const calculateInitialBalances = (transactions) => {
   const income = transactions
     .filter((transaction) => transaction.transactionType === "income")
-    .reduce((acc, transaction) => acc + transaction.amount, 0);
+    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
 
   const expense = transactions
     .filter((transaction) => transaction.transactionType === "expense")
-    .reduce((acc, transaction) => acc + transaction.amount, 0);
+    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
 
   return {
     totalIncome: income,
@@ -90,10 +90,10 @@ const updateTotalBalance = (state) => {
   const transactions = [...state.transactions];
   const income = transactions
     .filter((transaction) => transaction.transactionType === "income")
-    .reduce((acc, transaction) => acc + transaction.amount, 0);
+    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
   const expense = transactions
     .filter((transaction) => transaction.transactionType === "expense")
-    .reduce((acc, transaction) => acc + transaction.amount, 0);
+    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
   state.totalIncome = income;
   state.totalExpense = expense;
   state.totalBalance = income - expense;

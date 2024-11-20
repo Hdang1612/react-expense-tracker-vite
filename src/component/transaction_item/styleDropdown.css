@@ -1,0 +1,15 @@
+.dropdown-content {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.dropdown-content.dropdown-open {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.dropdown-arrow {
+  transition: transform 0.3s ease-in-out;
+}
