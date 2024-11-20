@@ -19,7 +19,7 @@ export const TransactionListPagination = ({ transactions }) => {
     dispatch(toggleModal(true));
   };
   return (
-    <div>
+    <div >
       {transactions.length > 0 ? (
         transactions.map((transaction) => (
           <ExpenseItem
@@ -31,7 +31,7 @@ export const TransactionListPagination = ({ transactions }) => {
           />
         ))
       ) : (
-        <Empty description="No transaction " />
+        <Empty className="mt-[80px]" description="No transaction " />
       )}
     </div>
   );

@@ -41,6 +41,7 @@ function TransactionPage() {
           searchKeyword: "",
         }),
       );
+      console.log(category)
     } else {
       const filtered = transactions.filter((transaction) =>
         transaction.description.toLowerCase().includes(value.toLowerCase()),
@@ -51,21 +52,21 @@ function TransactionPage() {
           searchKeyword: value,
         }),
       );
+      console.log(category)
     }
   };
 
   const handleCategoryChange = (e) => {
     const selectedCategory = e.target.value;
     setCategory(selectedCategory);
-
-    const filteredByCategory = transactions.filter((transaction) =>
-      selectedCategory ? transaction.category === selectedCategory : true,
-    );
+    const filteredByCategory = selectedCategory === "all"
+    ? transactions 
+    : transactions.filter((transaction) => transaction.category === selectedCategory);
 
     const filtered = filteredByCategory.filter((transaction) =>
       transaction.description.toLowerCase().includes(searchValue.toLowerCase()),
     );
-
+    console.log("test",filteredByCategory)
     dispatch(
       setFilteredTransactions({
         filteredTransactions: filtered,
@@ -79,7 +80,7 @@ function TransactionPage() {
   };
 
   const totalPages =
-    filteredTransactions && filteredTransactions.length > 0
+    filteredTransactions && filteredTransactions.length >= 0
       ? Math.ceil(filteredTransactions.length / itemsPerPage)
       : Math.ceil(transactions.length / itemsPerPage);
   const handlePageChange = (page) => {
@@ -135,14 +136,13 @@ function TransactionPage() {
               <option value={10}>10</option>
             </select>
           </div>
-          <div className="mb-5 flex">
+          <div className="mb-5 flex md:flex-row  flex-col md:items-center items-start justify-start gap-5  ">
             <Search
-              className=""
+              className="md:w-1/3 w-full"
               onSearch={handleSearchDescription}
               placeholder="Input description ..."
               value={searchValue}
               onChange={handleInputChange}
-              style={{ width: 400 }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleSearchDescription(e.target.value);
@@ -150,10 +150,11 @@ function TransactionPage() {
               }}
             />
             <select
-              className="w-full rounded-[15px] h-[32px] md:h-[60px] md:rounded-full md:text-2xl md:ps-5 bg-[#D9D9D9] font-bold text-[14px] px-3"
+              className="md:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px] "
               value={category}
               onChange={handleCategoryChange}
             >
+              <option value="all">All</option> 
               {transactionCategory.map((item) => (
                 <option key={item.type} value={item.type}>
                   {item.type}
@@ -162,7 +163,7 @@ function TransactionPage() {
             </select>
           </div>
 
-          <div className="overflow-y-auto h-[600px] md:h-[500px]">
+          <div className="overflow-y-auto h-[520px] md:h-[480px]">
             <TransactionListPagination transactions={paginatedTransactions} />
           </div>
           <div className="mt-6 flex justify-center m-0  space-x-2">
