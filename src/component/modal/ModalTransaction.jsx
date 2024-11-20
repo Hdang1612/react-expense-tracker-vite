@@ -40,11 +40,7 @@ const ModalExpense = () => {
       setCategory(transactionData.category || "Shopping");
       setDescription(transactionData.description || "");
       setAmount(transactionData.amount || "");
-<<<<<<< HEAD
-      setIsExpense(transactionData.transactionType==="expense");
-=======
       setIsExpense(transactionData.transactionType === "income" ? false : true);
->>>>>>> bdeb2b754b67eed0ea800f42ce249379820072c3
       setReceipt(transactionData.receipt || null);
     } else {
       const today = new Date().toISOString().split("T")[0];
@@ -52,13 +48,6 @@ const ModalExpense = () => {
     }
   }, [transactionData]);
 
-<<<<<<< HEAD
-  const validateAmount = (amount) => {
-    if (isNaN(amount) || amount.trim() === "" || amount <= 0) {
-      return false;
-    }
-    return true;
-=======
   const handleAmountChange = (e) => {
     const value = e.target.value;
     if (/^[0-9\b]+$/.test(value)) {
@@ -90,7 +79,6 @@ const ModalExpense = () => {
       setUploadError(true);
       console.error("Có lỗi khi upload ảnh:", error);
     }
->>>>>>> bdeb2b754b67eed0ea800f42ce249379820072c3
   };
 
   const handleSave = () => {
@@ -114,11 +102,7 @@ const ModalExpense = () => {
       date,
       category,
       description,
-<<<<<<< HEAD
-      amount:Number(amount),
-=======
       amount,
->>>>>>> bdeb2b754b67eed0ea800f42ce249379820072c3
       receipt,
       transactionType: isExpense ? "expense" : "income",
     };
