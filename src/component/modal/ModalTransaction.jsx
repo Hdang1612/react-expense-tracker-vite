@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 import { Modal, Button, Upload } from "antd";
 
 import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
-import { transactionTypes } from "../constants/transactionType.jsx";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 import {
   addTransaction,
@@ -14,6 +13,15 @@ import {
 } from "../../feature/transactionSlice.js";
 
 const ModalExpense = () => {
+  const transactionTypes = [
+    { type: "Shopping" },
+    { type: "Bill" },
+    { type: "Salary" },
+    { type: "Food" },
+    { type: "Entertainment" },
+    { type: "Unknown" },
+  ];
+
   const dispatch = useDispatch();
   const { isShow, title, transactionData } = useSelector(
     (state) => state.modal,

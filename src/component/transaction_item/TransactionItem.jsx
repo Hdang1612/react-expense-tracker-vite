@@ -2,11 +2,17 @@ import { useState } from "react";
 
 import { useDispatch } from "react-redux";
 import { Modal } from "antd";
-import { DownOutlined } from "@ant-design/icons";
+import {
+  DownOutlined,
+  ShoppingCartOutlined,
+  FileTextOutlined,
+  DollarCircleOutlined,
+  GiftOutlined,
+  FileUnknownOutlined,
+} from "@ant-design/icons";
 
 import { showSuccessToast } from "../../utils/Toaste";
 import { removeTransaction } from "../../feature/transactionSlice";
-import { transactionTypes } from "../constants/transactionType";
 import { formatCurrency } from "../../utils/number";
 
 const ExpenseItem = ({
@@ -15,15 +21,21 @@ const ExpenseItem = ({
   openItemId,
   setOpenItemId,
 }) => {
+  const typeIcon = {
+    Shopping: <ShoppingCartOutlined />,
+    Bill: <FileTextOutlined />,
+    Salary: <DollarCircleOutlined />,
+    Food: <ShoppingCartOutlined />,
+    Entertainment: <GiftOutlined />,
+    Unknown: <FileUnknownOutlined />,
+  };
   const isOpen = openItemId === transaction.id;
 
   const handleToggleDropdown = () => {
     setOpenItemId(isOpen ? null : transaction.id);
   };
-  const transactionType = transactionTypes.find(
-    (type) => type.type === transaction.category,
-  );
-  const icon = transactionType ? transactionType.icon : null;
+
+  const icon = transaction.category ? typeIcon[transaction.category] : null;
 
   const borderColor =
     transaction.transactionType === "income"
