@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 
 import Header from "../layout/Header";
 import Menu from "../layout/Menu";
@@ -28,7 +28,22 @@ function TransactionPage() {
   } = useSelector((state) => state.transactions);
 
   const [searchValue, setSearchValue] = useState(searchKeyword);
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("all");
+
+  useEffect(() => {
+    const filtered = transactions.filter((transaction) =>
+      transaction.description.toLowerCase().includes(searchValue.toLowerCase())
+    );
+    dispatch(
+      setFilteredTransactions({
+        filteredTransactions: filtered,
+        searchKeyword: searchValue,
+      })
+    );
+    setCategory("all"); 
+    dispatch(setCurrentPage(1)); 
+  }, [dispatch, transactions, searchValue]);
+
   const handleInputChange = (e) => {
     setSearchValue(e.target.value);
   };
@@ -52,7 +67,7 @@ function TransactionPage() {
           searchKeyword: value,
         }),
       );
-      console.log(category)
+      dispatch(setCurrentPage(1))
     }
   };
 
@@ -66,13 +81,13 @@ function TransactionPage() {
     const filtered = filteredByCategory.filter((transaction) =>
       transaction.description.toLowerCase().includes(searchValue.toLowerCase()),
     );
-    console.log("test",filteredByCategory)
     dispatch(
       setFilteredTransactions({
         filteredTransactions: filtered,
         searchKeyword: searchValue,
       }),
     );
+    dispatch(setCurrentPage(1))
   };
   const handleCloseModal = () => {
     dispatch(toggleModal(false));
@@ -143,11 +158,6 @@ function TransactionPage() {
               placeholder="Input description ..."
               value={searchValue}
               onChange={handleInputChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSearchDescription(e.target.value);
-                }
-              }}
             />
             <select
               className="md:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px] "

@@ -88,7 +88,6 @@ export const TransactionList = ({ transactions }) => {
 
 export const TodayTransactionsList = () => {
   const transactions = useSelector(selectTodayTransactions);
-  console.log(transactions);
   return <TransactionList transactions={transactions} />;
 };
 
