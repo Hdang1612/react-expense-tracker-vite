@@ -29,6 +29,7 @@ function TransactionPage() {
 
   const [searchValue, setSearchValue] = useState(searchKeyword);
   const [category, setCategory] = useState("all");
+  const [transactionType, setTransactionType] = useState("all");
 
   useEffect(() => {
     const filtered = transactions.filter((transaction) =>
