@@ -41,15 +41,14 @@ const transactionSlice = createSlice({
       saveToStorage("transactions-list", state.transactions);
       updateTotalBalance(state);
 
-      //update lại filteredtransaction 
+      //update lại filteredtransaction
       if (state.searchKeyword) {
         state.filteredTransactions = state.transactions.filter((transaction) =>
           transaction.description
             .toLowerCase()
             .includes(state.searchKeyword.toLowerCase()),
         );
-      }      
-      else {
+      } else {
         state.filteredTransactions = state.transactions;
       }
     },

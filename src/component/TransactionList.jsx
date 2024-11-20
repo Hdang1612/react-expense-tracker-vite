@@ -19,7 +19,7 @@ export const TransactionListPagination = ({ transactions }) => {
     dispatch(toggleModal(true));
   };
   return (
-    <div >
+    <div>
       {transactions.length > 0 ? (
         transactions.map((transaction) => (
           <ExpenseItem
