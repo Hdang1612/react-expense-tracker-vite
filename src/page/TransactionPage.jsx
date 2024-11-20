@@ -5,36 +5,81 @@ import Header from "../layout/Header";
 import Menu from "../layout/Menu";
 import ModalExpense from "../component/modal/ModalTransaction";
 import { ArrowRightOutlined, ArrowLeftOutlined } from "@ant-design/icons";
-import { Input } from 'antd';
-import { setCurrentPage, setItemsPerPage,setFilteredTransactions } from "../feature/transactionSlice";
+import { Input } from "antd";
+import {
+  setCurrentPage,
+  setItemsPerPage,
+  setFilteredTransactions,
+} from "../feature/transactionSlice";
 import { TransactionListPagination } from "../component/TransactionList";
 import { toggleModal, resetTransactionData } from "../feature/modalSlice";
+import { transactionCategory } from "../component/constants/constant";
 
 function TransactionPage() {
   const dispatch = useDispatch();
   const { Search } = Input;
   const modalStatus = useSelector((state) => state.modal);
-  const { currentPage, itemsPerPage, transactions,filteredTransactions ,searchKeyword } = useSelector(
-    (state) => state.transactions,
-  );
+  const {
+    currentPage,
+    itemsPerPage,
+    transactions,
+    filteredTransactions,
+    searchKeyword,
+  } = useSelector((state) => state.transactions);
 
   const [searchValue, setSearchValue] = useState(searchKeyword);
+  const [category, setCategory] = useState("");
   const handleInputChange = (e) => {
-    setSearchValue(e.target.value); 
+    setSearchValue(e.target.value);
   };
 
   const handleSearchDescription = (value) => {
     if (value.trim() === "") {
-      dispatch(setFilteredTransactions({ filteredTransactions: transactions, searchKeyword: "" }));
+      dispatch(
+        setFilteredTransactions({
+          filteredTransactions: transactions,
+          searchKeyword: "",
+        }),
+      );
     } else {
       const filtered = transactions.filter((transaction) =>
-        transaction.description.toLowerCase().includes(value.toLowerCase())
+        transaction.description.toLowerCase().includes(value.toLowerCase()),
       );
-      dispatch(setFilteredTransactions({ filteredTransactions: filtered, searchKeyword: value }));
+      dispatch(
+        setFilteredTransactions({
+          filteredTransactions: filtered,
+          searchKeyword: value,
+        }),
+      );
     }
   };
-  
-  const totalPages = filteredTransactions.length > 0   ? Math.ceil(filteredTransactions.length / itemsPerPage) : Math.ceil(transactions.length / itemsPerPage);
+
+  const handleCategoryChange = (e) => {
+    const selectedCategory = e.target.value;
+    setCategory(selectedCategory);
+    
+    // Lọc các giao dịch theo category
+    const filteredByCategory = transactions.filter((transaction) =>
+      selectedCategory ? transaction.category === selectedCategory : true
+    );
+
+    // Lọc theo description và category
+    const filtered = filteredByCategory.filter((transaction) =>
+      transaction.description.toLowerCase().includes(searchValue.toLowerCase())
+    );
+
+    dispatch(
+      setFilteredTransactions({
+        filteredTransactions: filtered,
+        searchKeyword: searchValue,
+      })
+    );
+  };
+
+  const totalPages =
+    filteredTransactions.length  > 0 && filteredTransactions
+      ? Math.ceil(filteredTransactions.length / itemsPerPage)
+      : Math.ceil(transactions.length / itemsPerPage);
   const handlePageChange = (page) => {
     dispatch(setCurrentPage(page));
   };
@@ -43,7 +88,9 @@ function TransactionPage() {
   };
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = (filteredTransactions.length  > 0   ? filteredTransactions: transactions ).slice(startIndex, endIndex);
+  const paginatedTransactions = (
+    filteredTransactions.length > 0 ? filteredTransactions : transactions
+  ).slice(startIndex, endIndex);
 
   const handleCloseModal = () => {
     dispatch(toggleModal(false));
@@ -86,11 +133,30 @@ function TransactionPage() {
             </select>
           </div>
           <div className="mb-5">
-          <Search className="" onSearch={handleSearchDescription} placeholder="Input description ..." value={searchValue} onChange={handleInputChange}  style={{ width: 400 }}  onKeyDown={(e) => {
-    if (e.key === 'Enter') { 
-      handleSearchDescription(e.target.value);  
-    }
-  }}/>
+            <Search
+              className=""
+              onSearch={handleSearchDescription}
+              placeholder="Input description ..."
+              value={searchValue}
+              onChange={handleInputChange}
+              style={{ width: 400 }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSearchDescription(e.target.value);
+                }
+              }}
+            />
+            <select
+          className="w-full rounded-[15px] h-[32px] md:h-[60px] md:rounded-full md:text-2xl md:ps-5 bg-[#D9D9D9] font-bold text-[14px] px-3"
+          value={category}
+          onChange={handleCategoryChange}
+        >
+          {transactionCategory.map((item) => (
+            <option key={item.type} value={item.type}>
+              {item.type}
+            </option>
+          ))}
+        </select>
           </div>
 
           <div className="overflow-y-auto h-[600px] md:h-[500px]">

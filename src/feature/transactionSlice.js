@@ -24,7 +24,7 @@ const initialState = {
   transactions: persistedTransactions,
   ...initialBalances,
   transactionsList: [],
-  filteredTransaction:[],
+  filteredTransaction: [],
   searchKeyword: "",
   paginatedTransactions: [],
   currentPage: 1,
@@ -44,7 +44,7 @@ const transactionSlice = createSlice({
         state.filteredTransactions = state.transactions.filter((transaction) =>
           transaction.description
             .toLowerCase()
-            .includes(state.searchKeyword.toLowerCase())
+            .includes(state.searchKeyword.toLowerCase()),
         );
       } else {
         state.filteredTransactions = [];
@@ -69,7 +69,7 @@ const transactionSlice = createSlice({
         state.filteredTransactions = state.transactions.filter((transaction) =>
           transaction.description
             .toLowerCase()
-            .includes(state.searchKeyword.toLowerCase())
+            .includes(state.searchKeyword.toLowerCase()),
         );
       } else {
         state.filteredTransactions = [];
@@ -87,7 +87,7 @@ const transactionSlice = createSlice({
         state.filteredTransactions = state.transactions.filter((transaction) =>
           transaction.description
             .toLowerCase()
-            .includes(state.searchKeyword.toLowerCase())
+            .includes(state.searchKeyword.toLowerCase()),
         );
       } else {
         state.filteredTransactions = [];
@@ -114,9 +114,8 @@ const transactionSlice = createSlice({
     },
     setFilteredTransactions(state, action) {
       state.filteredTransactions = action.payload.filteredTransactions;
-      state.searchKeyword = action.payload.searchKeyword; 
+      state.searchKeyword = action.payload.searchKeyword;
     },
-
   },
 });
 
@@ -220,6 +219,6 @@ export const {
   removeTransaction,
   setCurrentPage,
   setItemsPerPage,
-  setFilteredTransactions
+  setFilteredTransactions,
 } = transactionSlice.actions;
 export default transactionSlice.reducer;
