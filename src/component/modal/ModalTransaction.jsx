@@ -86,11 +86,6 @@ const ModalExpense = () => {
       showErrorToast("Vui lòng nhập đầy đủ");
       return;
     }
-  
-    if (!validateAmount(amount)) {
-      showErrorToast("Vui lòng nhập chỉ nhập số dương");
-      return;
-    }
 
     if (uploadError) {
       showErrorToast("Vui lòng tải lên tệp ảnh hợp lệ");
