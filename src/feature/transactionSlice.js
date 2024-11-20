@@ -24,6 +24,8 @@ const initialState = {
   transactions: persistedTransactions,
   ...initialBalances,
   transactionsList: [],
+  filteredTransaction:[],
+  searchKeyword: "",
   paginatedTransactions: [],
   currentPage: 1,
   itemsPerPage: 5,
@@ -38,6 +40,15 @@ const transactionSlice = createSlice({
       state.transactions = sortTransactionsByDate(state.transactions);
       saveToStorage("transactions-list", state.transactions);
       updateTotalBalance(state);
+      if (state.searchKeyword) {
+        state.filteredTransactions = state.transactions.filter((transaction) =>
+          transaction.description
+            .toLowerCase()
+            .includes(state.searchKeyword.toLowerCase())
+        );
+      } else {
+        state.filteredTransactions = [];
+      }
     },
 
     updateTransaction: (state, action) => {
@@ -54,6 +65,15 @@ const transactionSlice = createSlice({
         saveToStorage("transactions-list", state.transactions);
         updateTotalBalance(state);
       }
+      if (state.searchKeyword) {
+        state.filteredTransactions = state.transactions.filter((transaction) =>
+          transaction.description
+            .toLowerCase()
+            .includes(state.searchKeyword.toLowerCase())
+        );
+      } else {
+        state.filteredTransactions = [];
+      }
     },
 
     removeTransaction: (state, action) => {
@@ -63,6 +83,15 @@ const transactionSlice = createSlice({
       state.transactions = sortTransactionsByDate(state.transactions);
       saveToStorage("transactions-list", state.transactions);
       updateTotalBalance(state);
+      if (state.searchKeyword) {
+        state.filteredTransactions = state.transactions.filter((transaction) =>
+          transaction.description
+            .toLowerCase()
+            .includes(state.searchKeyword.toLowerCase())
+        );
+      } else {
+        state.filteredTransactions = [];
+      }
     },
 
     setCurrentPage: (state, action) => {
@@ -83,6 +112,11 @@ const transactionSlice = createSlice({
         startIndex + state.itemsPerPage,
       );
     },
+    setFilteredTransactions(state, action) {
+      state.filteredTransactions = action.payload.filteredTransactions;
+      state.searchKeyword = action.payload.searchKeyword; 
+    },
+
   },
 });
 
@@ -186,5 +220,6 @@ export const {
   removeTransaction,
   setCurrentPage,
   setItemsPerPage,
+  setFilteredTransactions
 } = transactionSlice.actions;
 export default transactionSlice.reducer;

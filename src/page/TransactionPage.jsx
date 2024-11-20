@@ -1,30 +1,49 @@
 import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
 
 import Header from "../layout/Header";
 import Menu from "../layout/Menu";
 import ModalExpense from "../component/modal/ModalTransaction";
 import { ArrowRightOutlined, ArrowLeftOutlined } from "@ant-design/icons";
-import { setCurrentPage, setItemsPerPage } from "../feature/transactionSlice";
+import { Input } from 'antd';
+import { setCurrentPage, setItemsPerPage,setFilteredTransactions } from "../feature/transactionSlice";
 import { TransactionListPagination } from "../component/TransactionList";
 import { toggleModal, resetTransactionData } from "../feature/modalSlice";
 
 function TransactionPage() {
   const dispatch = useDispatch();
+  const { Search } = Input;
   const modalStatus = useSelector((state) => state.modal);
-  const { currentPage, itemsPerPage, transactions } = useSelector(
+  const { currentPage, itemsPerPage, transactions,filteredTransactions ,searchKeyword } = useSelector(
     (state) => state.transactions,
   );
-  const totalPages = Math.ceil(transactions.length / itemsPerPage);
+
+  const [searchValue, setSearchValue] = useState(searchKeyword);
+  const handleInputChange = (e) => {
+    setSearchValue(e.target.value); 
+  };
+
+  const handleSearchDescription = (value) => {
+    if (value.trim() === "") {
+      dispatch(setFilteredTransactions({ filteredTransactions: transactions, searchKeyword: "" }));
+    } else {
+      const filtered = transactions.filter((transaction) =>
+        transaction.description.toLowerCase().includes(value.toLowerCase())
+      );
+      dispatch(setFilteredTransactions({ filteredTransactions: filtered, searchKeyword: value }));
+    }
+  };
+  
+  const totalPages = filteredTransactions.length > 0   ? Math.ceil(filteredTransactions.length / itemsPerPage) : Math.ceil(transactions.length / itemsPerPage);
   const handlePageChange = (page) => {
     dispatch(setCurrentPage(page));
   };
-
   const handleItemsPerPageChange = (e) => {
     dispatch(setItemsPerPage(Number(e.target.value)));
   };
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = transactions.slice(startIndex, endIndex);
+  const paginatedTransactions = (filteredTransactions.length  > 0   ? filteredTransactions: transactions ).slice(startIndex, endIndex);
 
   const handleCloseModal = () => {
     dispatch(toggleModal(false));
@@ -65,6 +84,13 @@ function TransactionPage() {
               <option value={5}>5</option>
               <option value={10}>10</option>
             </select>
+          </div>
+          <div className="mb-5">
+          <Search className="" onSearch={handleSearchDescription} placeholder="Input description ..." value={searchValue} onChange={handleInputChange}  style={{ width: 400 }}  onKeyDown={(e) => {
+    if (e.key === 'Enter') { 
+      handleSearchDescription(e.target.value);  
+    }
+  }}/>
           </div>
 
           <div className="overflow-y-auto h-[600px] md:h-[500px]">
