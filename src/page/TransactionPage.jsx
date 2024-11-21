@@ -173,17 +173,17 @@ function TransactionPage() {
               <option value={10}>10</option>
             </select>
           </div>
-          <div className="mb-5 flex md:flex-row  flex-col md:items-center items-start justify-start gap-5  ">
+          <div className="mb-5 flex lg:flex-row  flex-col lg:items-center items-start justify-start gap-5  ">
             <Search
-              className="lg:w-1/3 w-full"
+              className="lg:w-min-[400px] lg:w-1/3 w-full"
               onSearch={handleSearchDescription}
               placeholder="Input description ..."
               value={searchValue}
               onChange={handleInputChange}
-            />
-            <div className="w-full">
+            /> 
+            <div className="w-full flex gap-3 ">
             <select
-              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px] "
+              className=" lg:w-1/4  w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-[16px] md:ps-5 bg-transparent font-semibold text-[12px] px-3 border-[1px] "
               value={category}
               onChange={handleCategoryChange}
             >
@@ -195,7 +195,7 @@ function TransactionPage() {
               ))}
             </select>
             <select
-              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
+              className=" lg:w-1/4  w-1/3 rounded-[15px]  h-[32px] md:h-[40px] md:rounded-full md:text-[16px] md:ps-5 bg-transparent font-semibold text-[12px] px-3 border-[1px]"
               value={transactionType}
               onChange={handleTransactionTypeChange}
             >
@@ -204,7 +204,7 @@ function TransactionPage() {
               <option value="expense">Expense</option>
             </select>
             <select
-              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
+              className=" lg:w-1/4  w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-[16px] md:ps-5 bg-transparent font-semibold text-[12px] px-3 border-[1px]"
               value={transactionAmount}
               onChange={handleAmountChange}
             >

@@ -42,7 +42,7 @@ const ModalExpense = () => {
 
   const handleAmountChange = (e) => {
     const value = e.target.value;
-    if (/^[0-9\b]+$/.test(value)) {
+    if (value === "" || /^[0-9]+$/.test(value)) {
       setAmount(value);
     }
   };
