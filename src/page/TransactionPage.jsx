@@ -1,35 +1,142 @@
 import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from "react";
 
 import Header from "../layout/Header";
 import Menu from "../layout/Menu";
 import ModalExpense from "../component/modal/ModalTransaction";
 import { ArrowRightOutlined, ArrowLeftOutlined } from "@ant-design/icons";
-import { setCurrentPage, setItemsPerPage } from "../feature/transactionSlice";
+import { Input } from "antd";
+import {
+  setCurrentPage,
+  setItemsPerPage,
+  setFilteredTransactions,
+} from "../feature/transactionSlice";
 import { TransactionListPagination } from "../component/TransactionList";
 import { toggleModal, resetTransactionData } from "../feature/modalSlice";
+import { transactionCategory } from "../component/constants/constant";
 
 function TransactionPage() {
   const dispatch = useDispatch();
+  const { Search } = Input;
   const modalStatus = useSelector((state) => state.modal);
-  const { currentPage, itemsPerPage, transactions } = useSelector(
-    (state) => state.transactions,
-  );
-  const totalPages = Math.ceil(transactions.length / itemsPerPage);
-  const handlePageChange = (page) => {
-    dispatch(setCurrentPage(page));
+  const {
+    currentPage,
+    itemsPerPage,
+    transactions,
+    filteredTransactions,
+    searchKeyword,
+  } = useSelector((state) => state.transactions);
+
+  const [searchValue, setSearchValue] = useState(searchKeyword);
+  const [category, setCategory] = useState("all");
+  const [transactionType, setTransactionType] = useState("all");
+  const [transactionAmount, setTransactionAmount] = useState("all");
+
+  useEffect(() => {
+    const filtered = transactions.filter((transaction) => {
+      const isCategoryMatch =
+        category === "all" || transaction.category === category;
+      const isTypeMatch =
+        transactionType === "all" ||
+        transaction.transactionType === transactionType;
+      const isAmountMatch =
+        transactionAmount === "all" ||
+        (transactionAmount === "under50000" && transaction.amount < 50000) ||
+        (transactionAmount === "50000-200000" &&
+          transaction.amount >= 50000 &&
+          transaction.amount <= 200000) ||
+        (transactionAmount === "200000-500000" &&
+          transaction.amount > 200000 &&
+          transaction.amount <= 500000) ||
+        (transactionAmount === "500000-1000000" &&
+          transaction.amount > 500000 &&
+          transaction.amount <= 1000000) ||
+        (transactionAmount === "over1000000" && transaction.amount > 1000000);
+      const isDescriptionMatch = transaction.description
+        .toLowerCase()
+        .includes(searchValue.toLowerCase());
+      return (
+        isCategoryMatch && isTypeMatch && isAmountMatch && isDescriptionMatch
+      );
+    });
+
+    dispatch(
+      setFilteredTransactions({
+        filteredTransactions: filtered,
+        searchKeyword: searchValue,
+      }),
+    );
+    dispatch(setCurrentPage(1));
+  }, [
+    transactions,
+    category,
+    transactionType,
+    transactionAmount,
+    searchValue,
+    dispatch,
+  ]);
+
+
+  const handleInputChange = (e) => {
+    setSearchValue(e.target.value);
   };
 
-  const handleItemsPerPageChange = (e) => {
-    dispatch(setItemsPerPage(Number(e.target.value)));
+  const handleSearchDescription = (value) => {
+    if (value.trim() === "") {
+      dispatch(
+        setFilteredTransactions({
+          filteredTransactions: transactions,
+          searchKeyword: "",
+        }),
+      );
+    } else {
+      const filtered = transactions.filter((transaction) =>
+        transaction.description.toLowerCase().includes(value.toLowerCase()),
+      );
+      dispatch(
+        setFilteredTransactions({
+          filteredTransactions: filtered,
+          searchKeyword: value,
+        }),
+      );
+      dispatch(setCurrentPage(1));
+    }
   };
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedTransactions = transactions.slice(startIndex, endIndex);
+  const handleCategoryChange = (e) => {
+    setCategory(e.target.value);
+  };
+  const handleTransactionTypeChange = (e) => {
+    setTransactionType(e.target.value);
+  };
+  const handleAmountChange = (e) => {
+    setTransactionAmount(e.target.value);
+  };
+
 
   const handleCloseModal = () => {
     dispatch(toggleModal(false));
     dispatch(resetTransactionData());
   };
+
+  const totalPages =
+    filteredTransactions && filteredTransactions.length >= 0
+      ? Math.ceil(filteredTransactions.length / itemsPerPage)
+      : Math.ceil(transactions.length / itemsPerPage);
+  const handlePageChange = (page) => {
+    dispatch(setCurrentPage(page));
+  };
+  const handleItemsPerPageChange = (e) => {
+    dispatch(setItemsPerPage(Number(e.target.value)));
+  };
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const paginatedTransactions = (
+    filteredTransactions && filteredTransactions.length >= 0
+      ? filteredTransactions
+      : transactions
+  ).slice(startIndex, endIndex);
+
   const pageNumbers = [];
   let startPage = currentPage - 2 > 0 ? currentPage - 2 : 1;
   let endPage = currentPage + 2 <= totalPages ? currentPage + 2 : totalPages;
@@ -66,8 +173,53 @@ function TransactionPage() {
               <option value={10}>10</option>
             </select>
           </div>
+          <div className="mb-5 flex md:flex-row  flex-col md:items-center items-start justify-start gap-5  ">
+            <Search
+              className="lg:w-1/3 w-full"
+              onSearch={handleSearchDescription}
+              placeholder="Input description ..."
+              value={searchValue}
+              onChange={handleInputChange}
+            />
+            <div className="w-full">
+            <select
+              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px] "
+              value={category}
+              onChange={handleCategoryChange}
+            >
+              <option value="all">All Categories</option>
+              {transactionCategory.map((item) => (
+                <option key={item.type} value={item.type}>
+                  {item.type}
+                </option>
+              ))}
+            </select>
+            <select
+              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
+              value={transactionType}
+              onChange={handleTransactionTypeChange}
+            >
+              <option value="all">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+            <select
+              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
+              value={transactionAmount}
+              onChange={handleAmountChange}
+            >
+              <option value="all">All Amounts</option>
+              <option value="under50000">Under 50.000</option>
+              <option value="50000-200000">50.000 - 200.000</option>
+              <option value="200000-500000">200.000 - 500.000</option>
+              <option value="500000-1000000">500.000 - 1000.000</option>
+              <option value="over1000000">Over 1.000.000</option>
+            </select>
 
-          <div className="overflow-y-auto h-[600px] md:h-[500px]">
+            </div>
+          </div>
+
+          <div className="overflow-y-auto h-[520px] md:h-[480px]">
             <TransactionListPagination transactions={paginatedTransactions} />
           </div>
           <div className="mt-6 flex justify-center m-0  space-x-2">

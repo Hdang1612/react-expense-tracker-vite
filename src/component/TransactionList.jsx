@@ -31,7 +31,7 @@ export const TransactionListPagination = ({ transactions }) => {
           />
         ))
       ) : (
-        <Empty description="No transaction " />
+        <Empty className="mt-[80px]" description="No transaction " />
       )}
     </div>
   );
@@ -88,7 +88,6 @@ export const TransactionList = ({ transactions }) => {
 
 export const TodayTransactionsList = () => {
   const transactions = useSelector(selectTodayTransactions);
-  console.log(transactions);
   return <TransactionList transactions={transactions} />;
 };
 

@@ -6,6 +6,7 @@ import { Modal, Button, Upload } from "antd";
 
 import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
+import { transactionCategory } from "../constants/constant.js";
 import {
   addTransaction,
   updateTransaction,
@@ -13,15 +14,6 @@ import {
 } from "../../feature/transactionSlice.js";
 
 const ModalExpense = () => {
-  const transactionTypes = [
-    { type: "Shopping" },
-    { type: "Bill" },
-    { type: "Salary" },
-    { type: "Food" },
-    { type: "Entertainment" },
-    { type: "Unknown" },
-  ];
-
   const dispatch = useDispatch();
   const { isShow, title, transactionData } = useSelector(
     (state) => state.modal,
@@ -170,7 +162,7 @@ const ModalExpense = () => {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
-          {transactionTypes.map((item) => (
+          {transactionCategory.map((item) => (
             <option key={item.type} value={item.type}>
               {item.type}
             </option>

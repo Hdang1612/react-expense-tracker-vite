@@ -93,9 +93,6 @@ export const PieStatisticMonth = ({ month }) => {
       income: 0,
       expense: 0,
     };
-    console.log("transactions :", transactions);
-    console.log("selected month :", selectedMonth);
-    console.log(monthlyTotals);
 
     const data = {
       labels: ["Income", "Expense"],
