@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import Header from "../layout/Header";
 import Menu from "../layout/Menu";
@@ -29,20 +29,53 @@ function TransactionPage() {
 
   const [searchValue, setSearchValue] = useState(searchKeyword);
   const [category, setCategory] = useState("all");
+  const [transactionType, setTransactionType] = useState("all");
+  const [transactionAmount, setTransactionAmount] = useState("all");
 
   useEffect(() => {
-    const filtered = transactions.filter((transaction) =>
-      transaction.description.toLowerCase().includes(searchValue.toLowerCase())
-    );
+    const filtered = transactions.filter((transaction) => {
+      const isCategoryMatch =
+        category === "all" || transaction.category === category;
+      const isTypeMatch =
+        transactionType === "all" ||
+        transaction.transactionType === transactionType;
+      const isAmountMatch =
+        transactionAmount === "all" ||
+        (transactionAmount === "under50000" && transaction.amount < 50000) ||
+        (transactionAmount === "50000-200000" &&
+          transaction.amount >= 50000 &&
+          transaction.amount <= 200000) ||
+        (transactionAmount === "200000-500000" &&
+          transaction.amount > 200000 &&
+          transaction.amount <= 500000) ||
+        (transactionAmount === "500000-1000000" &&
+          transaction.amount > 500000 &&
+          transaction.amount <= 1000000) ||
+        (transactionAmount === "over1000000" && transaction.amount > 1000000);
+      const isDescriptionMatch = transaction.description
+        .toLowerCase()
+        .includes(searchValue.toLowerCase());
+      return (
+        isCategoryMatch && isTypeMatch && isAmountMatch && isDescriptionMatch
+      );
+    });
+
     dispatch(
       setFilteredTransactions({
         filteredTransactions: filtered,
         searchKeyword: searchValue,
-      })
+      }),
     );
-    setCategory("all"); 
-    dispatch(setCurrentPage(1)); 
-  }, [dispatch, transactions, searchValue]);
+    dispatch(setCurrentPage(1));
+  }, [
+    transactions,
+    category,
+    transactionType,
+    transactionAmount,
+    searchValue,
+    dispatch,
+  ]);
+
 
   const handleInputChange = (e) => {
     setSearchValue(e.target.value);
@@ -56,7 +89,6 @@ function TransactionPage() {
           searchKeyword: "",
         }),
       );
-      console.log(category)
     } else {
       const filtered = transactions.filter((transaction) =>
         transaction.description.toLowerCase().includes(value.toLowerCase()),
@@ -67,28 +99,20 @@ function TransactionPage() {
           searchKeyword: value,
         }),
       );
-      dispatch(setCurrentPage(1))
+      dispatch(setCurrentPage(1));
     }
   };
-
   const handleCategoryChange = (e) => {
-    const selectedCategory = e.target.value;
-    setCategory(selectedCategory);
-    const filteredByCategory = selectedCategory === "all"
-    ? transactions 
-    : transactions.filter((transaction) => transaction.category === selectedCategory);
-
-    const filtered = filteredByCategory.filter((transaction) =>
-      transaction.description.toLowerCase().includes(searchValue.toLowerCase()),
-    );
-    dispatch(
-      setFilteredTransactions({
-        filteredTransactions: filtered,
-        searchKeyword: searchValue,
-      }),
-    );
-    dispatch(setCurrentPage(1))
+    setCategory(e.target.value);
   };
+  const handleTransactionTypeChange = (e) => {
+    setTransactionType(e.target.value);
+  };
+  const handleAmountChange = (e) => {
+    setTransactionAmount(e.target.value);
+  };
+
+
   const handleCloseModal = () => {
     dispatch(toggleModal(false));
     dispatch(resetTransactionData());
@@ -113,8 +137,6 @@ function TransactionPage() {
       : transactions
   ).slice(startIndex, endIndex);
 
-  
-
   const pageNumbers = [];
   let startPage = currentPage - 2 > 0 ? currentPage - 2 : 1;
   let endPage = currentPage + 2 <= totalPages ? currentPage + 2 : totalPages;
@@ -130,7 +152,7 @@ function TransactionPage() {
   }
   const showEllipsisBefore = startPage > 1;
   const showEllipsisAfter = endPage < totalPages;
-  
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center ">
       <div className="w-full  h-[100vh] bg-white relative ">
@@ -153,24 +175,48 @@ function TransactionPage() {
           </div>
           <div className="mb-5 flex md:flex-row  flex-col md:items-center items-start justify-start gap-5  ">
             <Search
-              className="md:w-1/3 w-full"
+              className="lg:w-1/3 w-full"
               onSearch={handleSearchDescription}
               placeholder="Input description ..."
               value={searchValue}
               onChange={handleInputChange}
             />
+            <div className="w-full">
             <select
-              className="md:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px] "
+              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px] "
               value={category}
               onChange={handleCategoryChange}
             >
-              <option value="all">All</option> 
+              <option value="all">All Categories</option>
               {transactionCategory.map((item) => (
                 <option key={item.type} value={item.type}>
                   {item.type}
                 </option>
               ))}
             </select>
+            <select
+              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
+              value={transactionType}
+              onChange={handleTransactionTypeChange}
+            >
+              <option value="all">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+            <select
+              className="lg:w-1/6 w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-xl md:ps-5 bg-transparent font-semibold text-[14px] px-3 border-[1px]"
+              value={transactionAmount}
+              onChange={handleAmountChange}
+            >
+              <option value="all">All Amounts</option>
+              <option value="under50000">Under 50.000</option>
+              <option value="50000-200000">50.000 - 200.000</option>
+              <option value="200000-500000">200.000 - 500.000</option>
+              <option value="500000-1000000">500.000 - 1000.000</option>
+              <option value="over1000000">Over 1.000.000</option>
+            </select>
+
+            </div>
           </div>
 
           <div className="overflow-y-auto h-[520px] md:h-[480px]">

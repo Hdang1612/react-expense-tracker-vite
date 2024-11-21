@@ -93,7 +93,6 @@ export const PieStatisticMonth = ({ month }) => {
       income: 0,
       expense: 0,
     };
-    
 
     const data = {
       labels: ["Income", "Expense"],
