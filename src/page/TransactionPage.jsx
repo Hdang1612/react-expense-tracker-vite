@@ -55,7 +55,6 @@ function TransactionPage() {
       const isDescriptionMatch = transaction.description
         .toLowerCase()
         .includes(searchValue.toLowerCase());
-
       return (
         isCategoryMatch && isTypeMatch && isAmountMatch && isDescriptionMatch
       );
