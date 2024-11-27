@@ -2,11 +2,8 @@ import { useState } from "react";
 
 import { login } from "../services/authServices";
 
-import {
-  EyeInvisibleOutlined,
-  // EyeOutlined,
-} from "@ant-design/icons";
-
+import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
+import { showSuccessToast,showErrorToast } from "../utils/Toaste";
 function LoginForm({ toggleForm }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,12 +11,17 @@ function LoginForm({ toggleForm }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const data = await login(email, password);
-      console.log("Login successful:", data);
-      alert("successful")
+      const res = await login(email, password);
+      showSuccessToast(res.message)
     } catch (err) {
       console.log(err.message);
+      showErrorToast(err.message)
     }
+  };
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
   return (
     <div className="border-[#AFAFAF] border-2 rounded-[20px] w-[480px] h-[800px] drop-shadow-md pt-[97px] pb-[20px] px-[40px]">
@@ -44,7 +46,7 @@ function LoginForm({ toggleForm }) {
             <div className="mb-6 flex border items-center border-[#FFFFFF] rounded-md pe-3 ">
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -53,8 +55,12 @@ function LoginForm({ toggleForm }) {
                 placeholder="Password"
                 required
               />
-              <span>
-                <EyeInvisibleOutlined className="text-[20px] md:text-[20px]" />
+              <span onClick={togglePasswordVisibility}>
+                {showPassword ? (
+                  <EyeOutlined className="text-[20px] md:text-[20px]" />
+                ) : (
+                  <EyeInvisibleOutlined className="text-[20px] md:text-[20px]" />
+                )}
               </span>
             </div>
             <div className="mb-6 flex items-center">

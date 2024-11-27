@@ -1,21 +1,39 @@
 import { useState } from "react";
+
 import { signup } from "../services/authServices";
 
+import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
+import { showSuccessToast,showErrorToast } from "../utils/Toaste";
 function RegisterForm({ toggleForm }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   const handleSignup = async (e) => {
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+        showErrorToast("Wrong confirm password")
+      return;
+    }
     try {
       const data = { name, email, password, phoneNumber };
-      const res = await signup(data);
-      console.log("Register successful:", res);
-      toggleForm()
+      const res=await signup(data);
+      showSuccessToast(res.message)
+      toggleForm();
     } catch (err) {
-      console.log(email, password);
-      console.log(err.message);
+      showErrorToast(err.message);
     }
   };
   return (
@@ -52,7 +70,7 @@ function RegisterForm({ toggleForm }) {
             <div className="mb-2">
               <input
                 id="phone_number"
-                type="number"
+                type="text"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[10px] text-[20px] font-regular bg-transparent mt-3"
@@ -61,25 +79,43 @@ function RegisterForm({ toggleForm }) {
               />
             </div>
 
-            <div className="mb-2">
+            <div className="mb-3 flex border items-center border-[#FFFFFF] rounded-md pe-3 mt-3 ">
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[10px] text-[20px] font-regular bg-transparent mt-3"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+                className="w-full   px-[16px] py-[14px] text-[20px] font-regular bg-transparent focus:outline-none "
                 placeholder="Password"
                 required
               />
+              <span onClick={togglePasswordVisibility}>
+                {showPassword ? (
+                  <EyeOutlined className="text-[20px] md:text-[20px]" />
+                ) : (
+                  <EyeInvisibleOutlined className="text-[20px] md:text-[20px]" />
+                )}
+              </span>
             </div>
-            <div className="mb-2">
+            <div className="mb-6 flex border items-center border-[#FFFFFF] rounded-md pe-3 ">
               <input
-                id="confirm_password"
-                type="password"
-                className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[10px] text-[20px] font-regular bg-transparent mt-3"
+                id="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                type={showConfirmPassword ? "text" : "password"}
+                className="w-full   px-[16px] py-[14px] text-[20px] font-regular bg-transparent focus:outline-none "
                 placeholder="Confirm Password"
                 required
               />
+              <span onClick={toggleConfirmPasswordVisibility}>
+                {showConfirmPassword ? (
+                  <EyeOutlined className="text-[20px] md:text-[20px]" />
+                ) : (
+                  <EyeInvisibleOutlined className="text-[20px] md:text-[20px]" />
+                )}
+              </span>
             </div>
 
             <div className="flex items-center flex-col gap-3 mt-6 ">
