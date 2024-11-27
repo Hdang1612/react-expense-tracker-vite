@@ -5,7 +5,11 @@ import { Link } from "react-router-dom";
 
 import Menu from "../layout/Menu";
 import ModalExpense from "../component/modal/ModalTransaction";
-import { EyeInvisibleOutlined, EyeOutlined,UserOutlined } from "@ant-design/icons";
+import {
+  EyeInvisibleOutlined,
+  EyeOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { formatCurrency } from "../utils/number";
 import {
   TodayTransactionsList,
@@ -32,25 +36,34 @@ function HomePage() {
       <div className="w-full  h-[100vh] bg-white relative ">
         <div className="h-full px-4 py-5 sm:px-[18px] sm:py-[22px] ">
           <div className="flex items-center justify-between">
-          <div>
-            <p className="font-sans font-normal text-[16px] text-start text-black md:text-2xl">
-              Balance
-            </p>
-            <div className="flex items-center text-[#42224A] ">
-              <span className="font-extrabold text-[28px] sm:text-[46px] mr-3">
-                {showBalance
-                  ? balance !== null
-                    ? formatCurrency(balance)
-                    : "0.00"
-                  : "**********"}
-              </span>
-              <button onClick={handleToggleBalance} className="text-[#42224A] ">
-                {showBalance ? (
-                  <EyeInvisibleOutlined className="text-[20px] md:text-[32px]" />
-                ) : (
-                  <EyeOutlined className="text-[20px] md:text-[32px]" />
-                )}
-              </button>
+            <div>
+              <p className="font-sans font-normal text-[16px] text-start text-black md:text-2xl">
+                Balance
+              </p>
+              <div className="flex items-center text-[#42224A] ">
+                <span className="font-extrabold text-[28px] sm:text-[46px] mr-3">
+                  {showBalance
+                    ? balance !== null
+                      ? formatCurrency(balance)
+                      : "0.00"
+                    : "**********"}
+                </span>
+                <button
+                  onClick={handleToggleBalance}
+                  className="text-[#42224A] "
+                >
+                  {showBalance ? (
+                    <EyeInvisibleOutlined className="text-[20px] md:text-[32px]" />
+                  ) : (
+                    <EyeOutlined className="text-[20px] md:text-[32px]" />
+                  )}
+                </button>
+              </div>
+            </div>
+            <div>
+              <Link to="/">
+                <UserOutlined className="text-xl md:text-[36px] me-5" />
+              </Link>
             </div>
           </div>
           <div className="me-5 text-[32px]" >
