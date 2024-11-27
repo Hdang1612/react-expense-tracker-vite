@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-//Schema : mô tả cấu trúc của dữ liệu trong một document trong MongoDB
+  //Schema : mô tả cấu trúc của dữ liệu trong một document trong MongoDB
   name: {
     type: String,
     required: true,
@@ -14,9 +14,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  phoneNumber:{
-    type:String,
-    required:true
+  phoneNumber: {
+    type: String,
+    required: true,
   },
 });
 
