@@ -61,17 +61,12 @@ function HomePage() {
               </div>
             </div>
             <div>
-              <Link to="/">
+              <Link to="/auth">
                 <UserOutlined className="text-xl md:text-[36px] me-5" />
               </Link>
             </div>
           </div>
-          <div className="me-5 text-[32px]" >
-          <Link to="/"> 
-          <UserOutlined />
-          </Link>
-          </div>
-          </div>
+
           <div>
             <div className="flex justify-between mt-4 gap-2 md:gap-5 ">
               <button
@@ -108,15 +103,15 @@ function HomePage() {
             </div>
           </div>
         </div>
-        <Menu className="absolute bottom-0 left-0 w-full "></Menu>
-        {modalStatus.isShow && (
-          <ModalExpense
-            isVisible={modalStatus.isShow}
-            title={modalStatus.title}
-            transactionData={modalStatus.transactionData}
-          />
-        )}
       </div>
+      <Menu className="absolute bottom-0 left-0 w-full "></Menu>
+      {modalStatus.isShow && (
+        <ModalExpense
+          isVisible={modalStatus.isShow}
+          title={modalStatus.title}
+          transactionData={modalStatus.transactionData}
+        />
+      )}
     </div>
   );
 }
