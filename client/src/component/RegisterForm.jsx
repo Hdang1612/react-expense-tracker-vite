@@ -1,4 +1,23 @@
+import { useState } from "react";
+import { signup } from "../services/authServices";
+
 function RegisterForm({ toggleForm }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    try {
+      const data = { name, email, password, phoneNumber };
+      const res = await signup(data);
+      console.log("Register successful:", res);
+      toggleForm()
+    } catch (err) {
+      console.log(email, password);
+      console.log(err.message);
+    }
+  };
   return (
     <div className="border-[#AFAFAF] border-2 rounded-[20px] w-[480px] h-[800px] drop-shadow-md pt-[97px] pb-[20px] px-[40px]">
       <div className="flex flex-col justify-between h-full">
@@ -7,11 +26,13 @@ function RegisterForm({ toggleForm }) {
           <p className="text-[16px] font-medium">
             Just some details to get you in.!
           </p>
-          <form>
+          <form onSubmit={handleSignup}>
             <div className="mb-2">
               <input
                 id="name"
                 type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[10px] text-[20px] font-regular bg-transparent mt-3"
                 placeholder="Name"
                 required
@@ -21,6 +42,8 @@ function RegisterForm({ toggleForm }) {
               <input
                 id="email"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[10px] text-[20px] font-regular bg-transparent mt-3"
                 placeholder="Email"
                 required
@@ -30,6 +53,8 @@ function RegisterForm({ toggleForm }) {
               <input
                 id="phone_number"
                 type="number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[10px] text-[20px] font-regular bg-transparent mt-3"
                 placeholder="Phone Number"
                 required
@@ -40,6 +65,8 @@ function RegisterForm({ toggleForm }) {
               <input
                 id="password"
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[10px] text-[20px] font-regular bg-transparent mt-3"
                 placeholder="Password"
                 required

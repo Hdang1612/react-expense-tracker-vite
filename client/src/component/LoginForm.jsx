@@ -1,20 +1,41 @@
+import { useState } from "react";
+
+import { login } from "../services/authServices";
+
 import {
   EyeInvisibleOutlined,
   // EyeOutlined,
 } from "@ant-design/icons";
 
 function LoginForm({ toggleForm }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const data = await login(email, password);
+      console.log("Login successful:", data);
+      alert("successful")
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
   return (
     <div className="border-[#AFAFAF] border-2 rounded-[20px] w-[480px] h-[800px] drop-shadow-md pt-[97px] pb-[20px] px-[40px]">
       <div className="flex flex-col justify-between h-full">
         <div className="">
           <p className="text-[36px] font-semibold">Login</p>
           <p className="text-[16px] font-medium">Glad you are back!</p>
-          <form>
+          <form onSubmit={handleLogin}>
             <div className="mb-6">
               <input
                 id="email"
                 type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                }}
                 className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[14px] text-[20px] font-regular bg-transparent mt-3"
                 placeholder="Email"
                 required
@@ -24,6 +45,10 @@ function LoginForm({ toggleForm }) {
               <input
                 id="password"
                 type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
                 className="w-full   px-[16px] py-[14px] text-[20px] font-regular bg-transparent focus:outline-none "
                 placeholder="Password"
                 required
