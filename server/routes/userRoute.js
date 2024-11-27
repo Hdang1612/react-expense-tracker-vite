@@ -10,7 +10,7 @@ import {
 const route = express.Router();
 
 route.post("/signup", signUp);
-route.get("/login", logIn);
+route.post("/login", logIn);
 route.get("/getAllUsers", fetchUsers);
 route.put("/update/:id", update);
 route.delete("/delete/:id", deleteUser);

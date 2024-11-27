@@ -15,7 +15,7 @@ export const signUp = async (req, res) => {
       password: hashedPassword,
     });
     const saveUser = await userData.save(); //lưu vào cơ sở dữ liệu
-    res.status(200).json(saveUser);
+    res.status(200).json({ message: "Login successful", userData: saveUser });
   } catch (error) {
     res.status(500).json({ error: "Internal Server error." });
   }
