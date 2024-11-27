@@ -1,10 +1,11 @@
 import { useState } from "react";
 
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 import Menu from "../layout/Menu";
 import ModalExpense from "../component/modal/ModalTransaction";
-import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
+import { EyeInvisibleOutlined, EyeOutlined,UserOutlined } from "@ant-design/icons";
 import { formatCurrency } from "../utils/number";
 import {
   TodayTransactionsList,
@@ -30,6 +31,7 @@ function HomePage() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="w-full  h-[100vh] bg-white relative ">
         <div className="h-full px-4 py-5 sm:px-[18px] sm:py-[22px] ">
+          <div className="flex items-center justify-between">
           <div>
             <p className="font-sans font-normal text-[16px] text-start text-black md:text-2xl">
               Balance
@@ -50,6 +52,12 @@ function HomePage() {
                 )}
               </button>
             </div>
+          </div>
+          <div className="me-5 text-[32px]" >
+          <Link to="/"> 
+          <UserOutlined />
+          </Link>
+          </div>
           </div>
           <div>
             <div className="flex justify-between mt-4 gap-2 md:gap-5 ">
