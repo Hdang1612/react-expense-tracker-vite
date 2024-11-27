@@ -1,13 +1,14 @@
 import { useState } from "react";
 
-import RegisterForm from "../component/RegisterForm";
-import LoginForm from "../component/LoginForm";
+import RegisterForm from "../component/AuthForm/RegisterForm";
+import LoginForm from "../component/AuthForm/LoginForm";
+import ForgotPassword from "../component/AuthForm/ForgotPassword";
 function RegisterPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const toggleForm = () => {
-    setIsLogin(!isLogin);
-    console.log("click!!");
-  };
+  // const toggleForm = () => {
+  //   setIsLogin(!isLogin);
+  //   console.log("click!!");
+  // };
 
   return (
     <div className="bg-[#0F0F0F] w-screen h-screen flex items-center text-[#fff] px-[60px] justify-between">
@@ -18,11 +19,12 @@ function RegisterPage() {
         </div>
       </div>
       <div>
-        {isLogin ? (
+        <ForgotPassword/>
+        {/* {isLogin ? (
           <LoginForm toggleForm={toggleForm} />
         ) : (
           <RegisterForm toggleForm={toggleForm} />
-        )}
+        )} */}
       </div>
     </div>
   );

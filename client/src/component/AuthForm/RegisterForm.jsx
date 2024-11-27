@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-import { signup } from "../services/authServices";
+import { signup } from "../../services/authServices";
 
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
-import { showSuccessToast,showErrorToast } from "../utils/Toaste";
+import { showSuccessToast,showErrorToast } from "../../utils/Toaste";
 function RegisterForm({ toggleForm }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
