@@ -61,7 +61,7 @@ function HomePage() {
               </div>
             </div>
             <div>
-              <Link to="/">
+              <Link to="/auth">
                 <UserOutlined className="text-xl md:text-[36px] me-5" />
               </Link>
             </div>
@@ -103,16 +103,19 @@ function HomePage() {
           </div>
           </div>
         </div>
-        <Menu className="absolute bottom-0 left-0 w-full "></Menu>
-        {modalStatus.isShow && (
-          <ModalExpense
-            isVisible={modalStatus.isShow}
-            title={modalStatus.title}
-            transactionData={modalStatus.transactionData}
-          />
-        )}
+      <Menu className="absolute bottom-0 left-0 w-full "></Menu>
+      <div>
+      {modalStatus.isShow && (
+        <ModalExpense
+          isVisible={modalStatus.isShow}
+          title={modalStatus.title}
+          transactionData={modalStatus.transactionData}
+        />
+      )}
+    </div>
       </div>
-    
+
+
   );
 }
 
