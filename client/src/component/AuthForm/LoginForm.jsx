@@ -1,15 +1,20 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useState } from "react";  
+
+import { useDispatch,useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { loginUser } from "../../feature/authSlice";
+import { Spin } from "antd";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { showSuccessToast, showErrorToast } from "../../utils/Toaste";
 function LoginForm({ toggleForm }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const status = useSelector((state) => state.auth.status);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -18,7 +23,6 @@ function LoginForm({ toggleForm }) {
       showSuccessToast(res.message);
       navigate("/home");
     } catch (err) {
-      console.log(err);
       showErrorToast(err);
     }
   };
@@ -82,8 +86,13 @@ function LoginForm({ toggleForm }) {
               <button
                 type="submit"
                 className="w-full py-3 bg-gradient-to-r from-[#628EFF] via-[#8740CD] to-[#580475] text-white text-[20px] font-semibold rounded-[12px]"
+                disabled={status === "loading"} // Disable button khi đang loading
               >
-                Login
+                 {status === "loading" ? ( // Nếu đang loading, hiển thị spinner
+                  <Spin indicator={<EyeInvisibleOutlined />} />
+                ) : (
+                  "Login"
+                )}
               </button>
               <a>Forgot password ?</a>
             </div>
@@ -100,8 +109,9 @@ function LoginForm({ toggleForm }) {
             <a
               onClick={toggleForm}
               className="cursor-pointer  hover:text-[#fff]"
+              
             >
-              Signup
+             Login
             </a>
           </p>
           <div className="flex justify-between w-full mt-2">

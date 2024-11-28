@@ -12,6 +12,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route 
+        path="/" element= {<RegisterPage/>}
+        />
         <Route
           path="/home"
           element={isAuthenticated ? <HomePage /> : <Navigate to="/auth" />}
