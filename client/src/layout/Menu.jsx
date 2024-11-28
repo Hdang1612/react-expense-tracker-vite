@@ -67,8 +67,8 @@ function Menu() {
         </Link>
 
         <Link
-          to="/"
-          className={`flex flex-col w-[60px] md:w-[100px] items-center md:py-3 ${isActive("/") ? "text-[#EF8767]" : ""}`}
+          to="/home"
+          className={`flex flex-col w-[60px] md:w-[100px] items-center md:py-3 ${isActive("/home") ? "text-[#EF8767]" : ""}`}
         >
           <HomeOutlined className="text-xl md:text-[24px]" />
           <span className="text-[10px] sm:text-xl">Home</span>

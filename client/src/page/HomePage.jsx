@@ -61,16 +61,10 @@ function HomePage() {
               </div>
             </div>
             <div>
-              <Link to="/">
+              <Link to="/auth">
                 <UserOutlined className="text-xl md:text-[36px] me-5" />
               </Link>
             </div>
-          </div>
-          <div className="me-5 text-[32px]" >
-          <Link to="/"> 
-          <UserOutlined />
-          </Link>
-          </div>
           </div>
           <div>
             <div className="flex justify-between mt-4 gap-2 md:gap-5 ">
@@ -108,7 +102,9 @@ function HomePage() {
             </div>
           </div>
         </div>
-        <Menu className="absolute bottom-0 left-0 w-full "></Menu>
+      </div>
+      <Menu className="absolute bottom-0 left-0 w-full "></Menu>
+      <div>
         {modalStatus.isShow && (
           <ModalExpense
             isVisible={modalStatus.isShow}
