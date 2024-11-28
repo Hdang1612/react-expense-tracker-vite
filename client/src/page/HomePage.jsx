@@ -102,21 +102,19 @@ function HomePage() {
               {filter === "monthly" && <MonthlyTransactionsList />}
             </div>
           </div>
-          </div>
         </div>
+      </div>
       <Menu className="absolute bottom-0 left-0 w-full "></Menu>
       <div>
-      {modalStatus.isShow && (
-        <ModalExpense
-          isVisible={modalStatus.isShow}
-          title={modalStatus.title}
-          transactionData={modalStatus.transactionData}
-        />
-      )}
-    </div>
+        {modalStatus.isShow && (
+          <ModalExpense
+            isVisible={modalStatus.isShow}
+            title={modalStatus.title}
+            transactionData={modalStatus.transactionData}
+          />
+        )}
       </div>
-
-
+    </div>
   );
 }
 

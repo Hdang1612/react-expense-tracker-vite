@@ -8,7 +8,6 @@ const SIGNUP_URL = import.meta.env.VITE_API_URL_SIGNUP;
 export const login = async (email, password) => {
   try {
     const response = await axios.post(LOGIN_URL, { email, password });
-
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message;
