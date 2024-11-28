@@ -66,12 +66,6 @@ function HomePage() {
               </Link>
             </div>
           </div>
-          <div className="me-5 text-[32px]" >
-          <Link to="/"> 
-          <UserOutlined />
-          </Link>
-          </div>
-          </div>
           <div>
             <div className="flex justify-between mt-4 gap-2 md:gap-5 ">
               <button
@@ -107,6 +101,7 @@ function HomePage() {
               {filter === "monthly" && <MonthlyTransactionsList />}
             </div>
           </div>
+          </div>
         </div>
         <Menu className="absolute bottom-0 left-0 w-full "></Menu>
         {modalStatus.isShow && (
@@ -117,7 +112,7 @@ function HomePage() {
           />
         )}
       </div>
-    </div>
+    
   );
 }
 
