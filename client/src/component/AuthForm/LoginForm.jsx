@@ -3,7 +3,7 @@ import { useState } from "react";
 import { login } from "../../services/authServices";
 
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
-import { showSuccessToast,showErrorToast } from "../../utils/Toaste";
+import { showSuccessToast, showErrorToast } from "../../utils/Toaste";
 function LoginForm({ toggleForm }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,10 +12,10 @@ function LoginForm({ toggleForm }) {
     e.preventDefault();
     try {
       const res = await login(email, password);
-      showSuccessToast(res.message)
+      showSuccessToast(res.message);
     } catch (err) {
       console.log(err.message);
-      showErrorToast(err.message)
+      showErrorToast(err.message);
     }
   };
   const [showPassword, setShowPassword] = useState(false);
@@ -52,6 +52,8 @@ function LoginForm({ toggleForm }) {
                   setPassword(e.target.value);
                 }}
                 className="w-full   px-[16px] py-[14px] text-[20px] font-regular bg-transparent focus:outline-none "
+                pattern="^.{6,}$"
+                title="Password must be at least 6 characters long ."
                 placeholder="Password"
                 required
               />

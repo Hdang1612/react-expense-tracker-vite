@@ -3,7 +3,7 @@ import { useState } from "react";
 import { signup } from "../../services/authServices";
 
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
-import { showSuccessToast,showErrorToast } from "../../utils/Toaste";
+import { showSuccessToast, showErrorToast } from "../../utils/Toaste";
 function RegisterForm({ toggleForm }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,17 +20,24 @@ function RegisterForm({ toggleForm }) {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
+  const handlePhoneNumberChange = (e) => {
+    const value = e.target.value;
+    if (value === "" || /^[0-9]+$/.test(value)) {
+      setPhoneNumber(value);
+    }
+  };
+
   const handleSignup = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-        showErrorToast("Wrong confirm password")
+      showErrorToast("Wrong confirm password");
       return;
     }
     try {
       const data = { name, email, password, phoneNumber };
-      const res=await signup(data);
-      showSuccessToast(res.message)
+      const res = await signup(data);
+      showSuccessToast(res.message);
       toggleForm();
     } catch (err) {
       showErrorToast(err.message);
@@ -72,8 +79,9 @@ function RegisterForm({ toggleForm }) {
                 id="phone_number"
                 type="text"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={handlePhoneNumberChange}
                 className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[10px] text-[20px] font-regular bg-transparent mt-3"
+                title="Phone number must be number"
                 placeholder="Phone Number"
                 required
               />
@@ -88,6 +96,8 @@ function RegisterForm({ toggleForm }) {
                   setPassword(e.target.value);
                 }}
                 className="w-full   px-[16px] py-[14px] text-[20px] font-regular bg-transparent focus:outline-none "
+                pattern="^.{6,}$"
+                title="Password must be at least 6 characters long ."
                 placeholder="Password"
                 required
               />
