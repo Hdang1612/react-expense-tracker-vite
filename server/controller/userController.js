@@ -1,5 +1,11 @@
 import User from "../model//userModel.js";
 import bcrypt from "bcrypt";
+import dotenv from "dotenv"
+import jwt from "jsonwebtoken"
+
+
+dotenv.config();
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY; 
 
 export const signUp = async (req, res) => {
   try {
@@ -32,9 +38,16 @@ export const logIn = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid password" });
     }
-    return res
-      .status(200)
-      .json({ message: "Login successful", userData: userExist });
+    const token = jwt.sign(
+      { id: userExist._id, email: userExist.email }, 
+      JWT_SECRET_KEY, 
+      { expiresIn: "1h" } 
+    );
+    return res.status(200).json({
+      message: "Login successful",
+      token,
+      userData: { id: userExist._id, email: userExist.email, name: userExist.name },
+    });
   } catch (error) {
     res.status(500).json({ error: "Internal Server error." });
   }
@@ -55,7 +68,6 @@ export const fetchUsers = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const id = req.params.id;
-    // const newPwd=req.body.password
     const userExist = await User.findOne({ _id: id });
     if (!userExist) {
       return res.status(404).json({ message: "User Not Found" });
