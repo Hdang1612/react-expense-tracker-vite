@@ -19,7 +19,6 @@ function LoginForm({ toggleForm }) {
     e.preventDefault();
     try {
       const res = await dispatch(loginUser({ email, password })).unwrap(); //unwrap để trả về payload của action
-      console.log(res);
       showSuccessToast(res.message);
       navigate("/home");
     } catch (err) {
