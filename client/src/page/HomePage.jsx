@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 
 import Menu from "../layout/Menu";
@@ -19,7 +19,7 @@ import {
 } from "../component/TransactionList";
 function HomePage() {
   const balance = useSelector((state) => state.transactions.totalBalance);
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
   const [filter, setFilter] = useState("weekly");
   const [showBalance, setShowBalance] = useState(true);
 
@@ -63,7 +63,7 @@ function HomePage() {
               </div>
             </div>
             <div>
-              <Link to="/auth" onClick={()=> dispatch(logout())}>
+              <Link to="/auth" onClick={() => dispatch(logout())}>
                 <UserOutlined className="text-xl md:text-[36px] me-5" />
               </Link>
             </div>
