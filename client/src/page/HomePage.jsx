@@ -66,7 +66,6 @@ function HomePage() {
               </Link>
             </div>
           </div>
-
           <div>
             <div className="flex justify-between mt-4 gap-2 md:gap-5 ">
               <button
