@@ -1,25 +1,28 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import { login } from "../../services/authServices";
-
+import { loginUser } from "../../feature/authSlice";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { showSuccessToast, showErrorToast } from "../../utils/Toaste";
 function LoginForm({ toggleForm }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await login(email, password);
+      const res = await dispatch(loginUser({ email, password })).unwrap(); //unwrap để trả về payload của action
+      console.log(res);
       showSuccessToast(res.message);
+      navigate("/home");
     } catch (err) {
-      console.log(err.message);
-      showErrorToast(err.message);
+      console.log(err);
+      showErrorToast(err);
     }
   };
   const [showPassword, setShowPassword] = useState(false);
-
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
