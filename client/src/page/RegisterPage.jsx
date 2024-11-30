@@ -4,9 +4,15 @@ import RegisterForm from "../component/AuthForm/RegisterForm";
 import LoginForm from "../component/AuthForm/LoginForm";
 // import ForgotPassword from "../component/AuthForm/ForgotPassword";
 function RegisterPage() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState("login");
+  const [isForgot, setIsForgot] = useState(false);
   const toggleForm = () => {
-    setIsLogin(!isLogin);
+    
+    setIsLogin(isLogin==="login" ? "signup" :"login");
+    console.log("click!!");
+  };
+  const forgotPassword = () => {
+    setIsLogin(true);
     console.log("click!!");
   };
 
@@ -20,8 +26,8 @@ function RegisterPage() {
       </div>
       <div>
         {/* <ForgotPassword/> */}
-        {isLogin ? (
-          <LoginForm toggleForm={toggleForm} />
+        {isLogin==="login"  ? (
+          <LoginForm toggleForm={toggleForm} forgotPassword={forgotPassword} />
         ) : (
           <RegisterForm toggleForm={toggleForm} />
         )}

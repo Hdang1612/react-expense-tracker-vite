@@ -85,9 +85,9 @@ function LoginForm({ toggleForm }) {
               <button
                 type="submit"
                 className="w-full py-3 bg-gradient-to-r from-[#628EFF] via-[#8740CD] to-[#580475] text-white text-[20px] font-semibold rounded-[12px]"
-                disabled={status === "loading"} // Disable button khi đang loading
+                disabled={status === "loading"} 
               >
-                {status === "loading" ? ( // Nếu đang loading, hiển thị spinner
+                {status === "loading" ? ( 
                   <Spin indicator={<EyeInvisibleOutlined />} />
                 ) : (
                   "Login"
