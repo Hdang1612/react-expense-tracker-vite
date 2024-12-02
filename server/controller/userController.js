@@ -1,13 +1,14 @@
 import User from "../model//userModel.js";
+
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-// import crypto, { sign } from "crypto";
 
 dotenv.config();
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
-const APP_PASS= process.env.APP_PASSWORD
+const APP_PASS = process.env.APP_PASSWORD;
+const RESET_PASSWORD_URL = process.env.RESET_PASSWORD_URL;
 export const signUp = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -72,15 +73,17 @@ export const fetchUsers = async (req, res) => {
 
 export const update = async (req, res) => {
   try {
-    const id = req.params.id;
-    const userExist = await User.findOne({ _id: id });
+    const email = req.params.email;
+    const userExist = await User.findOne({ email: email });
     if (!userExist) {
       return res.status(404).json({ message: "User Not Found" });
     }
-    const updateUser = await User.findByIdAndUpdate(id, req.body, {
+    if (req.body.password) {
+      req.body.password = await bcrypt.hash(req.body.password, 10);
+    }
+    const updateUser = await User.findOneAndUpdate({ email: email }, req.body, {
       new: true,
     });
-    // new:true --> hàm trả về bản ghi sau khi cập nhật
     res.status(200).json(updateUser);
   } catch (error) {
     res.status(500).json({ error: "Internal Server error." });
@@ -89,12 +92,12 @@ export const update = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const id = req.params.id;
-    const userExist = await User.findOne({ _id: id });
+    const email = req.params.email;
+    const userExist = await User.findOne({ email: email });
     if (!userExist) {
       return res.status(404).json({ message: "User Not Found" });
     }
-    await User.findOneAndDelete(id);
+    await User.findOneAndDelete({ email: email });
     res.status(201).json({ message: "Deleted Successful" });
   } catch (error) {
     res.status(500).json({ error: "Internal Server error." });
@@ -112,27 +115,27 @@ export const forgotPassword = async (req, res) => {
     const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, {
       expiresIn: "3m",
     });
-    const link = `http://localhost:8000/api/user/reset-password/${oldUser._id}/${token}`;
+    const link = `${RESET_PASSWORD_URL}${oldUser.email}/${token}`;
     var transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
-        user: 'tohaidang161@gmail.com',
-        pass: APP_PASS
-      }
+        user: "tohaidang161@gmail.com",
+        pass: APP_PASS,
+      },
     });
-    
+
     var mailOptions = {
-      from: 'tohaidang161@gmail.com',
-      to: 'dangdang1612003@gmail.com',
-      subject: 'Password reset',
+      from: "tohaidang161@gmail.com",
+      to: "dangdang1612003@gmail.com",
+      subject: "Password reset",
       text: link,
     };
-    
-    transporter.sendMail(mailOptions, function(error, info){
+
+    transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
         console.log(error);
       } else {
-        console.log('Email sent: ' + info.response);
+        console.log("Email sent: " + info.response);
       }
     });
     res.status(200).json("email sent !");
@@ -141,27 +144,11 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-export const resetPassword = async (req, res) => {
-  const { id, token } = req.params;
-  try {
-    const oldUser = await User.findOne({ _id: id });
-    if (!oldUser) {
-      return res.status(404).json({ message: "User does not exist" });
-    }
-    const secret = JWT_SECRET_KEY + oldUser.password;
-    const verify = jwt.verify(token, secret);
-    res
-      .status(200)
-      .json({ message: "Token verified successfully",email: verify.email });
-  } catch (error) {
-    res.status(401).json({ error: "Invalid or expired token" });
-  }
-};
 export const updatePassword = async (req, res) => {
-  const { id, token } = req.params;
+  const { email, token } = req.params;
   const { password } = req.body;
   try {
-    const oldUser = await User.findOne({ _id: id });
+    const oldUser = await User.findOne({ email: email });
     if (!oldUser) {
       return res.status(404).json({ message: "User does not exist" });
     }
@@ -169,16 +156,14 @@ export const updatePassword = async (req, res) => {
     const verify = jwt.verify(token, secret);
     const encryptedPassword = await bcrypt.hash(password, 10);
     await User.updateOne(
-      { _id: id },
+      { email: email },
       {
         $set: {
           password: encryptedPassword,
         },
       },
     );
-    res
-      .status(200)
-      .json({ message: "Updated"});
+    res.status(200).json({ message: "Updated" });
   } catch (error) {
     res.status(401).json({ error: "Invalid or expired token" });
   }
