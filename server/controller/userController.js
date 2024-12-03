@@ -98,6 +98,13 @@ export const update = async (req, res) => {
     if (existingUser.length == 0) {
       return res.status(400).json({ message: "User not found" });
     }
+    if (req.body.email) {
+      const [emailExists] = await db.query("SELECT * FROM users WHERE email = ?", [req.body.email]);
+      if (emailExists.length > 0 && emailExists[0].email !== email) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+    }
+  
     if (req.body.password) {
       req.body.password = await bcrypt.hash(req.body.password, 10);
     }
