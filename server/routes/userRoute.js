@@ -5,14 +5,18 @@ import {
   logIn,
   update,
   deleteUser,
+  forgotPassword,
+  updatePassword,
 } from "../controller/userController.js";
 import { verifyToken } from "../middlewares/authMiddleware.js";
 const route = express.Router();
 
 route.post("/signup", signUp);
 route.post("/login", logIn);
-route.get("/getAllUsers",verifyToken, fetchUsers);
-route.put("/update/:id", update);
-route.delete("/delete/:id", deleteUser);
+route.get("/getAllUsers", verifyToken, fetchUsers);
+route.put("/update/:email", verifyToken, update);
+route.delete("/delete/:email", verifyToken, deleteUser);
+route.post("/forgot-password", forgotPassword);
+route.post("/reset-password/:email/:token", updatePassword);
 
 export default route;
