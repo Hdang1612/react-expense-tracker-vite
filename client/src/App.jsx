@@ -7,32 +7,23 @@ import Report from "./page/Report";
 import RegisterPage from "./page/RegisterPage";
 import TransactionPage from "./page/TransactionPage";
 function App() {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  console.log(isAuthenticated);
+  const token = useSelector((state) => state.auth.isAuthenticated);
   return (
     <BrowserRouter>
       <Routes>
-        <Route 
-        path="/" element= {<RegisterPage/>}
-        />
+        <Route path="/" element={<RegisterPage />} />
         <Route
           path="/home"
-          element={isAuthenticated ? <HomePage /> : <Navigate to="/auth" />}
+          element={token ? <HomePage /> : <Navigate to="/auth" />}
         />
         <Route path="/auth" element={<RegisterPage />} />
         <Route
           path="/transactions"
-          element={
-            isAuthenticated ? (
-              <TransactionPage />
-            ) : (
-              <Navigate to="/transactions" />
-            )
-          }
+          element={token ? <TransactionPage /> : <Navigate to="/auth" />}
         />
         <Route
           path="/statistics"
-          element={isAuthenticated ? <Report /> : <Navigate to="/statistics" />}
+          element={token ? <Report /> : <Navigate to="/auth" />}
         />
       </Routes>
     </BrowserRouter>
