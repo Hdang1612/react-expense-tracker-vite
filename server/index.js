@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import route from "./routes/userRoute.js";
+import routeTransaction from "./routes/transactionRoute.js";
 import cors from "cors";
 import connectDB from "./config/db.js";
 
