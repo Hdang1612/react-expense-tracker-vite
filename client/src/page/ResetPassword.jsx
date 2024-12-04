@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+
+
 import { resetPassword } from "../services/authServices";
 import { showSuccessToast, showErrorToast } from "../utils/Toaste";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
@@ -101,22 +103,6 @@ const ResetPassword = () => {
         </div>
       </div>
     </div>
-    // <div className="reset-password-container">
-    //   <h1>Reset Password</h1>
-    //   <input
-    //     type="password"
-    //     placeholder="New Password"
-    //     value={password}
-    //     onChange={(e) => setPassword(e.target.value)}
-    //   />
-    //   <input
-    //     type="password"
-    //     placeholder="Confirm Password"
-    //     value={confirmPassword}
-    //     onChange={(e) => setConfirmPassword(e.target.value)}
-    //   />
-    //   <button onClick={handleResetPassword}>Reset Password</button>
-    // </div>
   );
 };
 
