@@ -2,19 +2,13 @@ import { useState } from "react";
 
 import RegisterForm from "../component/AuthForm/RegisterForm";
 import LoginForm from "../component/AuthForm/LoginForm";
-// import ForgotPassword from "../component/AuthForm/ForgotPassword";
+import ForgotPassword from "../component/AuthForm/ForgotPassword";
 function RegisterPage() {
-  const [isLogin, setIsLogin] = useState("login");
-  const [isForgot, setIsForgot] = useState(false);
-  const toggleForm = () => {
-    
-    setIsLogin(isLogin==="login" ? "signup" :"login");
-    console.log("click!!");
-  };
-  const forgotPassword = () => {
-    setIsLogin(true);
-    console.log("click!!");
-  };
+  const [formType, setFormType] = useState("login");
+
+  const showLoginForm = () => setFormType("login");
+  const showSignupForm = () => setFormType("signup");
+  const showForgotPasswordForm = () => setFormType("forgotPassword");
 
   return (
     <div className="bg-[#0F0F0F] w-screen h-screen flex items-center text-[#fff] px-[60px] justify-between">
@@ -25,11 +19,15 @@ function RegisterPage() {
         </div>
       </div>
       <div>
-        {/* <ForgotPassword/> */}
-        {isLogin==="login"  ? (
-          <LoginForm toggleForm={toggleForm} forgotPassword={forgotPassword} />
-        ) : (
-          <RegisterForm toggleForm={toggleForm} />
+        {formType === "login" && (
+          <LoginForm
+            toggleForm={showSignupForm}
+            forgotPassword={showForgotPasswordForm}
+          />
+        )}
+        {formType === "signup" && <RegisterForm toggleForm={showLoginForm} />}
+        {formType === "forgotPassword" && (
+          <ForgotPassword toggleForm={showLoginForm} />
         )}
       </div>
     </div>
