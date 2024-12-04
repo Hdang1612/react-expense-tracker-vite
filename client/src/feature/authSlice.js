@@ -1,5 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { saveToStorage,getFromStorage } from "./localStorage";
+import {
+  saveToStorage,
+  getFromStorage,
+  removeFromStorage,
+} from "./localStorage";
 import { login } from "../services/authServices";
 
 export const loginUser = createAsyncThunk(
@@ -7,10 +11,9 @@ export const loginUser = createAsyncThunk(
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const res = await login(email, password);
-      saveToStorage("isAuthenticated", true);
+      saveToStorage("token", res.token);
       return res;
     } catch (err) {
-      saveToStorage("isAuthenticated", false);
       return rejectWithValue(err.message); //rejectwithvalue : khi sử dụng cái này thị lỗi sẽ được truyền vào payload của action rejected
     }
   },
@@ -19,13 +22,14 @@ export const loginUser = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    isAuthenticated: getFromStorage("isAuthenticated") , 
+    isAuthenticated: getFromStorage("token") ? true : false,
     user: null,
     status: "",
     error: null,
   },
   reducers: {
     logout: (state) => {
+      removeFromStorage("token");
       state.isAuthenticated = false;
       state.user = null;
     },

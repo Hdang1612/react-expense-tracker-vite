@@ -1,6 +1,6 @@
-import { useState } from "react";  
+import { useState } from "react";
 
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { loginUser } from "../../feature/authSlice";
@@ -19,7 +19,6 @@ function LoginForm({ toggleForm }) {
     e.preventDefault();
     try {
       const res = await dispatch(loginUser({ email, password })).unwrap(); //unwrap để trả về payload của action
-      console.log(res);
       showSuccessToast(res.message);
       navigate("/home");
     } catch (err) {
@@ -88,7 +87,7 @@ function LoginForm({ toggleForm }) {
                 className="w-full py-3 bg-gradient-to-r from-[#628EFF] via-[#8740CD] to-[#580475] text-white text-[20px] font-semibold rounded-[12px]"
                 disabled={status === "loading"} // Disable button khi đang loading
               >
-                 {status === "loading" ? ( // Nếu đang loading, hiển thị spinner
+                {status === "loading" ? ( // Nếu đang loading, hiển thị spinner
                   <Spin indicator={<EyeInvisibleOutlined />} />
                 ) : (
                   "Login"
@@ -109,9 +108,8 @@ function LoginForm({ toggleForm }) {
             <a
               onClick={toggleForm}
               className="cursor-pointer  hover:text-[#fff]"
-              
             >
-             Login
+              Login
             </a>
           </p>
           <div className="flex justify-between w-full mt-2">
