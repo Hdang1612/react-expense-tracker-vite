@@ -23,3 +23,4 @@ db.query("SELECT 1")
   .catch((err) => console.log("connected failed"));
 
 app.use("/api/user", route);
+app.use("/api/transaction", routeTransaction);

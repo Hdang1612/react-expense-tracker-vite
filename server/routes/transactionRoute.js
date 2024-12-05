@@ -1,6 +1,21 @@
 import express from "express";
 
-const routeTransaction=express.Router();
+import { verifyToken } from "../middlewares/authMiddleware.js";
+import {
+  addTransaction,
+  deleteTransaction,
+  updateTransaction,
+  fetchAllTransactions,
+  fetchTransaction,
+  searchTransaction,
+} from "../controller/transactionController.js";
 
+const routeTransaction = express.Router();
+routeTransaction.post("/add", verifyToken, addTransaction);
+routeTransaction.get("/fetchAllTransaction", verifyToken, fetchAllTransactions);
+routeTransaction.get("/fetchTransaction/:id", verifyToken, fetchTransaction);
+routeTransaction.get("/search", verifyToken, searchTransaction);
+routeTransaction.put("/update/:id", verifyToken, updateTransaction);
+routeTransaction.delete("/delete/:id", verifyToken, deleteTransaction);
 
 export default routeTransaction;
