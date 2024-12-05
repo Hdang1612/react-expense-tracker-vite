@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import db from "../config/db.js";
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -9,7 +10,7 @@ export const addTransaction = async (req, res) => {
     const { transactionBody } = req.body;
     const email = req.user.email;
     transactionBody.userEmail = email;
-    console.log(transactionBody.userEmail);
+    transactionBody.id=uuidv4();
     const keys = Object.keys(transactionBody);
     const values = Object.values(transactionBody);
     await db.query(
@@ -19,6 +20,7 @@ export const addTransaction = async (req, res) => {
     );
     res.status(200).json({ message: "Add transaction successful" });
   } catch (error) {
+    
     res.status(500).json({ error: "Internal Server error." });
   }
 };
@@ -26,9 +28,10 @@ export const addTransaction = async (req, res) => {
 export const deleteTransaction = async (req, res) => {
   try {
     const id = req.params.id;
+    const email=req.user.email
     const [transactionExist] = await db.query(
-      "DELETE FROM transactions WHERE id=?",
-      [id],
+      "DELETE FROM transactions WHERE id=? AND userEmail=?",
+      [id,email],
     );
     if (transactionExist.affectedRows == 0) {
       return res.status(404).json({
@@ -37,9 +40,12 @@ export const deleteTransaction = async (req, res) => {
     }
     res.status(201).json({ message: "Delete Successful" });
   } catch (error) {
+    console.error("Error during update:", error.message);
     res.status(500).json({ error: "Internal Server error" });
   }
 };
+
+
 
 export const updateTransaction = async (req, res) => {
   try {
@@ -79,8 +85,11 @@ export const fetchAllTransactions = async (req, res) => {
     if (listTransaction.length == 0) {
       res.status(200).json({ message: "No transaction" });
     }
-    res.status(200).json({ data: listTransaction });
+    else{
+      res.status(200).json({ data: listTransaction });
+    }
   } catch (error) {
+    
     res.status(500).json({ error: "Internal Server error" });
   }
 };
@@ -88,9 +97,10 @@ export const fetchAllTransactions = async (req, res) => {
 export const fetchTransaction = async (req, res) => {
   try {
     const id = req.params.id;
+    const email = req.user.email;
     const transaction = await db.query(
-      "SELECT * FROM transactions WHERE id =?",
-      [id],
+      "SELECT * FROM transactions WHERE id =? AND userEmail=?",
+      [id,email],
     );
     if (!transaction) {
       res.status(400).json({ message: "Transaction not found" });
