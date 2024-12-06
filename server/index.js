@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import route from "./routes/userRoute.js";
+import routeTransaction from "./routes/transactionRoute.js";
 import cors from "cors";
 import db from "./config/db.js";
 
@@ -22,3 +23,4 @@ db.query("SELECT 1")
   .catch((err) => console.log("connected failed"));
 
 app.use("/api/user", route);
+app.use("/api/transaction", routeTransaction);
