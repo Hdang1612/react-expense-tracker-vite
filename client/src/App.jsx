@@ -6,12 +6,19 @@ import HomePage from "./page/HomePage";
 import Report from "./page/Report";
 import RegisterPage from "./page/RegisterPage";
 import TransactionPage from "./page/TransactionPage";
+import ResetPassword from "./page/ResetPassword";
 function App() {
   const token = useSelector((state) => state.auth.isAuthenticated);
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<RegisterPage />} />
+
+        <Route
+          path="/auth/reset-password/:email/:token"
+          element={<ResetPassword />}
+        />
+
         <Route
           path="/home"
           element={token ? <HomePage /> : <Navigate to="/auth" />}

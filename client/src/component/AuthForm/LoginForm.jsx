@@ -7,7 +7,7 @@ import { loginUser } from "../../feature/authSlice";
 import { Spin } from "antd";
 import { EyeInvisibleOutlined, EyeOutlined } from "@ant-design/icons";
 import { showSuccessToast, showErrorToast } from "../../utils/Toaste";
-function LoginForm({ toggleForm }) {
+function LoginForm({ toggleForm, forgotPassword }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const status = useSelector((state) => state.auth.status);
@@ -85,15 +85,21 @@ function LoginForm({ toggleForm }) {
               <button
                 type="submit"
                 className="w-full py-3 bg-gradient-to-r from-[#628EFF] via-[#8740CD] to-[#580475] text-white text-[20px] font-semibold rounded-[12px]"
-                disabled={status === "loading"} // Disable button khi đang loading
+                disabled={status === "loading"}
               >
+
                 {status === "loading" ? ( // Nếu đang loading, hiển thị spinner
                   <Spin indicator={<EyeInvisibleOutlined />} />
                 ) : (
                   "Login"
                 )}
               </button>
-              <a>Forgot password ?</a>
+              <a
+                className="cursor-pointer hover:text-[#fff]"
+                onClick={forgotPassword}
+              >
+                Forgot password ?
+              </a>
             </div>
             <div className="flex items-center my-6">
               <hr className="flex-grow border-t border-[#AFAFAF]" />
@@ -109,7 +115,7 @@ function LoginForm({ toggleForm }) {
               onClick={toggleForm}
               className="cursor-pointer  hover:text-[#fff]"
             >
-              Login
+              SignUp
             </a>
           </p>
           <div className="flex justify-between w-full mt-2">
