@@ -13,10 +13,12 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<RegisterPage />} />
+
         <Route
           path="/auth/reset-password/:email/:token"
           element={<ResetPassword />}
         />
+
         <Route
           path="/home"
           element={token ? <HomePage /> : <Navigate to="/auth" />}
