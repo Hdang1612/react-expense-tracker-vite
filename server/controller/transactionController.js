@@ -18,7 +18,7 @@ export const addTransaction = async (req, res) => {
             VALUES (${keys.map(() => "?").join(", ")})`,
       values,
     );
-    res.status(200).json({ message: "Add transaction successful" });
+    res.status(200).json({ message: "Add transaction successful",data:transactionBody });
   } catch (error) {
     res.status(500).json({ error: "Internal Server error." });
   }

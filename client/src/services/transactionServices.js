@@ -13,12 +13,20 @@ export const addTransaction = async (data) => {
     }
   };
   
-  export const fetchAllTransaction = async (data) => {
+  export const fetchAllTransaction = async () => {
       try {
-        const response = await axios.post(FETCH_ALL_TRANSACTION_URL, { data });
+        const token = localStorage.getItem('token'); 
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await axios.get(FETCH_ALL_TRANSACTION_URL,config);
+        console.log('Response data:', response.data);
         return response.data;
       } catch (error) {
         const errorMessage = error.response?.data?.message;
+        console.error('Error message:', errorMessage);
         throw new Error(errorMessage);
       }
-    };
+};

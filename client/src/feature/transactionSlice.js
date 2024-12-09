@@ -1,29 +1,27 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { getFromStorage, saveToStorage } from "./localStorage.js";
-import { sortTransactionsByDate, formatDate } from "../utils/date.js";
-const calculateInitialBalances = (transactions) => {
-  const income = transactions
-    .filter((transaction) => transaction.transactionType === "income")
-    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {  saveToStorage } from "./localStorage.js";
+import { sortTransactionsByDate } from "../utils/date.js";
 
-  const expense = transactions
-    .filter((transaction) => transaction.transactionType === "expense")
-    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
+import { fetchAllTransaction } from "../services/transactionServices.js";
 
-  return {
-    totalIncome: income,
-    totalExpense: expense,
-    totalBalance: income - expense,
-  };
-};
 
-const persistedTransactions = getFromStorage("transactions-list") || [];
-const initialBalances = calculateInitialBalances(persistedTransactions);
+export const fetchTransactions = createAsyncThunk(
+  "transaction/fetchTransactions",
+  async () => {
+    try {
+      const res = await fetchAllTransaction();
+      return res.data;
+    } catch (error) {
+      console.log(error)
+      return (error.message);
+    }
+  },
+);
 
 const initialState = {
-  transactions: persistedTransactions,
-  ...initialBalances,
-  transactionsList: [],
+  transactions: null,
+  transactionsList: null,
+  isLoading:false,
   filteredTransaction: [],
   searchKeyword: "",
   paginatedTransactions: [],
@@ -119,6 +117,22 @@ const transactionSlice = createSlice({
       state.searchKeyword = action.payload.searchKeyword;
     },
   },
+
+  extraReducers: (builder) => {
+    builder
+    .addCase(fetchTransactions.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(fetchTransactions.fulfilled, (state, action) => {
+      state.isLoading=false
+      state.data = action.payload.data;
+    })
+    .addCase(fetchTransactions.rejected, (state) => {
+      console.log("failed")
+        state.isLoading=false
+        // state.error = action.payload;
+      });
+  },
 });
 
 const updateTotalBalance = (state) => {
@@ -147,73 +161,73 @@ export const selectTodayTransactions = (state) => {
 };
 
 // Nhóm giao dịch theo tuần
-export const selectWeeklyTransactions = (state) => {
-  const weeks = [];
-  let currentWeek = [];
-  let currentWeekKey = "";
+// export const selectWeeklyTransactions = (state) => {
+//   const weeks = [];
+//   let currentWeek = [];
+//   let currentWeekKey = "";
 
-  state.transactions.transactions.forEach((transaction) => {
-    const transactionDate = new Date(transaction.date);
-    const startOfTransactionWeek = new Date(transactionDate);
-    startOfTransactionWeek.setDate(
-      transactionDate.getDate() -
-        (transactionDate.getDay() === 0 ? 6 : transactionDate.getDay() - 1),
-    );
-    const endOfTransactionWeek = new Date(startOfTransactionWeek);
-    endOfTransactionWeek.setDate(startOfTransactionWeek.getDate() + 6);
+//   state.transactions.transactions.forEach((transaction) => {
+//     const transactionDate = new Date(transaction.date);
+//     const startOfTransactionWeek = new Date(transactionDate);
+//     startOfTransactionWeek.setDate(
+//       transactionDate.getDate() -
+//         (transactionDate.getDay() === 0 ? 6 : transactionDate.getDay() - 1),
+//     );
+//     const endOfTransactionWeek = new Date(startOfTransactionWeek);
+//     endOfTransactionWeek.setDate(startOfTransactionWeek.getDate() + 6);
 
-    const weekKey = `${formatDate(startOfTransactionWeek)} - ${formatDate(endOfTransactionWeek)}`; //name cho từng nhóm
-    if (currentWeek.length > 0 && currentWeekKey !== weekKey) {
-      weeks.push({
-        name: currentWeekKey,
-        transactions: currentWeek,
-      });
-      currentWeek = [];
-    }
+//     const weekKey = `${formatDate(startOfTransactionWeek)} - ${formatDate(endOfTransactionWeek)}`; //name cho từng nhóm
+//     if (currentWeek.length > 0 && currentWeekKey !== weekKey) {
+//       weeks.push({
+//         name: currentWeekKey,
+//         transactions: currentWeek,
+//       });
+//       currentWeek = [];
+//     }
 
-    currentWeek.push(transaction);
-    currentWeekKey = weekKey;
-  });
-  if (currentWeek.length > 0) {
-    weeks.push({
-      name: currentWeekKey,
-      transactions: currentWeek,
-    });
-  }
+//     currentWeek.push(transaction);
+//     currentWeekKey = weekKey;
+//   });
+//   if (currentWeek.length > 0) {
+//     weeks.push({
+//       name: currentWeekKey,
+//       transactions: currentWeek,
+//     });
+//   }
 
-  return weeks;
-};
+//   return weeks;
+// };
 
-// Nhóm giao dịch theo tháng
-export const selectMonthlyTransactions = (state) => {
-  const months = [];
-  let currentMonth = [];
-  state.transactions.transactions.forEach((transaction) => {
-    const transactionDate = new Date(transaction.date);
-    const monthKey = `${transactionDate.getMonth() + 1}-${transactionDate.getFullYear()}`;
-    if (
-      currentMonth.length > 0 &&
-      currentMonth[0].date &&
-      `${new Date(currentMonth[0].date).getMonth() + 1}-${new Date(currentMonth[0].date).getFullYear()}` !==
-        monthKey
-    ) {
-      months.push({
-        name: `${new Date(currentMonth[0].date).getMonth() + 1}-${new Date(currentMonth[0].date).getFullYear()}`,
-        transactions: currentMonth,
-      });
-      currentMonth = [];
-    }
-    currentMonth.push(transaction);
-  });
+// // Nhóm giao dịch theo tháng
+// export const selectMonthlyTransactions = (state) => {
+//   const months = [];
+//   let currentMonth = [];
+//   state.transactions.transactions.forEach((transaction) => {
+//     const transactionDate = new Date(transaction.date);
+//     const monthKey = `${transactionDate.getMonth() + 1}-${transactionDate.getFullYear()}`;
+//     if (
+//       currentMonth.length > 0 &&
+//       currentMonth[0].date &&
+//       `${new Date(currentMonth[0].date).getMonth() + 1}-${new Date(currentMonth[0].date).getFullYear()}` !==
+//         monthKey
+//     ) {
+//       months.push({
+//         name: `${new Date(currentMonth[0].date).getMonth() + 1}-${new Date(currentMonth[0].date).getFullYear()}`,
+//         transactions: currentMonth,
+//       });
+//       currentMonth = [];
+//     }
+//     currentMonth.push(transaction);
+//   });
 
-  if (currentMonth.length > 0) {
-    months.push({
-      name: `${new Date(currentMonth[0].date).getMonth() + 1}-${new Date(currentMonth[0].date).getFullYear()}`,
-      transactions: currentMonth,
-    });
-  }
-  return months;
-};
+//   if (currentMonth.length > 0) {
+//     months.push({
+//       name: `${new Date(currentMonth[0].date).getMonth() + 1}-${new Date(currentMonth[0].date).getFullYear()}`,
+//       transactions: currentMonth,
+//     });
+//   }
+//   return months;
+// };
 
 export const {
   addTransaction,

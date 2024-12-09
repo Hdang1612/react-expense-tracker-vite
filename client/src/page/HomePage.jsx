@@ -12,11 +12,12 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { formatCurrency } from "../utils/number";
-import {
-  TodayTransactionsList,
-  WeeklyTransactionsList,
-  MonthlyTransactionsList,
-} from "../component/TransactionList";
+import { fetchTransactions } from "../feature/transactionSlice";
+// import {
+//   TodayTransactionsList,
+//   WeeklyTransactionsList,
+//   MonthlyTransactionsList,
+// } from "../component/TransactionList";
 function HomePage() {
   const balance = useSelector((state) => state.transactions.totalBalance);
   const dispatch = useDispatch();
@@ -32,7 +33,10 @@ function HomePage() {
   };
 
   const modalStatus = useSelector((state) => state.modal);
-
+  const handleFetchTransactions = () => {
+    console.log('click!')
+    dispatch(fetchTransactions())
+  }
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="w-full  h-[100vh] bg-white relative ">
@@ -98,9 +102,12 @@ function HomePage() {
               </button>
             </div>
             <div className="mt-4  flex-1  overflow-y-auto">
-              {filter === "today" && <TodayTransactionsList />}
+              <button onClick={handleFetchTransactions} >
+                fetch data
+              </button>
+              {/* {filter === "today" && <TodayTransactionsList />}
               {filter === "weekly" && <WeeklyTransactionsList />}
-              {filter === "monthly" && <MonthlyTransactionsList />}
+              {filter === "monthly" && <MonthlyTransactionsList />} */}
             </div>
           </div>
         </div>
