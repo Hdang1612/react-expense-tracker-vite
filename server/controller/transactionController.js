@@ -184,3 +184,91 @@ export const searchTransaction = async (req, res) => {
     res.status(500).json({ error: "Internal Server error" });
   }
 };
+
+export const filterByPeriodTime = async (req, res) => {
+  try {
+    const period = req.query.period || "";
+
+    let sqlQuery = "";
+    let params = [req.user.email];
+
+    // Lọc theo ngày hôm nay
+    if (period === "today") {
+      sqlQuery = `
+        SELECT 
+          id,
+          transactionType,
+          transactionCategory,
+          transactionAmount,
+          transactionDescription,
+          DATE_FORMAT(createAt, '%d-%c-%Y') AS createAt  
+        FROM transactions
+        WHERE userEmail = ? 
+          AND DATE(createAt) = CURDATE() 
+        ORDER BY createAt DESC
+`;
+    }
+    // Lọc theo tuần (bắt đầu từ thứ 2 và kết thúc vào chủ nhật)
+    else if (period === "weekly") {
+      sqlQuery = `
+        SELECT 
+          YEARWEEK(createAt, 1) AS weekNumber, 
+          MIN(DATE_ADD(createAt, INTERVAL(1 - WEEKDAY(createAt)) DAY)) AS weekStart,
+          MAX(DATE_ADD(createAt, INTERVAL(7 - WEEKDAY(createAt)) DAY)) AS weekEnd,
+          JSON_ARRAYAGG(JSON_OBJECT(
+            'id', id,
+            'transactionType', transactionType,
+            'transactionCategory', transactionCategory,
+            'transactionAmount', transactionAmount,
+            'transactionDescription', transactionDescription,
+            'createAt', createAt
+          )) AS transactions
+        FROM transactions
+        WHERE userEmail = ?
+        GROUP BY YEARWEEK(createAt, 1)
+        ORDER BY weekNumber DESC;
+      `;
+    }
+    // Lọc theo tháng
+    else if (period === "monthly") {
+      sqlQuery = `
+        SELECT 
+          YEAR(createAt) AS year, 
+          MONTH(createAt) AS month, 
+          JSON_ARRAYAGG(JSON_OBJECT(
+            'id', id,
+            'transactionType', transactionType,
+            'transactionCategory', transactionCategory,
+            'transactionAmount', transactionAmount,
+            'transactionDescription', transactionDescription,
+            'createAt', createAt
+          )) AS transactions
+        FROM transactions
+        WHERE userEmail = ?
+        GROUP BY YEAR(createAt), MONTH(createAt)
+        ORDER BY year DESC, month DESC;
+      `;
+    }
+    const [transactions] = await db.query(sqlQuery, params);
+
+    let result = [];
+    if (period === "weekly") {
+      result = transactions.map((week) => ({
+        label: `${new Date(week.weekStart).toLocaleDateString("en-GB", { month: "short", day: "numeric", year: "numeric" })} - ${new Date(week.weekEnd).toLocaleDateString("en-GB", { month: "short", day: "numeric", year: "numeric" })}`,
+        transactions: week.transactions,
+      }));
+    } else if (period === "monthly") {
+      result = transactions.map((month) => ({
+        label: `${new Date(month.year, month.month - 1).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}`,
+        transactions: month.transactions,
+      }));
+    } else {
+      result = transactions;
+    }
+
+    res.status(200).json({ data: result });
+  } catch (error) {
+    console.error("Error filtering transactions by period:", error.message);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+};
