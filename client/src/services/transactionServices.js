@@ -22,7 +22,7 @@ export const addTransaction = async (data) => {
           },
         };
         const response = await axios.get(FETCH_ALL_TRANSACTION_URL,config);
-        console.log('Response data:', response.data);
+        // console.log('Response data:', response.data);
         return response.data;
       } catch (error) {
         const errorMessage = error.response?.data?.message;
