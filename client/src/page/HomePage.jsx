@@ -12,6 +12,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { formatCurrency } from "../utils/number";
+
 import {
   TodayTransactionsList,
   WeeklyTransactionsList,
@@ -20,7 +21,7 @@ import {
 function HomePage() {
   const balance = useSelector((state) => state.transactions.totalBalance);
   const dispatch = useDispatch();
-  const [filter, setFilter] = useState("weekly");
+  const [filter, setFilter] = useState("");
   const [showBalance, setShowBalance] = useState(true);
 
   const handleToggleBalance = () => {
