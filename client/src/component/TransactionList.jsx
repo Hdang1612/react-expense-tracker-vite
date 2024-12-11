@@ -1,17 +1,11 @@
 import { useState } from "react";
-
+import { useEffect } from "react";
 import { Empty } from "antd";
 import { useDispatch } from "react-redux";
 
 import ExpenseItem from "./transaction_item/TransactionItem";
 import { setTransactionData, toggleModal } from "../feature/modalSlice";
-
-// import {
-//   selectTodayTransactions,
-//   selectMonthlyTransactions,
-//   selectWeeklyTransactions,
-// } from "../feature/transactionSlice";
-
+import { filterByPeriodTime } from "../services/transactionServices";
 export const TransactionListPagination = ({ transactions }) => {
   const [openItemId, setOpenItemId] = useState(null);
   const dispatch = useDispatch();
@@ -46,14 +40,14 @@ export const TransactionList = ({ transactions }) => {
   };
 
   return (
-    <div className="h-[720px] md:h-[640px] ">
+    <div className="h-[700px] md:h-[600px] ">
       {Array.isArray(transactions) && transactions.length > 0 ? (
         transactions.map((group, index) => {
           if (group.transactions) {
             // Nếu là nhóm giao dịch, render tên nhóm và các giao dịch bên trong
             return (
               <div key={index}>
-                <h3>{group.name}</h3>
+                <h3>{group.label}</h3>
                 {group.transactions.map((transaction) => (
                   <ExpenseItem
                     key={transaction.id}
@@ -88,20 +82,71 @@ export const TransactionList = ({ transactions }) => {
 };
 
 
-// export const TodayTransactionsList = () => {
-//   const transactions = useSelector(selectTodayTransactions);
-//   console.log(transactions)
-//   return <TransactionList transactions={transactions} />;
-// };
+export const TodayTransactionsList = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-// export const WeeklyTransactionsList = () => {
-//   const transactions = useSelector(selectWeeklyTransactions);
-//   console.log(transactions)
-//   return <TransactionList transactions={transactions} />;
-// };
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const result = await filterByPeriodTime("today");
+        setTransactions(result.data);
+      } catch (error) {
+        console.error("Error fetching today's transactions:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
 
-// export const MonthlyTransactionsList = () => {
-//   const transactions = useSelector(selectMonthlyTransactions);
-//   console.log(transactions)
-//   return <TransactionList transactions={transactions} />;
-// };
+  if (loading) return <div>Loading</div>;
+
+  return <TransactionList transactions={transactions} />;
+};
+
+export const WeeklyTransactionsList = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const result = await filterByPeriodTime("weekly");
+        setTransactions(result.data);
+      } catch (error) {
+        console.error("Error fetching weekly transactions:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+  if (loading) return <div>Loading</div>;
+
+  return <TransactionList transactions={transactions} />;
+};
+
+export const MonthlyTransactionsList = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const result = await filterByPeriodTime("monthly");
+        setTransactions(result.data);
+      } catch (error) {
+        console.error("Error fetching monthly transactions:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+  if (loading) return <div>Loading</div>;
+
+  return <TransactionList transactions={transactions} />;
+};

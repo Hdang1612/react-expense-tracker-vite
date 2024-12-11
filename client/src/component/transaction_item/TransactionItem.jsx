@@ -35,12 +35,12 @@ const ExpenseItem = ({
     setOpenItemId(isOpen ? null : transaction.id);
   };
 
-  const icon = transaction.category ? typeIcon[transaction.category] : null;
+  const icon = transaction.transactionCategory ? typeIcon[transaction.transactionCategory] : null;
 
   const borderColor =
-    transaction.transactionType === "income"
+    transaction.transactionType === "income" || transaction.transactionType === "Income"
       ? "border-r-green-500"
-      : transaction.transactionType === "expense"
+      : transaction.transactionType === "expense"|| transaction.transactionType === "Expense"
         ? "border-r-red-500"
         : "";
 
@@ -76,16 +76,16 @@ const ExpenseItem = ({
           </div>
           <div className="ml-3">
             <p className="text-[16px] md:text-2xl font-regular text-[#000000]">
-              {transaction.category}
+              {transaction.transactionCategory}
             </p>
             <p className="text-[12px] md:text-xl font-semibold text-[#AEABAB]">
-              {transaction.description}
+              {transaction.transactionDescription}
             </p>
           </div>
           <div
             className={`ml-auto text-[16px] md:text-2xl font-semibold ${transaction.transactionType === "income" ? "text-green-500" : "text-red-500"} `}
           >
-            {formatCurrency(transaction.amount)}
+            {formatCurrency(transaction.transactionAmount)}
           </div>
           <div
             className={`ml-2 md:mx-3 transition-transform duration-300 ${
