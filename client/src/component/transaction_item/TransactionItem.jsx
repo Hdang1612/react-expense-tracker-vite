@@ -35,12 +35,16 @@ const ExpenseItem = ({
     setOpenItemId(isOpen ? null : transaction.id);
   };
 
-  const icon = transaction.transactionCategory ? typeIcon[transaction.transactionCategory] : null;
+  const icon = transaction.transactionCategory
+    ? typeIcon[transaction.transactionCategory]
+    : null;
 
   const borderColor =
-    transaction.transactionType === "income" || transaction.transactionType === "Income"
+    transaction.transactionType === "income" ||
+    transaction.transactionType === "Income"
       ? "border-r-green-500"
-      : transaction.transactionType === "expense"|| transaction.transactionType === "Expense"
+      : transaction.transactionType === "expense" ||
+          transaction.transactionType === "Expense"
         ? "border-r-red-500"
         : "";
 

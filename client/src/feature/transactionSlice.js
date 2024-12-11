@@ -1,8 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {  saveToStorage } from "./localStorage.js";
+import { saveToStorage } from "./localStorage.js";
 import { sortTransactionsByDate } from "../utils/date.js";
 
-import { fetchAllTransaction,addTransaction } from "../services/transactionServices.js";
+import {
+  fetchAllTransaction,
+  addTransaction,
+} from "../services/transactionServices.js";
 
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
@@ -11,29 +14,29 @@ export const fetchTransactions = createAsyncThunk(
       const res = await fetchAllTransaction();
       return res.data;
     } catch (error) {
-      console.log(error)
-      return (error.message);
+      console.log(error);
+      return error.message;
     }
   },
 );
 
-export const addTransactions =createAsyncThunk(
-  "transaction/addTransactions" ,
+export const addTransactions = createAsyncThunk(
+  "transaction/addTransactions",
   async (data) => {
     try {
-      console.log(data)
-      const res = await addTransaction(data) ;
-      return res.data
+      console.log(data);
+      const res = await addTransaction(data);
+      return res.data;
     } catch (error) {
-      return (error.message)
+      return error.message;
     }
-  }
-)
+  },
+);
 
 const initialState = {
   transactions: null,
   // transactionsList: null,
-  isLoading:false,
+  isLoading: false,
   filteredTransaction: [],
   searchKeyword: "",
   paginatedTransactions: [],
@@ -114,31 +117,31 @@ const transactionSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-    .addCase(fetchTransactions.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(fetchTransactions.fulfilled, (state, action) => {
-      state.isLoading=false
-      state.transactions = action.payload
-    })
-    .addCase(fetchTransactions.rejected, (state) => {
-      console.log("failed")
-        state.isLoading=false
+      .addCase(fetchTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.transactions = action.payload;
+      })
+      .addCase(fetchTransactions.rejected, (state) => {
+        console.log("failed");
+        state.isLoading = false;
         // state.error = action.payload;
       });
 
     builder
-    .addCase(addTransactions.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(addTransactions.fulfilled, (state,action) => {
-      state.isLoading = false;
-      state.transactions.push(action.payload);
-    })
-    .addCase(addTransactions.rejected, (state) => {
-      console.log("failed")
-      state.isLoading = false;
-    })
+      .addCase(addTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.transactions.push(action.payload);
+      })
+      .addCase(addTransactions.rejected, (state) => {
+        console.log("failed");
+        state.isLoading = false;
+      });
   },
 });
 

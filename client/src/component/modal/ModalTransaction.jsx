@@ -9,7 +9,7 @@ import { transactionCategory } from "../constants/constant.js";
 import {
   updateTransaction,
   removeTransaction,
-  addTransactions
+  addTransactions,
 } from "../../feature/transactionSlice.js";
 
 const ModalExpense = () => {
@@ -83,14 +83,14 @@ const ModalExpense = () => {
       return;
     }
     const newTransaction = {
-      transactionBody:{
-        createAt:date,
-        transactionCategory:category,
-        transactionDescription:description,
-        transactionAmount:amount,
+      transactionBody: {
+        createAt: date,
+        transactionCategory: category,
+        transactionDescription: description,
+        transactionAmount: amount,
         receipt,
         transactionType: isExpense ? "expense" : "income",
-      }
+      },
     };
 
     if (transactionData) {

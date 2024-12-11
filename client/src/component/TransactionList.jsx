@@ -81,7 +81,6 @@ export const TransactionList = ({ transactions }) => {
   );
 };
 
-
 export const TodayTransactionsList = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
