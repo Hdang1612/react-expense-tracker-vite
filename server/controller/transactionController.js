@@ -18,7 +18,9 @@ export const addTransaction = async (req, res) => {
             VALUES (${keys.map(() => "?").join(", ")})`,
       values,
     );
-    res.status(200).json({ message: "Add transaction successful",data:transactionBody });
+    res
+      .status(200)
+      .json({ message: "Add transaction successful", data: transactionBody });
   } catch (error) {
     console.error("Error during create:", error.message);
     res.status(500).json({ error: "Internal Server error." });
@@ -96,7 +98,15 @@ export const fetchTransaction = async (req, res) => {
     const id = req.params.id;
     const email = req.user.email;
     const transaction = await db.query(
-      "SELECT * FROM transactions WHERE id =? AND userEmail=?",
+      `SELECT
+          id,
+          transactionType,
+          transactionCategory,
+          transactionAmount,
+          transactionDescription,
+          receipt,
+          DATE_FORMAT(createAt, '%Y-%c-%d') AS createAt  
+      FROM transactions WHERE id =? AND userEmail=?`,
       [id, email],
     );
     if (!transaction) {
@@ -181,7 +191,6 @@ export const searchTransaction = async (req, res) => {
       });
     }
   } catch (error) {
-    
     res.status(500).json({ error: "Internal Server error" });
   }
 };

@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {  saveToStorage } from "./localStorage.js";
 import { sortTransactionsByDate } from "../utils/date.js";
 
-import { fetchAllTransaction,addTransaction } from "../services/transactionServices.js";
+import { fetchAllTransaction,addTransaction,updateTransaction } from "../services/transactionServices.js";
 
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
@@ -28,6 +28,19 @@ export const addTransactions =createAsyncThunk(
       return (error.message)
     }
   }
+)
+
+export const updateTransactions= createAsyncThunk (
+  "transaction/updateTransactions",
+    async (data,id) => {
+      try {
+        console.log(data)
+        const res=await updateTransaction(data,id)
+        return res.data
+      } catch (error) {
+        return error.message
+      }
+    }
 )
 
 const initialState = {
@@ -139,6 +152,20 @@ const transactionSlice = createSlice({
       console.log("failed")
       state.isLoading = false;
     })
+
+
+    builder
+    .addCase(updateTransactions.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(updateTransactions.fulfilled, (state,action) => {
+      state.isLoading = false;
+      state.transactions.push(action.payload);
+    })
+    .addCase(updateTransactions.rejected, (state) => {
+      console.log("failed")
+      state.isLoading = false;
+    })
   },
 });
 
@@ -156,10 +183,10 @@ const updateTotalBalance = (state) => {
 };
 
 export const {
-  updateTransaction,
-  removeTransaction,
   setCurrentPage,
   setItemsPerPage,
   setFilteredTransactions,
+  removeTransaction,
+  // updateTransaction
 } = transactionSlice.actions;
 export default transactionSlice.reducer;

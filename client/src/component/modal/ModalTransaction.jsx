@@ -7,10 +7,11 @@ import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 import { transactionCategory } from "../constants/constant.js";
 import {
-  updateTransaction,
+  // updateTransaction,
   removeTransaction,
   addTransactions
 } from "../../feature/transactionSlice.js";
+// import { setTransactionData } from "../../feature/modalSlice.js";
 
 const ModalExpense = () => {
   const dispatch = useDispatch();
@@ -27,12 +28,12 @@ const ModalExpense = () => {
   const [uploadError, setUploadError] = useState(false);
   useEffect(() => {
     if (transactionData) {
-      setDate(transactionData.date || "");
-      setCategory(transactionData.category || "Shopping");
-      setDescription(transactionData.description || "");
-      setAmount(transactionData.amount || "");
-      setIsExpense(transactionData.transactionType === "income" ? false : true);
-      setReceipt(transactionData.receipt || null);
+      setDate(transactionData[0].createAt || "");
+      setCategory(transactionData[0].transactionCategory || "Shopping");
+      setDescription(transactionData[0].transactionDescription || "");
+      setAmount(transactionData[0].transactionAmount || "");
+      setIsExpense(transactionData[0].transactionType === "income" ? false : true);
+      setReceipt(transactionData[0].receipt || null);
     } else {
       const today = new Date().toISOString().split("T")[0];
       setDate(today);
@@ -94,7 +95,7 @@ const ModalExpense = () => {
     };
 
     if (transactionData) {
-      dispatch(updateTransaction(newTransaction));
+      // dispatch(updateTransaction(newTransaction));
       showSuccessToast("Cập nhật thành công");
     } else {
       dispatch(addTransactions(newTransaction));
