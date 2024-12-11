@@ -5,7 +5,14 @@ const FETCH_ALL_TRANSACTION_URL = import.meta.env.VITE_API_URL_FETCH_ALL;
 
 export const addTransaction = async (data) => {
     try {
-      const response = await axios.post(ADD_URL, { data });
+      console.log(data)
+      const token = localStorage.getItem('token'); 
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+      const response = await axios.post(ADD_URL, data ,config);
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message;

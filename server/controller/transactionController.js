@@ -20,6 +20,7 @@ export const addTransaction = async (req, res) => {
     );
     res.status(200).json({ message: "Add transaction successful",data:transactionBody });
   } catch (error) {
+    console.error("Error during create:", error.message);
     res.status(500).json({ error: "Internal Server error." });
   }
 };
@@ -180,7 +181,7 @@ export const searchTransaction = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error during update:", error.message);
+    
     res.status(500).json({ error: "Internal Server error" });
   }
 };

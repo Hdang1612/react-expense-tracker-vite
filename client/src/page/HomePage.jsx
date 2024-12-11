@@ -13,11 +13,11 @@ import {
 } from "@ant-design/icons";
 import { formatCurrency } from "../utils/number";
 import { fetchTransactions } from "../feature/transactionSlice";
-import {
-  TodayTransactionsList,
-  WeeklyTransactionsList,
-  MonthlyTransactionsList,
-} from "../component/TransactionList";
+// import {
+//   TodayTransactionsList,
+//   WeeklyTransactionsList,
+//   MonthlyTransactionsList,
+// } from "../component/TransactionList";
 function HomePage() {
   const balance = useSelector((state) => state.transactions.totalBalance);
   const dispatch = useDispatch();
@@ -105,7 +105,7 @@ function HomePage() {
               <button onClick={handleFetchTransactions} >
                 fetch data
               </button>
-              {filter === "today" && <TodayTransactionsList />}
+              {/* {filter === "today" && <TodayTransactionsList />} */}
               {/* {filter === "weekly" && <WeeklyTransactionsList />} */}
               {/* {filter === "monthly" && <MonthlyTransactionsList />} */}
             </div>

@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { v4 as uuidv4 } from "uuid";
 import { Modal, Button, Upload } from "antd";
 
 import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 import { transactionCategory } from "../constants/constant.js";
 import {
-  addTransaction,
   updateTransaction,
   removeTransaction,
+  addTransactions
 } from "../../feature/transactionSlice.js";
 
 const ModalExpense = () => {
@@ -83,22 +82,22 @@ const ModalExpense = () => {
       showErrorToast("Vui lòng tải lên tệp ảnh hợp lệ");
       return;
     }
-
     const newTransaction = {
-      id: transactionData ? transactionData.id : uuidv4(),
-      date,
-      category,
-      description,
-      amount,
-      receipt,
-      transactionType: isExpense ? "expense" : "income",
+      transactionBody:{
+        createAt:date,
+        transactionCategory:category,
+        transactionDescription:description,
+        transactionAmount:amount,
+        receipt,
+        transactionType: isExpense ? "expense" : "income",
+      }
     };
 
     if (transactionData) {
       dispatch(updateTransaction(newTransaction));
       showSuccessToast("Cập nhật thành công");
     } else {
-      dispatch(addTransaction(newTransaction));
+      dispatch(addTransactions(newTransaction));
       showSuccessToast("Thêm thành công");
     }
 

@@ -1,16 +1,16 @@
 import { useState } from "react";
 
 import { Empty } from "antd";
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import ExpenseItem from "./transaction_item/TransactionItem";
 import { setTransactionData, toggleModal } from "../feature/modalSlice";
 
-import {
-  selectTodayTransactions,
-  selectMonthlyTransactions,
-  selectWeeklyTransactions,
-} from "../feature/transactionSlice";
+// import {
+//   selectTodayTransactions,
+//   selectMonthlyTransactions,
+//   selectWeeklyTransactions,
+// } from "../feature/transactionSlice";
 
 export const TransactionListPagination = ({ transactions }) => {
   const [openItemId, setOpenItemId] = useState(null);
@@ -88,20 +88,20 @@ export const TransactionList = ({ transactions }) => {
 };
 
 
-export const TodayTransactionsList = () => {
-  const transactions = useSelector(selectTodayTransactions);
-  console.log(transactions)
-  return <TransactionList transactions={transactions} />;
-};
+// export const TodayTransactionsList = () => {
+//   const transactions = useSelector(selectTodayTransactions);
+//   console.log(transactions)
+//   return <TransactionList transactions={transactions} />;
+// };
 
-export const WeeklyTransactionsList = () => {
-  const transactions = useSelector(selectWeeklyTransactions);
-  console.log(transactions)
-  return <TransactionList transactions={transactions} />;
-};
+// export const WeeklyTransactionsList = () => {
+//   const transactions = useSelector(selectWeeklyTransactions);
+//   console.log(transactions)
+//   return <TransactionList transactions={transactions} />;
+// };
 
-export const MonthlyTransactionsList = () => {
-  const transactions = useSelector(selectMonthlyTransactions);
-  console.log(transactions)
-  return <TransactionList transactions={transactions} />;
-};
+// export const MonthlyTransactionsList = () => {
+//   const transactions = useSelector(selectMonthlyTransactions);
+//   console.log(transactions)
+//   return <TransactionList transactions={transactions} />;
+// };
