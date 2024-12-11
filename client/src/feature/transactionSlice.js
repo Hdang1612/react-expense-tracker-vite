@@ -1,8 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {  saveToStorage } from "./localStorage.js";
-import { sortTransactionsByDate } from "../utils/date.js";
 
-import { fetchAllTransaction,addTransaction,updateTransaction } from "../services/transactionServices.js";
+import {
+  fetchAllTransaction,
+  addTransaction,
+  updateTransaction,
+  removeTransaction,
+  filterByPeriodTime
+} from "../services/transactionServices.js";
+import { showErrorToast, showSuccessToast } from "../utils/Toaste.js";
 
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
@@ -11,42 +16,70 @@ export const fetchTransactions = createAsyncThunk(
       const res = await fetchAllTransaction();
       return res.data;
     } catch (error) {
-      console.log(error)
       return (error.message);
     }
   },
 );
 
-export const addTransactions =createAsyncThunk(
-  "transaction/addTransactions" ,
-  async (data) => {
-    try {
-      console.log(data)
-      const res = await addTransaction(data) ;
-      return res.data
-    } catch (error) {
-      return (error.message)
-    }
+export const groupTransaction = createAsyncThunk(
+  "transaction/groupTransaction",
+  async (period,{rejectWithValue}) => {
+      try {
+        const res= await filterByPeriodTime(period)
+        return res.data
+      } catch (error) {
+        return rejectWithValue(error.message)
+      }
   }
 )
 
-export const updateTransactions= createAsyncThunk (
-  "transaction/updateTransactions",
-    async (data,id) => {
-      try {
-        console.log(data)
-        const res=await updateTransaction(data,id)
-        return res.data
-      } catch (error) {
-        return error.message
-      }
+
+export const addTransactions = createAsyncThunk(
+  "transaction/addTransactions",
+  async (data, { rejectWithValue }) => {
+    try {
+      console.log(data);
+      const res = await addTransaction(data);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
-)
+  },
+);
+
+export const updateTransactions = createAsyncThunk(
+  "transaction/updateTransactions",
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await updateTransaction(data);
+      console.log(res)
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const removeTransactions = createAsyncThunk(
+  "transaction/removeTransactions",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await removeTransaction(id);
+      console.log(res);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
 
 const initialState = {
   transactions: null,
-  // transactionsList: null,
-  isLoading:false,
+  totalBalance: 0,
+  totalIncome: 0,
+  totalExpense: 0,
+  todayTransactions:[],
+  isLoading: false,
   filteredTransaction: [],
   searchKeyword: "",
   paginatedTransactions: [],
@@ -58,49 +91,6 @@ const transactionSlice = createSlice({
   name: "transactions",
   initialState,
   reducers: {
-    updateTransaction: (state, action) => {
-      const updatedData = action.payload;
-      const transactionIndex = state.transactions.findIndex(
-        (transaction) => transaction.id === updatedData.id,
-      );
-      if (transactionIndex >= 0) {
-        state.transactions[transactionIndex] = {
-          ...state.transactions[transactionIndex],
-          ...updatedData,
-        };
-        state.transactions = sortTransactionsByDate(state.transactions);
-        saveToStorage("transactions-list", state.transactions);
-        updateTotalBalance(state);
-      }
-      if (state.searchKeyword) {
-        state.filteredTransactions = state.transactions.filter((transaction) =>
-          transaction.description
-            .toLowerCase()
-            .includes(state.searchKeyword.toLowerCase()),
-        );
-      } else {
-        state.filteredTransactions = state.transactions;
-      }
-    },
-
-    removeTransaction: (state, action) => {
-      state.transactions = state.transactions.filter(
-        (transaction) => transaction.id !== action.payload,
-      );
-      state.transactions = sortTransactionsByDate(state.transactions);
-      saveToStorage("transactions-list", state.transactions);
-      updateTotalBalance(state);
-      if (state.searchKeyword) {
-        state.filteredTransactions = state.transactions.filter((transaction) =>
-          transaction.description
-            .toLowerCase()
-            .includes(state.searchKeyword.toLowerCase()),
-        );
-      } else {
-        state.filteredTransactions = state.transactions;
-      }
-    },
-
     setCurrentPage: (state, action) => {
       state.currentPage = action.payload;
       const startIndex = (state.currentPage - 1) * state.itemsPerPage;
@@ -127,66 +117,117 @@ const transactionSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-    .addCase(fetchTransactions.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(fetchTransactions.fulfilled, (state, action) => {
-      state.isLoading=false
-      state.transactions = action.payload
-    })
-    .addCase(fetchTransactions.rejected, (state) => {
-      console.log("failed")
-        state.isLoading=false
-        // state.error = action.payload;
+      .addCase(fetchTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.transactions = action.payload;
+        updateTotalBalance(state);
+      })
+      .addCase(fetchTransactions.rejected, (state) => {
+        state.isLoading = false;
       });
 
-    builder
-    .addCase(addTransactions.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(addTransactions.fulfilled, (state,action) => {
-      state.isLoading = false;
-      state.transactions.push(action.payload);
-    })
-    .addCase(addTransactions.rejected, (state) => {
-      console.log("failed")
-      state.isLoading = false;
-    })
 
-
+      builder
+        .addCase(groupTransaction.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(groupTransaction.fulfilled, (state, action) => {
+          state.isLoading = false;
+          state.todayTransactions = action.payload;
+        })
+        .addCase(groupTransaction.rejected, (state) => {
+          console.log("failed");
+          state.isLoading = false;
+        });
+      
+      // Add transaction
     builder
-    .addCase(updateTransactions.pending, (state) => {
-      state.isLoading = true;
-    })
-    .addCase(updateTransactions.fulfilled, (state,action) => {
-      state.isLoading = false;
-      state.transactions.push(action.payload);
-    })
-    .addCase(updateTransactions.rejected, (state) => {
-      console.log("failed")
-      state.isLoading = false;
-    })
+      .addCase(addTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.transactions.push(action.payload.data);
+        showSuccessToast(action.payload.message);
+        // updateTotalBalance();
+      })
+      .addCase(addTransactions.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    // Update transaction
+    builder
+      .addCase(updateTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const transactionIndex = state.transactions.findIndex(
+          (transaction) => transaction.id === action.payload.data.id,
+        );
+        state.transactions[transactionIndex] = {
+          ...state.transactions[transactionIndex],
+          ...action.payload.data,
+        };
+        // updateTotalBalance();
+        showSuccessToast(action.payload.message);
+      })
+      .addCase(updateTransactions.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    // Remove transaction
+    builder
+      .addCase(removeTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(removeTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        console.log(action.payload);
+        state.transactions = state.transactions.filter(
+          (transaction) => transaction.id !== action.payload.id,
+        );
+        showSuccessToast(action.payload.message);
+      })
+      .addCase(removeTransactions.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
   },
 });
 
 const updateTotalBalance = (state) => {
   const transactions = [...state.transactions];
   const income = transactions
-    .filter((transaction) => transaction.transactionType === "income")
-    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
+    .filter(
+      (transaction) =>
+        transaction.transactionType === "income" ||
+        transaction.transactionType === "Income",
+    )
+    .reduce(
+      (acc, transaction) => acc + Number(transaction.transactionAmount),
+      0,
+    );
   const expense = transactions
-    .filter((transaction) => transaction.transactionType === "expense")
-    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
+    .filter(
+      (transaction) =>
+        transaction.transactionType === "expense" ||
+        transaction.transactionType === "Expense",
+    )
+    .reduce(
+      (acc, transaction) => acc + Number(transaction.transactionAmount),
+      0,
+    );
   state.totalIncome = income;
   state.totalExpense = expense;
   state.totalBalance = income - expense;
 };
 
-export const {
-  setCurrentPage,
-  setItemsPerPage,
-  setFilteredTransactions,
-  removeTransaction,
-  // updateTransaction
-} = transactionSlice.actions;
+export const { setCurrentPage, setItemsPerPage, setFilteredTransactions } =
+  transactionSlice.actions;
 export default transactionSlice.reducer;

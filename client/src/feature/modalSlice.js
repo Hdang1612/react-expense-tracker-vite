@@ -1,18 +1,21 @@
-import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchTransactionById } from "../services/transactionServices";
 
-export const setTransactionData =createAsyncThunk (
+export const setTransactionData = createAsyncThunk(
   "modal/setTransactionData",
-  async (data) =>{
+  async (data) => {
     try {
-      const res =await fetchTransactionById(data.id)
-      return res.transaction
+      if (data) {
+        const res = await fetchTransactionById(data.id);
+        return res.transaction;
+      }
+      return null;
     } catch (error) {
-      console.log(error.message)
-      return (error.message);
+      console.log(error.message);
+      return error.message;
     }
-  }
-)
+  },
+);
 
 const initialState = {
   isShow: false,
@@ -35,22 +38,18 @@ export const modalSlice = createSlice({
     },
   },
 
-  extraReducers:(builder) => {
+  extraReducers: (builder) => {
     builder
-    .addCase(setTransactionData.fulfilled,(state,action) => {
-      console.log(action)
-      state.transactionData = action.payload
-    })
-    .addCase(setTransactionData.rejected,() => {
-      console.log("failed")
-    })
-  }
+      .addCase(setTransactionData.fulfilled, (state, action) => {
+        state.transactionData = action.payload;
+      })
+      .addCase(setTransactionData.rejected, () => {
+        console.log("failed");
+      });
+  },
 });
 
-export const {
-  toggleModal,
-  setModalTitle,
-  resetTransactionData,
-} = modalSlice.actions;
+export const { toggleModal, setModalTitle, resetTransactionData } =
+  modalSlice.actions;
 
 export default modalSlice.reducer;

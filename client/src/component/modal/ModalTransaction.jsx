@@ -3,15 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Modal, Button, Upload } from "antd";
 
-import { showSuccessToast, showErrorToast } from "../../utils/Toaste.js";
+import { showErrorToast } from "../../utils/Toaste.js";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 import { transactionCategory } from "../constants/constant.js";
 import {
   // updateTransaction,
-  removeTransaction,
-  addTransactions
+  removeTransactions,
+  addTransactions,
+  updateTransactions,
 } from "../../feature/transactionSlice.js";
-// import { setTransactionData } from "../../feature/modalSlice.js";
 
 const ModalExpense = () => {
   const dispatch = useDispatch();
@@ -19,6 +19,7 @@ const ModalExpense = () => {
     (state) => state.modal,
   );
 
+  const [id, setId] = useState("");
   const [date, setDate] = useState("");
   const [category, setCategory] = useState("Shopping");
   const [description, setDescription] = useState("");
@@ -28,11 +29,14 @@ const ModalExpense = () => {
   const [uploadError, setUploadError] = useState(false);
   useEffect(() => {
     if (transactionData) {
+      setId(transactionData[0].id || "");
       setDate(transactionData[0].createAt || "");
       setCategory(transactionData[0].transactionCategory || "Shopping");
       setDescription(transactionData[0].transactionDescription || "");
       setAmount(transactionData[0].transactionAmount || "");
-      setIsExpense(transactionData[0].transactionType === "income" ? false : true);
+      setIsExpense(
+        transactionData[0].transactionType === "income" ? false : true,
+      );
       setReceipt(transactionData[0].receipt || null);
     } else {
       const today = new Date().toISOString().split("T")[0];
@@ -83,23 +87,32 @@ const ModalExpense = () => {
       showErrorToast("Vui lòng tải lên tệp ảnh hợp lệ");
       return;
     }
+
     const newTransaction = {
-      transactionBody:{
-        createAt:date,
-        transactionCategory:category,
-        transactionDescription:description,
-        transactionAmount:amount,
+      transactionBody: {
+        createAt: date,
+        transactionCategory: category,
+        transactionDescription: description,
+        transactionAmount: amount,
         receipt,
         transactionType: isExpense ? "expense" : "income",
-      }
+      },
+    };
+
+    const updateTrans = {
+      id: id,
+      createAt: date,
+      transactionCategory: category,
+      transactionDescription: description,
+      transactionAmount: amount,
+      receipt,
+      transactionType: isExpense ? "expense" : "income",
     };
 
     if (transactionData) {
-      // dispatch(updateTransaction(newTransaction));
-      showSuccessToast("Cập nhật thành công");
+      dispatch(updateTransactions(updateTrans));
     } else {
       dispatch(addTransactions(newTransaction));
-      showSuccessToast("Thêm thành công");
     }
 
     dispatch(toggleModal(false));
@@ -108,8 +121,7 @@ const ModalExpense = () => {
 
   const handleDelete = () => {
     if (transactionData) {
-      dispatch(removeTransaction(transactionData.id));
-      showSuccessToast("Xóa thành công");
+      dispatch(removeTransactions(transactionData[0].id));
       dispatch(toggleModal(false));
       dispatch(resetTransactionData());
     }

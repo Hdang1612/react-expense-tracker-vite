@@ -8,7 +8,7 @@ import db from "./config/db.js";
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "10mb" })); 
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(bodyParser.json()); // mọi yêu cầu http đều đi qua middleware này trước khi được route handler xử lý ,
 //nếu ko có thì req.body -- > undefined

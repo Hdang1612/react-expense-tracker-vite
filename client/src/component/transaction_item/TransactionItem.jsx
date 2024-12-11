@@ -11,8 +11,7 @@ import {
   FileUnknownOutlined,
 } from "@ant-design/icons";
 
-import { showSuccessToast } from "../../utils/Toaste";
-import { removeTransaction } from "../../feature/transactionSlice";
+import { removeTransactions } from "../../feature/transactionSlice";
 import { formatCurrency } from "../../utils/number";
 
 const ExpenseItem = ({
@@ -35,20 +34,23 @@ const ExpenseItem = ({
     setOpenItemId(isOpen ? null : transaction.id);
   };
 
-  const icon = transaction.transactionCategory ? typeIcon[transaction.transactionCategory] : null;
+  const icon = transaction.transactionCategory
+    ? typeIcon[transaction.transactionCategory]
+    : null;
 
   const borderColor =
-    transaction.transactionType === "income" || transaction.transactionType === "Income"
+    transaction.transactionType === "income" ||
+    transaction.transactionType === "Income"
       ? "border-r-green-500"
-      : transaction.transactionType === "expense"|| transaction.transactionType === "Expense"
+      : transaction.transactionType === "expense" ||
+          transaction.transactionType === "Expense"
         ? "border-r-red-500"
         : "";
 
   const dispatch = useDispatch();
 
   const handleDelete = () => {
-    dispatch(removeTransaction(transaction.id));
-    showSuccessToast("Xóa thành công");
+    dispatch(removeTransactions(transaction.id));
     if (isOpen) setOpenItemId(null);
   };
   const [isModalOpen, setIsModalOpen] = useState(false);

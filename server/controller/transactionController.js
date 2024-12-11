@@ -40,7 +40,7 @@ export const deleteTransaction = async (req, res) => {
         message: "transaction not found",
       });
     }
-    res.status(201).json({ message: "Delete Successful" });
+    res.status(201).json({ message: "Delete Successful", id: id });
   } catch (error) {
     console.error("Error during update:", error.message);
     res.status(500).json({ error: "Internal Server error" });
@@ -57,8 +57,22 @@ export const updateTransaction = async (req, res) => {
     if (transactionExist.length == 0) {
       return res.status(400).json({ message: "Transaction not found" });
     }
+    const updateTransaction = {
+      transactionType:
+        req.body.transactionType || transactionExist[0].transactionType,
+      transactionCategory:
+        req.body.transactionCategory || transactionExist[0].transactionCategory,
+      transactionAmount:
+        req.body.transactionAmount || transactionExist[0].transactionAmount,
+      transactionDescription:
+        req.body.transactionDescription ||
+        transactionExist[0].transactionDescription,
+      createAt: req.body.createAt || transactionExist[0].createAt,
+      receipt: req.body.receipt || transactionExist[0].receipt,
+      id: transactionExist[0].id,
+    };
     await db.query(
-      "UPDATE  transactions SET   transactionType= ?, transactionCategory= ? ,transactionAmount= ? ,transactionDescription= ? , createAt= ? WHERE id = ?",
+      "UPDATE  transactions SET   transactionType= ?, transactionCategory= ? ,transactionAmount= ? ,transactionDescription= ? , createAt= ?, receipt= ? WHERE id = ?",
       [
         req.body.transactionType || transactionExist[0].transactionType,
         req.body.transactionCategory || transactionExist[0].transactionCategory,
@@ -66,10 +80,13 @@ export const updateTransaction = async (req, res) => {
         req.body.transactionDescription ||
           transactionExist[0].transactionDescription,
         req.body.createAt || transactionExist[0].createAt,
+        req.body.receipt || transactionExist[0].receipt,
         id,
       ],
     );
-    res.status(200).json({ message: "Update Successful" });
+    res
+      .status(200)
+      .json({ message: "Update Successful", data: updateTransaction });
   } catch (error) {
     console.error("Error during login:", error.message);
     res.status(500).json({ error: "Internal Server error" });

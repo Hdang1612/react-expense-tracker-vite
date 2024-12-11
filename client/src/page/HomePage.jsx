@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -12,6 +12,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { formatCurrency } from "../utils/number";
+import { fetchTransactions } from "../feature/transactionSlice";
 
 import {
   TodayTransactionsList,
@@ -21,7 +22,7 @@ import {
 function HomePage() {
   const balance = useSelector((state) => state.transactions.totalBalance);
   const dispatch = useDispatch();
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState("today");
   const [showBalance, setShowBalance] = useState(true);
 
   const handleToggleBalance = () => {
@@ -33,6 +34,10 @@ function HomePage() {
   };
 
   const modalStatus = useSelector((state) => state.modal);
+
+  useEffect(() => {
+    dispatch(fetchTransactions());
+  }, [dispatch]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
