@@ -179,7 +179,6 @@ export const searchTransaction = async (req, res) => {
         offset,
       ],
     );
-    console.log(transactions);
 
     const [totalRecords] = await db.query(
       `SELECT COUNT(*) as total 

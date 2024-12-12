@@ -7,9 +7,9 @@ import ModalExpense from "../component/modal/ModalTransaction";
 import { ArrowRightOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { Input } from "antd";
 import {
-  setCurrentPage,
-  setItemsPerPage,
+  setCurrentPages,
   setFilteredTransactions,
+  filterTransaction,
 } from "../feature/transactionSlice";
 import { TransactionListPagination } from "../component/TransactionList";
 import { toggleModal, resetTransactionData } from "../feature/modalSlice";
@@ -23,59 +23,91 @@ function TransactionPage() {
     currentPage,
     itemsPerPage,
     transactions,
-    filteredTransactions,
+    filteredTransaction,
     searchKeyword,
+    totalPage,
+    refresh,
   } = useSelector((state) => state.transactions);
 
   const [searchValue, setSearchValue] = useState(searchKeyword);
+  const [itemPerPage, setItemPerPage] = useState(itemsPerPage);
+  const [currentP, setCurrentP] = useState(currentPage);
+  const [pageNumbers, setPageNumbers] = useState([]);
   const [category, setCategory] = useState("all");
   const [transactionType, setTransactionType] = useState("all");
-  const [transactionAmount, setTransactionAmount] = useState("all");
+  const [uPrice, setuPrice] = useState(10000000);
+  const [dPrice, setdPrice] = useState(0);
+  const [showEllipsisBefore, setShowEllipsisBefore] = useState(false);
+  const [showEllipsisAfter, setShowEllipsisAfter] = useState(false);
+
+  const handleAmountChange = (e) => {
+    const selectedValue = e.target.value;
+    switch (selectedValue) {
+      case "under50000":
+        setuPrice(50000);
+        break;
+      case "50000-200000":
+        setdPrice(50000);
+        setuPrice(200000);
+        break;
+      case "200000-500000":
+        setdPrice(200000);
+        setuPrice(500000);
+        break;
+      case "500000-1000000":
+        setdPrice(500000);
+        setuPrice(1000000);
+        break;
+      case "over1000000":
+        setdPrice(1000000);
+        setuPrice(10000000);
+        break;
+      default:
+        setdPrice(0);
+        setuPrice(10000000);
+        break;
+    }
+  };
+  const params = {
+    des: searchValue,
+    cate: category == "all" ? "" : category,
+    type: transactionType == "all" ? "" : transactionType,
+    page: currentP,
+    limit: itemPerPage,
+    uprice: uPrice,
+    dprice: dPrice,
+  };
 
   useEffect(() => {
-    const filtered = transactions.filter((transaction) => {
-      const isCategoryMatch =
-        category === "all" || transaction.category === category;
-      const isTypeMatch =
-        transactionType === "all" ||
-        transaction.transactionType === transactionType;
-      const isAmountMatch =
-        transactionAmount === "all" ||
-        (transactionAmount === "under50000" && transaction.amount < 50000) ||
-        (transactionAmount === "50000-200000" &&
-          transaction.amount >= 50000 &&
-          transaction.amount <= 200000) ||
-        (transactionAmount === "200000-500000" &&
-          transaction.amount > 200000 &&
-          transaction.amount <= 500000) ||
-        (transactionAmount === "500000-1000000" &&
-          transaction.amount > 500000 &&
-          transaction.amount <= 1000000) ||
-        (transactionAmount === "over1000000" && transaction.amount > 1000000);
-      const isDescriptionMatch = transaction.description
-        .toLowerCase()
-        .includes(searchValue.toLowerCase());
-      return (
-        isCategoryMatch && isTypeMatch && isAmountMatch && isDescriptionMatch
-      );
-    });
+    dispatch(filterTransaction(params));
+    console.log(params.page);
+    const pageNumbers = [];
+    let startPage = currentP - 2 > 0 ? currentP - 2 : 1;
+    let endPage = currentP + 2 <= totalPage ? currentP + 2 : totalPage;
+    if (totalPage > 4) {
+      if (currentP <= 3) {
+        endPage = 4;
+      } else if (currentP >= totalPage - 2) {
+        startPage = totalPage - 3;
+      }
+    }
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+    setShowEllipsisBefore(startPage > 1);
+    setShowEllipsisAfter(endPage < totalPage);
+    setPageNumbers(pageNumbers);
+  }, [currentP, totalPage, refresh]);
 
-    dispatch(
-      setFilteredTransactions({
-        filteredTransactions: filtered,
-        searchKeyword: searchValue,
-      }),
-    );
-    dispatch(setCurrentPage(1));
-  }, [
-    transactions,
-    category,
-    transactionType,
-    transactionAmount,
-    searchValue,
-    dispatch,
-  ]);
-
+  const handleFilter = () => {
+    setCurrentP(1);
+    const updatedParams = {
+      ...params,
+      page: 1,
+    };
+    dispatch(setCurrentPages(1));
+    dispatch(filterTransaction(updatedParams));
+  };
   const handleInputChange = (e) => {
     setSearchValue(e.target.value);
   };
@@ -84,7 +116,7 @@ function TransactionPage() {
     if (value.trim() === "") {
       dispatch(
         setFilteredTransactions({
-          filteredTransactions: transactions,
+          filteredTransaction: transactions,
           searchKeyword: "",
         }),
       );
@@ -94,11 +126,12 @@ function TransactionPage() {
       );
       dispatch(
         setFilteredTransactions({
-          filteredTransactions: filtered,
+          filteredTransaction: filtered,
           searchKeyword: value,
         }),
       );
-      dispatch(setCurrentPage(1));
+
+      dispatch(setCurrentPages(1));
     }
   };
   const handleCategoryChange = (e) => {
@@ -107,49 +140,33 @@ function TransactionPage() {
   const handleTransactionTypeChange = (e) => {
     setTransactionType(e.target.value);
   };
-  const handleAmountChange = (e) => {
-    setTransactionAmount(e.target.value);
-  };
 
   const handleCloseModal = () => {
     dispatch(toggleModal(false));
     dispatch(resetTransactionData());
   };
 
-  const totalPages =
-    filteredTransactions && filteredTransactions.length >= 0
-      ? Math.ceil(filteredTransactions.length / itemsPerPage)
-      : Math.ceil(transactions.length / itemsPerPage);
   const handlePageChange = (page) => {
-    dispatch(setCurrentPage(page));
+    setCurrentP(page);
   };
   const handleItemsPerPageChange = (e) => {
-    dispatch(setItemsPerPage(Number(e.target.value)));
+    const newLimit = Number(e.target.value);
+    setItemPerPage(newLimit);
+    setCurrentP(1);
+    dispatch(setCurrentPages(1));
+
+    const updatedParams = {
+      ...params,
+      page: 1,
+      limit: newLimit,
+    };
+    dispatch(filterTransaction(updatedParams));
   };
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
 
-  const paginatedTransactions = (
-    filteredTransactions && filteredTransactions.length >= 0
-      ? filteredTransactions
-      : transactions
-  ).slice(startIndex, endIndex);
-
-  const pageNumbers = [];
-  let startPage = currentPage - 2 > 0 ? currentPage - 2 : 1;
-  let endPage = currentPage + 2 <= totalPages ? currentPage + 2 : totalPages;
-  if (totalPages > 4) {
-    if (currentPage <= 3) {
-      endPage = 4;
-    } else if (currentPage >= totalPages - 2) {
-      startPage = totalPages - 3;
-    }
-  }
-  for (let i = startPage; i <= endPage; i++) {
-    pageNumbers.push(i);
-  }
-  const showEllipsisBefore = startPage > 1;
-  const showEllipsisAfter = endPage < totalPages;
+  const paginatedTransactions =
+    filteredTransaction && filteredTransaction.length >= 0
+      ? filteredTransaction
+      : transactions;
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center ">
@@ -162,7 +179,7 @@ function TransactionPage() {
             </div>
             <select
               id="itemsPerPage"
-              value={itemsPerPage}
+              value={itemPerPage}
               onChange={handleItemsPerPageChange}
               className="bg-gray-50 border border-gray-300 rounded-lg py-2 px-3"
             >
@@ -203,7 +220,6 @@ function TransactionPage() {
               </select>
               <select
                 className=" lg:w-1/4  w-1/3 rounded-[15px] h-[32px] md:h-[40px] md:rounded-full md:text-[16px] md:ps-5 bg-transparent font-semibold text-[12px] px-3 border-[1px]"
-                value={transactionAmount}
                 onChange={handleAmountChange}
               >
                 <option value="all">All Amounts</option>
@@ -213,10 +229,15 @@ function TransactionPage() {
                 <option value="500000-1000000">500.000 - 1000.000</option>
                 <option value="over1000000">Over 1.000.000</option>
               </select>
+              <button
+                className="bg-[#CFBBD4] lg:w-1/6  w-1/3 rounded-[15px]  h-[32px] md:h-[40px] md:rounded-full md:text-[16px] md:ps-5 font-semibold text-[12px] px-3 border-[1px]"
+                onClick={handleFilter}
+              >
+                Lọc
+              </button>
             </div>
           </div>
-
-          <div className="overflow-y-auto h-[520px] md:h-[480px]">
+          <div className="overflow-y-auto h-[440px] md:h-[460px]">
             <TransactionListPagination transactions={paginatedTransactions} />
           </div>
           <div className="mt-6 flex justify-center m-0  space-x-2">
@@ -254,10 +275,10 @@ function TransactionPage() {
               )}
             </div>
             <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentP + 1)}
+              disabled={currentP === totalPage}
               className={`px-4 py-2 text-lg font-semibold rounded-lg transition-colors duration-200 ${
-                currentPage === totalPages
+                currentP === totalPage
                   ? "bg-gray-300 text-gray-700 cursor-not-allowed"
                   : "bg-white border border-gray-300 hover:bg-gray-200"
               }`}

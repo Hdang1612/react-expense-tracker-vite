@@ -5,6 +5,7 @@ const UPDATE_URL = import.meta.env.VITE_API_URL_UPDATE_TRANSACTION;
 const REMOVE_URL = import.meta.env.VITE_API_URL_REMOVE_TRANSACTION;
 const FETCH_ALL_TRANSACTION_URL = import.meta.env.VITE_API_URL_FETCH_ALL;
 const FETCH_TRANSACTION_URL = import.meta.env.VITE_API_URL_FETCH_BY_ID;
+const FILTER_TRANSACTION_URL = import.meta.env.VITE_API_URL_FILTER_TRANSACTION;
 
 export const addTransaction = async (data) => {
   try {
@@ -54,7 +55,6 @@ export const removeTransaction = async (id) => {
     const errorMessage = error.response?.data?.message;
     throw new Error(errorMessage);
   }
-
 };
 
 export const fetchAllTransaction = async () => {
@@ -75,7 +75,6 @@ export const fetchAllTransaction = async () => {
   }
 };
 
-
 export const fetchTransactionById = async (id) => {
   try {
     const token = localStorage.getItem("token");
@@ -88,7 +87,25 @@ export const fetchTransactionById = async (id) => {
     const url = `${FETCH_TRANSACTION_URL}/${id}`;
     const res = await axios.get(url, config);
     return res.data;
+  } catch (error) {
+    const errorMessage = error.response?.data?.message;
+    console.error("Error message:", errorMessage);
+    throw new Error(errorMessage);
+  }
+};
 
+export const filterTransactions = async (query) => {
+  try {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: query,
+    };
+    const url = `${FILTER_TRANSACTION_URL}`;
+    const res = await axios.get(url, config);
+    return res;
   } catch (error) {
     const errorMessage = error.response?.data?.message;
     console.error("Error message:", errorMessage);

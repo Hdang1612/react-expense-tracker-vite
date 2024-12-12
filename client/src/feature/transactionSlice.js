@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-
 import { formatDate } from "../utils/date.js";
 import { showErrorToast, showSuccessToast } from "../utils/Toaste.js";
 import {
@@ -8,8 +7,8 @@ import {
   addTransaction,
   updateTransaction,
   removeTransaction,
+  filterTransactions,
 } from "../services/transactionServices.js";
-
 
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
@@ -19,6 +18,18 @@ export const fetchTransactions = createAsyncThunk(
       return res.data;
     } catch (error) {
       console.log(error);
+      return error.message;
+    }
+  },
+);
+
+export const filterTransaction = createAsyncThunk(
+  "transaction/filterTransaction",
+  async (params) => {
+    try {
+      const res = await filterTransactions(params);
+      return res.data;
+    } catch (error) {
       return error.message;
     }
   },
@@ -64,7 +75,7 @@ export const removeTransactions = createAsyncThunk(
 );
 
 const initialState = {
-  transactions: null,
+  transactions: [],
   totalBalance: 0,
   totalIncome: 0,
   totalExpense: 0,
@@ -72,36 +83,18 @@ const initialState = {
   isLoading: false,
   filteredTransaction: [],
   searchKeyword: "",
-  paginatedTransactions: [],
+  refresh: false,
   currentPage: 1,
   itemsPerPage: 5,
+  totalPage: null,
 };
 
 const transactionSlice = createSlice({
   name: "transactions",
   initialState,
   reducers: {
-    setCurrentPage: (state, action) => {
+    setCurrentPages: (state, action) => {
       state.currentPage = action.payload;
-      const startIndex = (state.currentPage - 1) * state.itemsPerPage;
-      state.paginatedTransactions = state.transactions.slice(
-        startIndex,
-        startIndex + state.itemsPerPage,
-      );
-    },
-
-    setItemsPerPage: (state, action) => {
-      state.itemsPerPage = action.payload;
-      state.currentPage = 1;
-      const startIndex = 0;
-      state.paginatedTransactions = state.transactions.slice(
-        startIndex,
-        startIndex + state.itemsPerPage,
-      );
-    },
-    setFilteredTransactions(state, action) {
-      state.filteredTransactions = action.payload.filteredTransactions;
-      state.searchKeyword = action.payload.searchKeyword;
     },
   },
 
@@ -119,6 +112,31 @@ const transactionSlice = createSlice({
         state.isLoading = false;
       });
 
+    // filter
+    builder
+      .addCase(filterTransaction.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(filterTransaction.fulfilled, (state, action) => {
+        if (action.payload && action.payload.pagination) {
+          state.filteredTransaction = action.payload.data;
+          state.currentPage = action.payload.pagination.currentPage;
+          state.itemsPerPage = action.payload.pagination.limit;
+          state.totalPage = action.payload.pagination.totalPages;
+        } else {
+          state.filteredTransaction = [];
+          state.currentPage = 1;
+          state.itemsPerPage = 0;
+          state.totalPage = 1;
+        }
+
+        state.refresh = false;
+      })
+      .addCase(filterTransaction.rejected, (state) => {
+        console.log("failed");
+        state.isLoading = false;
+      });
+
     // Add transaction
     builder
       .addCase(addTransactions.pending, (state) => {
@@ -127,6 +145,7 @@ const transactionSlice = createSlice({
       .addCase(addTransactions.fulfilled, (state, action) => {
         state.isLoading = false;
         state.transactions.push(action.payload.data);
+        state.refresh = true;
         showSuccessToast(action.payload.message);
         updateTotalBalance(state);
       })
@@ -149,14 +168,14 @@ const transactionSlice = createSlice({
           ...state.transactions[transactionIndex],
           ...action.payload.data,
         };
+        state.refresh = true;
         updateTotalBalance(state);
         showSuccessToast(action.payload.message);
       })
       .addCase(updateTransactions.rejected, (state, action) => {
         state.isLoading = false;
         showErrorToast(action.payload);
-      })
-      
+      });
 
     // Remove transaction
     builder
@@ -169,13 +188,13 @@ const transactionSlice = createSlice({
         state.transactions = state.transactions.filter(
           (transaction) => transaction.id !== action.payload.id,
         );
+        state.refresh = true;
         showSuccessToast(action.payload.message);
         updateTotalBalance(state);
       })
       .addCase(removeTransactions.rejected, (state, action) => {
         state.isLoading = false;
         showErrorToast(action.payload);
-
       });
   },
 });
@@ -289,6 +308,6 @@ export const selectMonthlyTransactions = (state) => {
   return months;
 };
 
-export const { setCurrentPage, setItemsPerPage, setFilteredTransactions } =
+export const { setCurrentPages, setItemsPerPage, setFilteredTransactions } =
   transactionSlice.actions;
 export default transactionSlice.reducer;
