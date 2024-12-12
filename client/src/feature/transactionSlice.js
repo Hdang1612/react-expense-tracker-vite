@@ -5,8 +5,8 @@ import {
   addTransaction,
   updateTransaction,
   removeTransaction,
-  filterByPeriodTime
 } from "../services/transactionServices.js";
+import { formatDate } from "../utils/date.js";
 import { showErrorToast, showSuccessToast } from "../utils/Toaste.js";
 
 export const fetchTransactions = createAsyncThunk(
@@ -16,23 +16,10 @@ export const fetchTransactions = createAsyncThunk(
       const res = await fetchAllTransaction();
       return res.data;
     } catch (error) {
-      return (error.message);
+      return error.message;
     }
   },
 );
-
-export const groupTransaction = createAsyncThunk(
-  "transaction/groupTransaction",
-  async (period,{rejectWithValue}) => {
-      try {
-        const res= await filterByPeriodTime(period)
-        return res.data
-      } catch (error) {
-        return rejectWithValue(error.message)
-      }
-  }
-)
-
 
 export const addTransactions = createAsyncThunk(
   "transaction/addTransactions",
@@ -52,7 +39,7 @@ export const updateTransactions = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await updateTransaction(data);
-      console.log(res)
+      console.log(res);
       return res;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -78,7 +65,7 @@ const initialState = {
   totalBalance: 0,
   totalIncome: 0,
   totalExpense: 0,
-  todayTransactions:[],
+  todayTransactions: [],
   isLoading: false,
   filteredTransaction: [],
   searchKeyword: "",
@@ -129,21 +116,7 @@ const transactionSlice = createSlice({
         state.isLoading = false;
       });
 
-
-      builder
-        .addCase(groupTransaction.pending, (state) => {
-          state.isLoading = true;
-        })
-        .addCase(groupTransaction.fulfilled, (state, action) => {
-          state.isLoading = false;
-          state.todayTransactions = action.payload;
-        })
-        .addCase(groupTransaction.rejected, (state) => {
-          console.log("failed");
-          state.isLoading = false;
-        });
-      
-      // Add transaction
+    // Add transaction
     builder
       .addCase(addTransactions.pending, (state) => {
         state.isLoading = true;
@@ -152,7 +125,7 @@ const transactionSlice = createSlice({
         state.isLoading = false;
         state.transactions.push(action.payload.data);
         showSuccessToast(action.payload.message);
-        // updateTotalBalance();
+        updateTotalBalance(state);
       })
       .addCase(addTransactions.rejected, (state, action) => {
         state.isLoading = false;
@@ -173,7 +146,7 @@ const transactionSlice = createSlice({
           ...state.transactions[transactionIndex],
           ...action.payload.data,
         };
-        // updateTotalBalance();
+        updateTotalBalance(state);
         showSuccessToast(action.payload.message);
       })
       .addCase(updateTransactions.rejected, (state, action) => {
@@ -193,6 +166,7 @@ const transactionSlice = createSlice({
           (transaction) => transaction.id !== action.payload.id,
         );
         showSuccessToast(action.payload.message);
+        updateTotalBalance(state);
       })
       .addCase(removeTransactions.rejected, (state, action) => {
         state.isLoading = false;
@@ -226,6 +200,88 @@ const updateTotalBalance = (state) => {
   state.totalIncome = income;
   state.totalExpense = expense;
   state.totalBalance = income - expense;
+};
+
+export const selectTodayTransactions = (state) => {
+  const today = new Date().toLocaleDateString("en-GB");
+  if (state.transactions.transactions) {
+    return state.transactions.transactions.filter((transaction) => {
+      const transactionDate = new Date(transaction.createAt).toLocaleDateString(
+        "en-GB",
+      );
+      return transactionDate === today;
+    });
+  }
+  return [];
+};
+
+// Nhóm giao dịch theo tuần
+export const selectWeeklyTransactions = (state) => {
+  const weeks = [];
+  let currentWeek = [];
+  let currentWeekKey = "";
+
+  state.transactions.transactions.forEach((transaction) => {
+    const transactionDate = new Date(transaction.createAt);
+    const startOfTransactionWeek = new Date(transactionDate);
+    startOfTransactionWeek.setDate(
+      transactionDate.getDate() -
+        (transactionDate.getDay() === 0 ? 6 : transactionDate.getDay() - 1),
+    );
+    const endOfTransactionWeek = new Date(startOfTransactionWeek);
+    endOfTransactionWeek.setDate(startOfTransactionWeek.getDate() + 6);
+
+    const weekKey = `${formatDate(startOfTransactionWeek)} - ${formatDate(endOfTransactionWeek)}`; //name cho từng nhóm
+    if (currentWeek.length > 0 && currentWeekKey !== weekKey) {
+      weeks.push({
+        name: currentWeekKey,
+        transactions: currentWeek,
+      });
+      currentWeek = [];
+    }
+
+    currentWeek.push(transaction);
+    currentWeekKey = weekKey;
+  });
+  if (currentWeek.length > 0) {
+    weeks.push({
+      name: currentWeekKey,
+      transactions: currentWeek,
+    });
+  }
+
+  return weeks;
+};
+
+// Nhóm giao dịch theo tháng
+export const selectMonthlyTransactions = (state) => {
+  const months = [];
+  let currentMonth = [];
+  state.transactions.transactions.forEach((transaction) => {
+    const transactionDate = new Date(transaction.createAt);
+    const monthKey = `${transactionDate.getMonth() + 1}-${transactionDate.getFullYear()}`;
+    if (
+      currentMonth.length > 0 &&
+      currentMonth[0].createAt &&
+      `${new Date(currentMonth[0].createAt).getMonth() + 1}-${new Date(currentMonth[0].createAt).getFullYear()}` !==
+        monthKey
+    ) {
+      months.push({
+        name: `${new Date(currentMonth[0].createAt).getMonth() + 1}-${new Date(currentMonth[0].createAt).getFullYear()}`,
+        transactions: currentMonth,
+      });
+      currentMonth = [];
+    }
+    currentMonth.push(transaction);
+  });
+
+  if (currentMonth.length > 0) {
+    months.push({
+      name: `${new Date(currentMonth[0].createAt).getMonth() + 1}-${new Date(currentMonth[0].createAt).getFullYear()}`,
+      transactions: currentMonth,
+    });
+  }
+  return months;
 };
 
 export const { setCurrentPage, setItemsPerPage, setFilteredTransactions } =
