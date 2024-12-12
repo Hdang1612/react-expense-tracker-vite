@@ -7,10 +7,10 @@ import { showErrorToast } from "../../utils/Toaste.js";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
 import { transactionCategory } from "../constants/constant.js";
 import {
-  // updateTransaction,
   removeTransactions,
   addTransactions,
   updateTransactions,
+
 } from "../../feature/transactionSlice.js";
 
 const ModalExpense = () => {
@@ -97,8 +97,8 @@ const ModalExpense = () => {
         receipt,
         transactionType: isExpense ? "expense" : "income",
       },
-    };
 
+    };
     const updateTrans = {
       id: id,
       createAt: date,

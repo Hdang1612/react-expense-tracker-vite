@@ -1,5 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+import { saveToStorage } from "./localStorage.js";
+import { sortTransactionsByDate } from "../utils/date.js";
+
+
 import {
   fetchAllTransaction,
   addTransaction,
@@ -8,6 +12,8 @@ import {
 } from "../services/transactionServices.js";
 import { formatDate } from "../utils/date.js";
 import { showErrorToast, showSuccessToast } from "../utils/Toaste.js";
+} from "../services/transactionServices.js";
+
 
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
@@ -16,6 +22,7 @@ export const fetchTransactions = createAsyncThunk(
       const res = await fetchAllTransaction();
       return res.data;
     } catch (error) {
+      console.log(error);
       return error.message;
     }
   },
@@ -152,7 +159,8 @@ const transactionSlice = createSlice({
       .addCase(updateTransactions.rejected, (state, action) => {
         state.isLoading = false;
         showErrorToast(action.payload);
-      });
+      })
+      
 
     // Remove transaction
     builder
@@ -171,6 +179,7 @@ const transactionSlice = createSlice({
       .addCase(removeTransactions.rejected, (state, action) => {
         state.isLoading = false;
         showErrorToast(action.payload);
+
       });
   },
 });

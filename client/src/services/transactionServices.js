@@ -54,6 +54,7 @@ export const removeTransaction = async (id) => {
     const errorMessage = error.response?.data?.message;
     throw new Error(errorMessage);
   }
+
 };
 
 export const fetchAllTransaction = async () => {
@@ -74,6 +75,7 @@ export const fetchAllTransaction = async () => {
   }
 };
 
+
 export const fetchTransactionById = async (id) => {
   try {
     const token = localStorage.getItem("token");
@@ -82,9 +84,11 @@ export const fetchTransactionById = async (id) => {
         Authorization: `Bearer ${token}`,
       },
     };
+
     const url = `${FETCH_TRANSACTION_URL}/${id}`;
     const res = await axios.get(url, config);
     return res.data;
+
   } catch (error) {
     const errorMessage = error.response?.data?.message;
     console.error("Error message:", errorMessage);
