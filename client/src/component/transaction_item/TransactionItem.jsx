@@ -11,8 +11,7 @@ import {
   FileUnknownOutlined,
 } from "@ant-design/icons";
 
-import { showSuccessToast } from "../../utils/Toaste";
-import { removeTransaction } from "../../feature/transactionSlice";
+import { removeTransactions } from "../../feature/transactionSlice";
 import { formatCurrency } from "../../utils/number";
 
 const ExpenseItem = ({
@@ -51,8 +50,7 @@ const ExpenseItem = ({
   const dispatch = useDispatch();
 
   const handleDelete = () => {
-    dispatch(removeTransaction(transaction.id));
-    showSuccessToast("Xóa thành công");
+    dispatch(removeTransactions(transaction.id));
     if (isOpen) setOpenItemId(null);
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
