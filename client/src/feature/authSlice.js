@@ -12,8 +12,10 @@ export const loginUser = createAsyncThunk(
     try {
       const res = await login(email, password);
       localStorage.setItem("token", res.token);
+      console.log(res);
       return res;
     } catch (err) {
+      console.log(err.message);
       return rejectWithValue(err.message); //rejectwithvalue : khi sử dụng cái này thị lỗi sẽ được truyền vào payload của action rejected
     }
   },

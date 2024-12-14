@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import RegisterForm from "../component/AuthForm/RegisterForm";
 import LoginForm from "../component/AuthForm/LoginForm";
-// import ForgotPassword from "../component/AuthForm/ForgotPassword";
 function RegisterPage() {
   const [isLogin, setIsLogin] = useState(true);
   const toggleForm = () => {

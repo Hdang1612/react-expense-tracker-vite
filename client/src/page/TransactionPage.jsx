@@ -24,12 +24,11 @@ function TransactionPage() {
     itemsPerPage,
     transactions,
     filteredTransaction,
-    searchKeyword,
     totalPage,
     refresh,
   } = useSelector((state) => state.transactions);
 
-  const [searchValue, setSearchValue] = useState(searchKeyword);
+  const [searchValue, setSearchValue] = useState();
   const [itemPerPage, setItemPerPage] = useState(itemsPerPage);
   const [currentP, setCurrentP] = useState(currentPage);
   const [pageNumbers, setPageNumbers] = useState([]);
@@ -117,7 +116,6 @@ function TransactionPage() {
       dispatch(
         setFilteredTransactions({
           filteredTransaction: transactions,
-          searchKeyword: "",
         }),
       );
     } else {
@@ -127,7 +125,6 @@ function TransactionPage() {
       dispatch(
         setFilteredTransactions({
           filteredTransaction: filtered,
-          searchKeyword: value,
         }),
       );
 

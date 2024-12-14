@@ -6,6 +6,7 @@ import HomePage from "./page/HomePage";
 import Report from "./page/Report";
 import RegisterPage from "./page/RegisterPage";
 import TransactionPage from "./page/TransactionPage";
+import ForbiddenPage from "./page/ForbiddenPage";
 function App() {
   const token = useSelector((state) => state.auth.isAuthenticated);
   return (
@@ -16,6 +17,7 @@ function App() {
           path="/home"
           element={token ? <HomePage /> : <Navigate to="/auth" />}
         />
+        <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="/auth" element={<RegisterPage />} />
         <Route
           path="/transactions"

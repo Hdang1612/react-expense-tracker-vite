@@ -12,25 +12,24 @@ import {
 
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
-  async () => {
+  async (_, { rejectWithValue }) => {
     try {
       const res = await fetchAllTransaction();
       return res.data;
     } catch (error) {
-      console.log(error);
-      return error.message;
+      return rejectWithValue(error.message);
     }
   },
 );
 
 export const filterTransaction = createAsyncThunk(
   "transaction/filterTransaction",
-  async (params) => {
+  async (params, { rejectWithValue }) => {
     try {
       const res = await filterTransactions(params);
       return res.data;
     } catch (error) {
-      return error.message;
+      return rejectWithValue(error.message);
     }
   },
 );
@@ -79,14 +78,13 @@ const initialState = {
   totalBalance: 0,
   totalIncome: 0,
   totalExpense: 0,
-  todayTransactions: [],
   isLoading: false,
   filteredTransaction: [],
-  searchKeyword: "",
   refresh: false,
   currentPage: 1,
   itemsPerPage: 5,
   totalPage: null,
+  error: null,
 };
 
 const transactionSlice = createSlice({
@@ -108,8 +106,9 @@ const transactionSlice = createSlice({
         state.transactions = action.payload;
         updateTotalBalance(state);
       })
-      .addCase(fetchTransactions.rejected, (state) => {
+      .addCase(fetchTransactions.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.payload;
       });
 
     // filter
@@ -132,8 +131,8 @@ const transactionSlice = createSlice({
 
         state.refresh = false;
       })
-      .addCase(filterTransaction.rejected, (state) => {
-        console.log("failed");
+      .addCase(filterTransaction.rejected, (state, action) => {
+        state.error = action.payload;
         state.isLoading = false;
       });
 
@@ -151,6 +150,7 @@ const transactionSlice = createSlice({
       })
       .addCase(addTransactions.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.payload;
         showErrorToast(action.payload);
       });
 
@@ -170,6 +170,7 @@ const transactionSlice = createSlice({
         };
         state.refresh = true;
         updateTotalBalance(state);
+        state.error = action.payload;
         showSuccessToast(action.payload.message);
       })
       .addCase(updateTransactions.rejected, (state, action) => {
@@ -184,7 +185,6 @@ const transactionSlice = createSlice({
       })
       .addCase(removeTransactions.fulfilled, (state, action) => {
         state.isLoading = false;
-        console.log(action.payload);
         state.transactions = state.transactions.filter(
           (transaction) => transaction.id !== action.payload.id,
         );

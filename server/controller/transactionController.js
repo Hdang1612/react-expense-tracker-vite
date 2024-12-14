@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
 import db from "../config/db.js";
 import { v4 as uuidv4 } from "uuid";
 
@@ -22,7 +21,6 @@ export const addTransaction = async (req, res) => {
       .status(200)
       .json({ message: "Add transaction successful", data: transactionBody });
   } catch (error) {
-    console.error("Error during create:", error.message);
     res.status(500).json({ error: "Internal Server error." });
   }
 };
@@ -37,7 +35,7 @@ export const deleteTransaction = async (req, res) => {
     );
     if (transactionExist.affectedRows == 0) {
       return res.status(404).json({
-        message: "transaction not found",
+        message: "Transaction not found",
       });
     }
     res.status(201).json({ message: "Delete Successful", id: id });
@@ -72,7 +70,7 @@ export const updateTransaction = async (req, res) => {
       id: transactionExist[0].id,
     };
     await db.query(
-      "UPDATE  transactions SET   transactionType= ?, transactionCategory= ? ,transactionAmount= ? ,transactionDescription= ? , createAt= ?, receipt= ? WHERE id = ?",
+      "UPDATE  transactions SET transactionType= ?, transactionCategory= ? ,transactionAmount= ? ,transactionDescription= ? , createAt= ?, receipt= ? WHERE id = ?",
       [
         req.body.transactionType || transactionExist[0].transactionType,
         req.body.transactionCategory || transactionExist[0].transactionCategory,
@@ -88,7 +86,6 @@ export const updateTransaction = async (req, res) => {
       .status(200)
       .json({ message: "Update Successful", data: updateTransaction });
   } catch (error) {
-    console.error("Error during login:", error.message);
     res.status(500).json({ error: "Internal Server error" });
   }
 };
@@ -106,7 +103,7 @@ export const fetchAllTransactions = async (req, res) => {
       res.status(200).json({ data: listTransaction });
     }
   } catch (error) {
-    res.status(500).json({ error: "Internal Server error" });
+    res.status(500).json({ message: "Internal Server error" });
   }
 };
 
@@ -210,93 +207,4 @@ export const searchTransaction = async (req, res) => {
     res.status(500).json({ error: "Internal Server error" });
   }
 };
-export const filterByPeriodTime = async (req, res) => {
-  try {
-    const period = req.query.period || "";
 
-    let sqlQuery = "";
-    let params = [req.user.email];
-
-    // Lọc theo ngày hôm nay
-    if (period === "today") {
-      sqlQuery = `
-        SELECT 
-          id,
-          transactionType,
-          transactionCategory,
-          transactionAmount,
-          transactionDescription,
-          receipt,
-          DATE_FORMAT(createAt, '%d-%c-%Y') AS createAt  
-        FROM transactions
-        WHERE userEmail = ? 
-          AND DATE(createAt) = CURDATE() 
-        ORDER BY createAt DESC
-`;
-    }
-    // Lọc theo tuần (bắt đầu từ thứ 2 và kết thúc vào chủ nhật)
-    else if (period === "weekly") {
-      sqlQuery = `
-        SELECT 
-          YEARWEEK(createAt, 1) AS weekNumber, 
-          MIN(DATE_ADD(createAt, INTERVAL(1 - WEEKDAY(createAt)) DAY)) AS weekStart,
-          MAX(DATE_ADD(createAt, INTERVAL(7 - WEEKDAY(createAt)) DAY)) AS weekEnd,
-          JSON_ARRAYAGG(JSON_OBJECT(
-            'id', id,
-            'transactionType', transactionType,
-            'transactionCategory', transactionCategory,
-            'transactionAmount', transactionAmount,
-            'transactionDescription', transactionDescription,
-            'createAt', createAt,
-            'receipt',receipt
-          )) AS transactions
-        FROM transactions
-        WHERE userEmail = ?
-        GROUP BY YEARWEEK(createAt, 1)
-        ORDER BY weekNumber DESC;
-      `;
-    }
-    // Lọc theo tháng
-    else if (period === "monthly") {
-      sqlQuery = `
-        SELECT 
-          YEAR(createAt) AS year, 
-          MONTH(createAt) AS month, 
-          JSON_ARRAYAGG(JSON_OBJECT(
-            'id', id,
-            'transactionType', transactionType,
-            'transactionCategory', transactionCategory,
-            'transactionAmount', transactionAmount,
-            'transactionDescription', transactionDescription,
-            'createAt', createAt,
-            'receipt',receipt
-          )) AS transactions
-        FROM transactions
-        WHERE userEmail = ?
-        GROUP BY YEAR(createAt), MONTH(createAt)
-        ORDER BY year DESC, month DESC;
-      `;
-    }
-    const [transactions] = await db.query(sqlQuery, params);
-
-    let result = [];
-    if (period === "weekly") {
-      result = transactions.map((week) => ({
-        label: `${new Date(week.weekStart).toLocaleDateString("en-GB", { month: "short", day: "numeric", year: "numeric" })} - ${new Date(week.weekEnd).toLocaleDateString("en-GB", { month: "short", day: "numeric", year: "numeric" })}`,
-        transactions: week.transactions,
-      }));
-    } else if (period === "monthly") {
-      result = transactions.map((month) => ({
-        label: `${new Date(month.year, month.month - 1).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}`,
-        transactions: month.transactions,
-      }));
-    } else {
-      result = transactions;
-    }
-
-    res.status(200).json({ data: result });
-  } catch (error) {
-    console.error("Error filtering transactions by period:", error.message);
-    res.status(500).json({ error: "Internal Server error" });
-  }
-};
