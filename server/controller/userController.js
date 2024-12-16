@@ -177,7 +177,7 @@ export const forgotPassword = async (req, res) => {
         console.log("Email sent: " + info.response);
       }
     });
-    res.status(200).json("email sent !");
+    res.status(200).json({message:"email sent !"});
   } catch (error) {
     res.status(500).json({ error: "Internal Server error." });
   }
