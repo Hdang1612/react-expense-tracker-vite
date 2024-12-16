@@ -1,6 +1,4 @@
 import axios from "axios";
-// import dotenv from 'dotenv';
-// dotenv.config();
 
 const LOGIN_URL = import.meta.env.VITE_API_URL_LOGIN;
 const SIGNUP_URL = import.meta.env.VITE_API_URL_SIGNUP;
@@ -13,6 +11,7 @@ export const login = async (email, password) => {
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message;
+    console.log(errorMessage);
     throw new Error(errorMessage);
   }
 };

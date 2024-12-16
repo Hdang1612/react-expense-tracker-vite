@@ -10,7 +10,6 @@ import {
   removeTransactions,
   addTransactions,
   updateTransactions,
-
 } from "../../feature/transactionSlice.js";
 
 const ModalExpense = () => {
@@ -97,7 +96,6 @@ const ModalExpense = () => {
         receipt,
         transactionType: isExpense ? "expense" : "income",
       },
-
     };
     const updateTrans = {
       id: id,
