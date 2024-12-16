@@ -1,5 +1,3 @@
-import User from "../model//userModel.js";
-
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
@@ -36,7 +34,6 @@ export const signUp = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error during sign up:", error.message);
     res.status(500).json({ error: "Internal Server error." });
   }
 };
@@ -59,7 +56,7 @@ export const logIn = async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
     const token = jwt.sign({ email: existingUser[0].email }, JWT_SECRET_KEY, {
-      expiresIn: "1h",
+      expiresIn: "30m",
     });
     return res.status(200).json({
       message: "Login successful",
@@ -99,12 +96,15 @@ export const update = async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
     if (req.body.email) {
-      const [emailExists] = await db.query("SELECT * FROM users WHERE email = ?", [req.body.email]);
+      const [emailExists] = await db.query(
+        "SELECT * FROM users WHERE email = ?",
+        [req.body.email],
+      );
       if (emailExists.length > 0 && emailExists[0].email !== email) {
         return res.status(400).json({ message: "Email already exists" });
       }
     }
-  
+
     if (req.body.password) {
       req.body.password = await bcrypt.hash(req.body.password, 10);
     }

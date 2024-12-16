@@ -1,16 +1,17 @@
 import { useState } from "react";
-
+// import { useEffect } from "react";
 import { Empty } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
 import ExpenseItem from "./transaction_item/TransactionItem";
 import { setTransactionData, toggleModal } from "../feature/modalSlice";
+// import { groupTransaction } from "../feature/transactionSlice";
+
 import {
   selectTodayTransactions,
   selectMonthlyTransactions,
   selectWeeklyTransactions,
 } from "../feature/transactionSlice";
-
 export const TransactionListPagination = ({ transactions }) => {
   const [openItemId, setOpenItemId] = useState(null);
   const dispatch = useDispatch();
@@ -45,7 +46,7 @@ export const TransactionList = ({ transactions }) => {
   };
 
   return (
-    <div className="h-[720px] md:h-[640px] ">
+    <div className="h-[700px] md:h-[600px] ">
       {Array.isArray(transactions) && transactions.length > 0 ? (
         transactions.map((group, index) => {
           if (group.transactions) {
@@ -88,6 +89,7 @@ export const TransactionList = ({ transactions }) => {
 
 export const TodayTransactionsList = () => {
   const transactions = useSelector(selectTodayTransactions);
+  console.log(transactions);
   return <TransactionList transactions={transactions} />;
 };
 
@@ -102,3 +104,62 @@ export const MonthlyTransactionsList = () => {
 
   return <TransactionList transactions={transactions} />;
 };
+
+// export const TodayTransactionsList = () => {
+//   const [transactions, setTransactions] = useState(useSelector((state) =>state.transactions));
+//   // const transactions = useSelector((state) =>state.transactions.todayTransaction)
+//   // console.log(transactions)
+//   const dispatch=useDispatch()
+//   useEffect(() => {
+//     const fetchTransactions = async () => {
+//       try {
+//         const result = await dispatch(groupTransaction("today")).unwrap();
+//         setTransactions(result);
+//       } catch (error) {
+//         console.error("Failed to fetch transactions:", error);
+//       }
+//     };
+
+//     fetchTransactions();
+//   }, [dispatch]);
+
+//   return <TransactionList transactions={transactions} />;
+// };
+
+// export const WeeklyTransactionsList = () => {
+//   const [transactions, setTransactions] = useState([]);
+//   const dispatch=useDispatch()
+//   useEffect(() => {
+//     const fetchTransactions = async () => {
+//       try {
+//         const result = await dispatch(groupTransaction("weekly")).unwrap();
+//         setTransactions(result);
+//       } catch (error) {
+//         console.error("Failed to fetch transactions:", error);
+//       }
+//     };
+
+//     fetchTransactions();
+//   }, [dispatch]);
+
+//   return <TransactionList transactions={transactions} />;
+// };
+
+// export const MonthlyTransactionsList = () => {
+//   const [transactions, setTransactions] = useState([]);
+//   const dispatch=useDispatch()
+//   useEffect(() => {
+//     const fetchTransactions = async () => {
+//       try {
+//         const result = await dispatch(groupTransaction("monthly")).unwrap();
+//         setTransactions(result);
+//       } catch (error) {
+//         console.error("Failed to fetch transactions:", error);
+//       }
+//     };
+
+//     fetchTransactions();
+//   }, [dispatch]);
+
+//   return <TransactionList transactions={transactions} />;
+// };
