@@ -1,6 +1,12 @@
 import dotenv from "dotenv";
-import db from "../config/db.js";
-import { v4 as uuidv4 } from "uuid";
+import {
+  addTransactionService,
+  deleteTransactionService,
+  fetchAllTransactionsService,
+  fetchTransactionService,
+  searchTransactionService,
+  updateTransactionService,
+} from "../services/transactionServices.js";
 
 dotenv.config();
 
@@ -9,17 +15,10 @@ export const addTransaction = async (req, res) => {
     const { transactionBody } = req.body;
     const email = req.user.email;
     transactionBody.userEmail = email;
-    transactionBody.id = uuidv4();
-    const keys = Object.keys(transactionBody);
-    const values = Object.values(transactionBody);
-    await db.query(
-      `INSERT INTO transactions (${keys.join(", ")})
-            VALUES (${keys.map(() => "?").join(", ")})`,
-      values,
-    );
+    const transaction = await addTransactionService(transactionBody, email);
     res
-      .status(200)
-      .json({ message: "Add transaction successful", data: transactionBody });
+      .status(201)
+      .json({ message: "Add transaction successful", data: transaction });
   } catch (error) {
     res.status(500).json({ error: "Internal Server error." });
   }
@@ -29,18 +28,14 @@ export const deleteTransaction = async (req, res) => {
   try {
     const id = req.params.id;
     const email = req.user.email;
-    const [transactionExist] = await db.query(
-      "DELETE FROM transactions WHERE id=? AND userEmail=?",
-      [id, email],
-    );
-    if (transactionExist.affectedRows == 0) {
+    const [result] = await deleteTransactionService(id, email);
+    if (result.affectedRows == 0) {
       return res.status(404).json({
         message: "Transaction not found",
       });
     }
-    res.status(201).json({ message: "Delete Successful", id: id });
+    res.status(200).json({ message: "Delete Successful", id: id });
   } catch (error) {
-    console.error("Error during update:", error.message);
     res.status(500).json({ error: "Internal Server error" });
   }
 };
@@ -48,40 +43,11 @@ export const deleteTransaction = async (req, res) => {
 export const updateTransaction = async (req, res) => {
   try {
     const id = req.params.id;
-    const [transactionExist] = await db.query(
-      "SELECT * FROM transactions WHERE id =?",
-      [id],
-    );
-    if (transactionExist.length == 0) {
+    const body = req.body;
+    const updateTransaction = await updateTransactionService(id, body);
+    if (!updateTransaction) {
       return res.status(400).json({ message: "Transaction not found" });
     }
-    const updateTransaction = {
-      transactionType:
-        req.body.transactionType || transactionExist[0].transactionType,
-      transactionCategory:
-        req.body.transactionCategory || transactionExist[0].transactionCategory,
-      transactionAmount:
-        req.body.transactionAmount || transactionExist[0].transactionAmount,
-      transactionDescription:
-        req.body.transactionDescription ||
-        transactionExist[0].transactionDescription,
-      createAt: req.body.createAt || transactionExist[0].createAt,
-      receipt: req.body.receipt || transactionExist[0].receipt,
-      id: transactionExist[0].id,
-    };
-    await db.query(
-      "UPDATE  transactions SET transactionType= ?, transactionCategory= ? ,transactionAmount= ? ,transactionDescription= ? , createAt= ?, receipt= ? WHERE id = ?",
-      [
-        req.body.transactionType || transactionExist[0].transactionType,
-        req.body.transactionCategory || transactionExist[0].transactionCategory,
-        req.body.transactionAmount || transactionExist[0].transactionAmount,
-        req.body.transactionDescription ||
-          transactionExist[0].transactionDescription,
-        req.body.createAt || transactionExist[0].createAt,
-        req.body.receipt || transactionExist[0].receipt,
-        id,
-      ],
-    );
     res
       .status(200)
       .json({ message: "Update Successful", data: updateTransaction });
@@ -93,10 +59,7 @@ export const updateTransaction = async (req, res) => {
 export const fetchAllTransactions = async (req, res) => {
   try {
     const email = req.user.email;
-    const [listTransaction] = await db.query(
-      "SELECT * FROM transactions WHERE userEmail =? ORDER BY createAt DESC ",
-      [email],
-    );
+    const listTransaction = await fetchAllTransactionsService(email);
     if (listTransaction.length == 0) {
       res.status(200).json({ message: "No transaction" });
     } else {
@@ -111,22 +74,11 @@ export const fetchTransaction = async (req, res) => {
   try {
     const id = req.params.id;
     const email = req.user.email;
-    const transaction = await db.query(
-      `SELECT
-          id,
-          transactionType,
-          transactionCategory,
-          transactionAmount,
-          transactionDescription,
-          receipt,
-          DATE_FORMAT(createAt, '%Y-%c-%d') AS createAt  
-      FROM transactions WHERE id =? AND userEmail=?`,
-      [id, email],
-    );
+    const transaction = await fetchTransactionService(id, email);
     if (!transaction) {
       res.status(400).json({ message: "Transaction not found" });
     }
-    res.status(200).json({ transaction: transaction[0] });
+    res.status(200).json({ transaction: transaction });
   } catch (error) {
     res.status(500).json({ error: "Internal Server error" });
   }
@@ -147,7 +99,7 @@ export const searchTransaction = async (req, res) => {
     const typePattern = `%${type}%`;
     const email = req.user.email;
     const offset = (page - 1) * limit;
-    console.log(
+    const filterResult = await searchTransactionService(
       searchPattern,
       catePattern,
       typePattern,
@@ -157,44 +109,13 @@ export const searchTransaction = async (req, res) => {
       limit,
       offset,
     );
-    const [transactions] = await db.query(
-      ` SELECT * FROM transactions WHERE transactionDescription LIKE ? 
-      AND transactionCategory LIKE ? 
-      AND transactionType LIKE ? 
-      AND userEmail = ? 
-      AND transactionAmount BETWEEN ? AND ? 
-      ORDER BY createAt DESC 
-      LIMIT ? OFFSET ?`,
-      [
-        searchPattern,
-        catePattern,
-        typePattern,
-        email,
-        dPrice,
-        uPrice,
-        limit,
-        offset,
-      ],
-    );
-
-    const [totalRecords] = await db.query(
-      `SELECT COUNT(*) as total 
-       FROM transactions 
-       WHERE transactionDescription LIKE ? 
-         AND transactionCategory LIKE ? 
-         AND transactionType LIKE ? 
-         AND userEmail = ? 
-         AND transactionAmount BETWEEN ? AND ?`,
-      [searchPattern, catePattern, typePattern, email, dPrice, uPrice],
-    );
-
-    const total = totalRecords[0]?.total || 0;
-    const totalPages = Math.ceil(total / limit);
-    if (transactions.length == 0) {
+    const total = filterResult.total;
+    const totalPages = filterResult.totalPages;
+    if (filterResult.transactions.length == 0) {
       res.status(200).json({ message: "No transaction" });
     } else {
       res.status(200).json({
-        data: transactions,
+        data: filterResult.transactions,
         pagination: {
           totalRecords: total,
           totalPages,
@@ -207,4 +128,3 @@ export const searchTransaction = async (req, res) => {
     res.status(500).json({ error: "Internal Server error" });
   }
 };
-

@@ -28,17 +28,17 @@ const ModalExpense = () => {
   const [uploadError, setUploadError] = useState(false);
   useEffect(() => {
     if (transactionData) {
-      setId(transactionData[0].id || "");
-      setDate(transactionData[0].createAt || "");
-      setCategory(transactionData[0].transactionCategory || "Shopping");
-      setDescription(transactionData[0].transactionDescription || "");
-      setAmount(transactionData[0].transactionAmount || "");
+      setId(transactionData.id || "");
+      setDate(transactionData.createAt || "");
+      setCategory(transactionData.transactionCategory || "Shopping");
+      setDescription(transactionData.transactionDescription || "");
+      setAmount(transactionData.transactionAmount || "");
       setIsExpense(
-        transactionData[0].transactionType === "income" ? false : true,
+        transactionData.transactionType === "income" ? false : true,
       );
-      setReceipt(transactionData[0].receipt || null);
+      setReceipt(transactionData.receipt || null);
     } else {
-      const today = new Date().toISOString().split("T")[0];
+      const today = new Date().toISOString().split("T");
       setDate(today);
     }
   }, [transactionData]);
