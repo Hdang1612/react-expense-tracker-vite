@@ -1,7 +1,7 @@
 // GeneralReport.js
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Pie } from "react-chartjs-2"; // Biểu đồ tròn
+import { Pie } from "react-chartjs-2";
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
@@ -11,7 +11,6 @@ export const PieStatisticGeneral = () => {
   const { totalIncome, totalExpense } = useSelector(
     (state) => state.transactions,
   );
-
   const [chartData, setChartData] = useState({});
   const [options, setOptions] = useState({});
 
@@ -23,13 +22,10 @@ export const PieStatisticGeneral = () => {
           label: "Income vs Expense",
           data: [totalIncome, totalExpense],
           backgroundColor: [
-            "rgba(75, 192, 192, 0.6)", // Màu cho thu nhập
-            "rgba(255, 99, 132, 0.6)", // Màu cho chi tiêu
+            "rgba(75, 192, 192, 0.6)",
+            "rgba(255, 99, 132, 0.6)",
           ],
-          borderColor: [
-            "rgba(75, 192, 192, 1)", // Đường viền cho thu nhập
-            "rgba(255, 99, 132, 1)", // Đường viền cho chi tiêu
-          ],
+          borderColor: ["rgba(75, 192, 192, 1)", "rgba(255, 99, 132, 1)"],
           borderWidth: 1,
         },
       ],
@@ -60,16 +56,17 @@ const calculateMonthlyTotals = (transactions) => {
   const totals = Array(12)
     .fill(null)
     .map(() => ({ income: 0, expense: 0 }));
-
   transactions.forEach((transaction) => {
-    const date = new Date(transaction.date);
-    const monthIndex = date.getMonth(); // 0 = January, 11 = December
+    const date = new Date(transaction.createAt);
+    const monthIndex = date.getMonth();
+    console.log(monthIndex); // 0 = January, 11 = December
 
     if (transaction.transactionType === "income") {
-      totals[monthIndex].income += Number(transaction.amount);
+      totals[monthIndex].income += Number(transaction.transactionAmount);
     } else if (transaction.transactionType === "expense") {
-      totals[monthIndex].expense += Number(transaction.amount);
+      totals[monthIndex].expense += Number(transaction.transactionAmount);
     }
+    console.log(totals[monthIndex]);
   });
 
   return totals.map((totals, index) => ({
@@ -100,8 +97,8 @@ export const PieStatisticMonth = ({ month }) => {
         {
           data: [selectedMonth.income, selectedMonth.expense],
           backgroundColor: [
-            "rgba(75, 192, 192, 0.6)", // Income màu xanh
-            "rgba(255, 99, 132, 0.6)", // Expense màu đỏ
+            "rgba(75, 192, 192, 0.6)",
+            "rgba(255, 99, 132, 0.6)",
           ],
           borderColor: ["rgba(75, 192, 192, 1)", "rgba(255, 99, 132, 1)"],
           borderWidth: 1,

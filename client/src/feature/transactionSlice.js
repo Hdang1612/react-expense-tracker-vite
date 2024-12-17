@@ -1,149 +1,242 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { getFromStorage, saveToStorage } from "./localStorage.js";
-import { sortTransactionsByDate, formatDate } from "../utils/date.js";
-const calculateInitialBalances = (transactions) => {
-  const income = transactions
-    .filter((transaction) => transaction.transactionType === "income")
-    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-  const expense = transactions
-    .filter((transaction) => transaction.transactionType === "expense")
-    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
+import { formatDate } from "../utils/date.js";
+import { showErrorToast, showSuccessToast } from "../utils/Toaste.js";
+import {
+  fetchAllTransaction,
+  addTransaction,
+  updateTransaction,
+  removeTransaction,
+  filterTransactions,
+} from "../services/transactionServices.js";
 
-  return {
-    totalIncome: income,
-    totalExpense: expense,
-    totalBalance: income - expense,
-  };
-};
+export const fetchTransactions = createAsyncThunk(
+  "transaction/fetchTransactions",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await fetchAllTransaction();
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
 
-const persistedTransactions = getFromStorage("transactions-list") || [];
-const initialBalances = calculateInitialBalances(persistedTransactions);
+export const filterTransaction = createAsyncThunk(
+  "transaction/filterTransaction",
+  async (params, { rejectWithValue }) => {
+    try {
+      const res = await filterTransactions(params);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const addTransactions = createAsyncThunk(
+  "transaction/addTransactions",
+  async (data, { rejectWithValue }) => {
+    try {
+      console.log(data);
+      const res = await addTransaction(data);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const updateTransactions = createAsyncThunk(
+  "transaction/updateTransactions",
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await updateTransaction(data);
+      console.log(res);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const removeTransactions = createAsyncThunk(
+  "transaction/removeTransactions",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await removeTransaction(id);
+      console.log(res);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
 
 const initialState = {
-  transactions: persistedTransactions,
-  ...initialBalances,
-  transactionsList: [],
+  transactions: [],
+  totalBalance: 0,
+  totalIncome: 0,
+  totalExpense: 0,
+  isLoading: false,
   filteredTransaction: [],
-  searchKeyword: "",
-  paginatedTransactions: [],
+  refresh: false,
   currentPage: 1,
   itemsPerPage: 5,
+  totalPage: null,
+  error: null,
 };
 
 const transactionSlice = createSlice({
   name: "transactions",
   initialState,
   reducers: {
-    addTransaction: (state, action) => {
-      state.transactions.push(action.payload);
-      state.transactions = sortTransactionsByDate(state.transactions);
-      saveToStorage("transactions-list", state.transactions);
-      updateTotalBalance(state);
-
-      //update lại filteredtransaction
-      if (state.searchKeyword) {
-        state.filteredTransactions = state.transactions.filter((transaction) =>
-          transaction.description
-            .toLowerCase()
-            .includes(state.searchKeyword.toLowerCase()),
-        );
-      } else {
-        state.filteredTransactions = state.transactions;
-      }
+    setCurrentPages: (state, action) => {
+      state.currentPage = action.payload;
     },
+  },
 
-    updateTransaction: (state, action) => {
-      const updatedData = action.payload;
-      const transactionIndex = state.transactions.findIndex(
-        (transaction) => transaction.id === updatedData.id,
-      );
-      if (transactionIndex >= 0) {
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.transactions = action.payload;
+        updateTotalBalance(state);
+      })
+      .addCase(fetchTransactions.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // filter
+    builder
+      .addCase(filterTransaction.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(filterTransaction.fulfilled, (state, action) => {
+        if (action.payload && action.payload.pagination) {
+          state.filteredTransaction = action.payload.data;
+          state.currentPage = action.payload.pagination.currentPage;
+          state.itemsPerPage = action.payload.pagination.limit;
+          state.totalPage = action.payload.pagination.totalPages;
+        } else {
+          state.filteredTransaction = [];
+          state.currentPage = 1;
+          state.itemsPerPage = 0;
+          state.totalPage = 1;
+        }
+
+        state.refresh = false;
+      })
+      .addCase(filterTransaction.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isLoading = false;
+      });
+
+    // Add transaction
+    builder
+      .addCase(addTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.transactions.push(action.payload.data);
+        state.refresh = true;
+        showSuccessToast(action.payload.message);
+        updateTotalBalance(state);
+      })
+      .addCase(addTransactions.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+        showErrorToast(action.payload);
+      });
+
+    // Update transaction
+    builder
+      .addCase(updateTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const transactionIndex = state.transactions.findIndex(
+          (transaction) => transaction.id === action.payload.data.id,
+        );
         state.transactions[transactionIndex] = {
           ...state.transactions[transactionIndex],
-          ...updatedData,
+          ...action.payload.data,
         };
-        state.transactions = sortTransactionsByDate(state.transactions);
-        saveToStorage("transactions-list", state.transactions);
+        state.refresh = true;
         updateTotalBalance(state);
-      }
-      if (state.searchKeyword) {
-        state.filteredTransactions = state.transactions.filter((transaction) =>
-          transaction.description
-            .toLowerCase()
-            .includes(state.searchKeyword.toLowerCase()),
+        state.error = action.payload;
+        showSuccessToast(action.payload.message);
+      })
+      .addCase(updateTransactions.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    // Remove transaction
+    builder
+      .addCase(removeTransactions.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(removeTransactions.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.transactions = state.transactions.filter(
+          (transaction) => transaction.id !== action.payload.id,
         );
-      } else {
-        state.filteredTransactions = state.transactions;
-      }
-    },
-
-    removeTransaction: (state, action) => {
-      state.transactions = state.transactions.filter(
-        (transaction) => transaction.id !== action.payload,
-      );
-      state.transactions = sortTransactionsByDate(state.transactions);
-      saveToStorage("transactions-list", state.transactions);
-      updateTotalBalance(state);
-      if (state.searchKeyword) {
-        state.filteredTransactions = state.transactions.filter((transaction) =>
-          transaction.description
-            .toLowerCase()
-            .includes(state.searchKeyword.toLowerCase()),
-        );
-      } else {
-        state.filteredTransactions = state.transactions;
-      }
-    },
-
-    setCurrentPage: (state, action) => {
-      state.currentPage = action.payload;
-      const startIndex = (state.currentPage - 1) * state.itemsPerPage;
-      state.paginatedTransactions = state.transactions.slice(
-        startIndex,
-        startIndex + state.itemsPerPage,
-      );
-    },
-
-    setItemsPerPage: (state, action) => {
-      state.itemsPerPage = action.payload;
-      state.currentPage = 1;
-      const startIndex = 0;
-      state.paginatedTransactions = state.transactions.slice(
-        startIndex,
-        startIndex + state.itemsPerPage,
-      );
-    },
-    setFilteredTransactions(state, action) {
-      state.filteredTransactions = action.payload.filteredTransactions;
-      state.searchKeyword = action.payload.searchKeyword;
-    },
+        state.refresh = true;
+        showSuccessToast(action.payload.message);
+        updateTotalBalance(state);
+      })
+      .addCase(removeTransactions.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
   },
 });
 
 const updateTotalBalance = (state) => {
   const transactions = [...state.transactions];
   const income = transactions
-    .filter((transaction) => transaction.transactionType === "income")
-    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
+    .filter(
+      (transaction) =>
+        transaction.transactionType === "income" ||
+        transaction.transactionType === "Income",
+    )
+    .reduce(
+      (acc, transaction) => acc + Number(transaction.transactionAmount),
+      0,
+    );
   const expense = transactions
-    .filter((transaction) => transaction.transactionType === "expense")
-    .reduce((acc, transaction) => acc + Number(transaction.amount), 0);
+    .filter(
+      (transaction) =>
+        transaction.transactionType === "expense" ||
+        transaction.transactionType === "Expense",
+    )
+    .reduce(
+      (acc, transaction) => acc + Number(transaction.transactionAmount),
+      0,
+    );
   state.totalIncome = income;
   state.totalExpense = expense;
   state.totalBalance = income - expense;
 };
 
-//các nhóm transaction
-
 export const selectTodayTransactions = (state) => {
   const today = new Date().toLocaleDateString("en-GB");
-  return state.transactions.transactions.filter((transaction) => {
-    const transactionDate = new Date(transaction.date).toLocaleDateString(
-      "en-GB",
-    );
-    return transactionDate === today;
-  });
+  if (state.transactions.transactions) {
+    return state.transactions.transactions.filter((transaction) => {
+      const transactionDate = new Date(transaction.createAt).toLocaleDateString(
+        "en-GB",
+      );
+      return transactionDate === today;
+    });
+  }
+  return [];
 };
 
 // Nhóm giao dịch theo tuần
@@ -153,7 +246,7 @@ export const selectWeeklyTransactions = (state) => {
   let currentWeekKey = "";
 
   state.transactions.transactions.forEach((transaction) => {
-    const transactionDate = new Date(transaction.date);
+    const transactionDate = new Date(transaction.createAt);
     const startOfTransactionWeek = new Date(transactionDate);
     startOfTransactionWeek.setDate(
       transactionDate.getDate() -
@@ -189,16 +282,16 @@ export const selectMonthlyTransactions = (state) => {
   const months = [];
   let currentMonth = [];
   state.transactions.transactions.forEach((transaction) => {
-    const transactionDate = new Date(transaction.date);
+    const transactionDate = new Date(transaction.createAt);
     const monthKey = `${transactionDate.getMonth() + 1}-${transactionDate.getFullYear()}`;
     if (
       currentMonth.length > 0 &&
-      currentMonth[0].date &&
-      `${new Date(currentMonth[0].date).getMonth() + 1}-${new Date(currentMonth[0].date).getFullYear()}` !==
+      currentMonth[0].createAt &&
+      `${new Date(currentMonth[0].createAt).getMonth() + 1}-${new Date(currentMonth[0].createAt).getFullYear()}` !==
         monthKey
     ) {
       months.push({
-        name: `${new Date(currentMonth[0].date).getMonth() + 1}-${new Date(currentMonth[0].date).getFullYear()}`,
+        name: `${new Date(currentMonth[0].createAt).getMonth() + 1}-${new Date(currentMonth[0].createAt).getFullYear()}`,
         transactions: currentMonth,
       });
       currentMonth = [];
@@ -208,19 +301,13 @@ export const selectMonthlyTransactions = (state) => {
 
   if (currentMonth.length > 0) {
     months.push({
-      name: `${new Date(currentMonth[0].date).getMonth() + 1}-${new Date(currentMonth[0].date).getFullYear()}`,
+      name: `${new Date(currentMonth[0].createAt).getMonth() + 1}-${new Date(currentMonth[0].createAt).getFullYear()}`,
       transactions: currentMonth,
     });
   }
   return months;
 };
 
-export const {
-  addTransaction,
-  updateTransaction,
-  removeTransaction,
-  setCurrentPage,
-  setItemsPerPage,
-  setFilteredTransactions,
-} = transactionSlice.actions;
+export const { setCurrentPages, setItemsPerPage, setFilteredTransactions } =
+  transactionSlice.actions;
 export default transactionSlice.reducer;

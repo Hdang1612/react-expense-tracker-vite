@@ -1,26 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-import Menu from "../layout/Menu";
-import { logout } from "../feature/authSlice";
-import ModalExpense from "../component/modal/ModalTransaction";
 import {
   EyeInvisibleOutlined,
   EyeOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+
+import Menu from "../layout/Menu";
+import { logout } from "../feature/authSlice";
+import ModalExpense from "../component/modal/ModalTransaction";
 import { formatCurrency } from "../utils/number";
+import { fetchTransactions } from "../feature/transactionSlice";
 import {
   TodayTransactionsList,
   WeeklyTransactionsList,
   MonthlyTransactionsList,
 } from "../component/TransactionList";
+// import { showErrorToast } from "../utils/Toaste";
+
 function HomePage() {
   const balance = useSelector((state) => state.transactions.totalBalance);
   const dispatch = useDispatch();
-  const [filter, setFilter] = useState("weekly");
+  const [filter, setFilter] = useState("today");
   const [showBalance, setShowBalance] = useState(true);
 
   const handleToggleBalance = () => {
@@ -32,6 +36,13 @@ function HomePage() {
   };
 
   const modalStatus = useSelector((state) => state.modal);
+  const errorConfirm = useSelector((state) => state.transactions.error);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (errorConfirm) {
+      navigate("/forbidden");
+    } else dispatch(fetchTransactions());
+  }, [dispatch]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
