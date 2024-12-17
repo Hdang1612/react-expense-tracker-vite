@@ -1,8 +1,6 @@
-import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-import db from "../config/db.js";
+
 import {
   deleteUserService,
   fetchUsersService,
