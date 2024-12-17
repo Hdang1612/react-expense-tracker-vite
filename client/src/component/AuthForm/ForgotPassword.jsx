@@ -1,17 +1,31 @@
-function ForgotPassword() {
+import { forgotPassword } from "../../services/authServices";
+import { useState } from "react";
+import { showSuccessToast, showErrorToast } from "../../utils/Toaste";
+function ForgotPassword({ toggleForm }) {
+  const [email, setEmail] = useState("");
+  const handleForgot = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await forgotPassword(email);
+      showSuccessToast(res.message);
+    } catch (err) {
+      showErrorToast(err.message);
+    }
+  };
   return (
     <div className="border-[#AFAFAF] border-2 rounded-[20px] w-[480px] h-[800px] drop-shadow-md pt-[97px] pb-[20px] px-[40px]">
       <div className="flex flex-col justify-between h-full">
         <div className="">
           <p className="text-[36px] font-semibold">Forgot password ?</p>
           <p className="text-[16px] font-medium">Please enter your email</p>
-          <form>
+          <form onSubmit={handleForgot}>
             <div className="mb-6">
               <input
                 id="email"
                 type="email"
+                onChange={(e) => setEmail(e.target.value)}
                 // value={email}
-
                 className="w-full border border-[#FFFFFF] rounded-md px-[16px] py-[14px] text-[20px] font-regular bg-transparent mt-3"
                 placeholder="Email"
                 required
@@ -34,6 +48,11 @@ function ForgotPassword() {
             <a className="cursor-pointer  hover:text-[#fff]">Term&Condition</a>
             <a className="cursor-pointer  hover:text-[#fff]">Support</a>
             <a className="cursor-pointer  hover:text-[#fff]">Customer Care</a>
+          </div>
+          <div className="mt-6">
+            <a onClick={toggleForm} className="cursor-pointer hover:underline">
+              Back to Login
+            </a>
           </div>
         </div>
       </div>

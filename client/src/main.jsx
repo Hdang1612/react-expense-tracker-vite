@@ -1,12 +1,14 @@
 import { Provider } from "react-redux";
 
-import ReactDOM from "react-dom/client";
+import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
+
+import ReactDOM from "react-dom/client";
 import "../src/component/transaction_item/styleDropdown.css";
 import App from "./App";
 import store from "./feature/store";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
