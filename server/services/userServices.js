@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const EXPIRATION_TOKEN_LOGIN= process.env.EXPIRATION_TOKEN_LOGIN
+const EXPIRATION_TOKEN_EMAIL= process.env.EXPIRATION_TOKEN_EMAIL
 
 // Sign Up Service
 export const signUpService = async (email, password, name, phoneNumber) => {
@@ -44,7 +46,7 @@ export const logInService = async (email, password) => {
   }
 
   const token = jwt.sign({ email: existingUser[0].email }, JWT_SECRET_KEY, {
-    expiresIn: "15m",
+    expiresIn: EXPIRATION_TOKEN_LOGIN,
   });
 
   return { token, name: existingUser[0].name, email: existingUser[0].email };
@@ -99,7 +101,7 @@ export const forgotPasswordService = async (email, resetUrl) => {
 
   const secret = JWT_SECRET_KEY + existingUser[0].password;
   const token = jwt.sign({ email: existingUser[0].email }, secret, {
-    expiresIn: "3m",
+    expiresIn: EXPIRATION_TOKEN_EMAIL,
   });
 
   const link = `${resetUrl}${existingUser[0].email}/${token}`;
