@@ -1,14 +1,13 @@
 import fs from "fs";
 import db from "../config/db.js";
 
-
 export const uploadReceiptService = async (transactionId, file) => {
   if (!file) {
     await db.query("UPDATE transactions SET receipt = ? WHERE id = ?", [
-        null,
-        transactionId,
-      ]);
-    return
+      null,
+      transactionId,
+    ]);
+    return;
   }
 
   const receiptPath = file.path;
@@ -33,10 +32,10 @@ export const uploadReceiptService = async (transactionId, file) => {
 export const updateReceiptService = async (transactionId, file) => {
   if (!file) {
     await db.query("UPDATE transactions SET receipt = ? WHERE id = ?", [
-        null,
-        transactionId,
-      ]);
-    return
+      null,
+      transactionId,
+    ]);
+    return;
   }
 
   const newReceiptPath = file.path;

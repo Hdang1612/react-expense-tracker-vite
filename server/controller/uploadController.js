@@ -42,12 +42,10 @@ export const updateReceipt = async (req, res) => {
         transactionId,
         req.file,
       );
-      res
-        .status(200)
-        .json({
-          message: "Receipt updated successfully",
-          receipt: newReceiptPath,
-        });
+      res.status(200).json({
+        message: "Receipt updated successfully",
+        receipt: newReceiptPath,
+      });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -57,7 +55,7 @@ export const updateReceipt = async (req, res) => {
 export const deleteReceipt = async (req, res) => {
   try {
     const transactionId = req.params.id;
-    await deleteReceiptService (transactionId)
+    await deleteReceiptService(transactionId);
     res.status(200).json({ message: "Receipt deleted successfully" });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -67,7 +65,7 @@ export const deleteReceipt = async (req, res) => {
 export const fetchReceipt = async (req, res) => {
   try {
     const transactionId = req.params.id;
-    const receipt = await fetchReceiptService(transactionId)
+    const receipt = await fetchReceiptService(transactionId);
     res.status(200).json({ receipt: receipt });
   } catch (error) {
     res.status(400).json({ error: error.message });
