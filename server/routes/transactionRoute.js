@@ -8,7 +8,6 @@ import {
   fetchAllTransactions,
   fetchTransaction,
   searchTransaction,
-  // Pagination
 } from "../controller/transactionController.js";
 
 const routeTransaction = express.Router();

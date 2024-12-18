@@ -1,6 +1,7 @@
 package-lock.json
 node_modules/
 
+upload
 .env
 dist/
 logs/

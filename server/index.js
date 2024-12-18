@@ -1,10 +1,12 @@
 import express from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import route from "./routes/userRoute.js";
-import routeTransaction from "./routes/transactionRoute.js";
 import cors from "cors";
 import db from "./config/db.js";
+
+import route from "./routes/userRoute.js";
+import routeTransaction from "./routes/transactionRoute.js";
+import routeUpload from "./routes/uploadRoute.js";
 
 const app = express();
 app.use(cors());
@@ -26,3 +28,4 @@ db.query("SELECT 1")
 
 app.use("/api/user", route);
 app.use("/api/transaction", routeTransaction);
+app.use("/api/receipt", routeUpload);
