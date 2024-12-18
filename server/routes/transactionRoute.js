@@ -17,6 +17,5 @@ routeTransaction.get("/fetchTransaction/:id", verifyToken, fetchTransaction);
 routeTransaction.get("/search", verifyToken, searchTransaction);
 routeTransaction.put("/update/:id", verifyToken, updateTransaction);
 routeTransaction.delete("/delete/:id", verifyToken, deleteTransaction);
-// routeTransaction.get("/pagination", verifyToken, Pagination);
 
 export default routeTransaction;

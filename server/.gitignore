@@ -1,7 +1,6 @@
 package-lock.json
 node_modules/
-upload/receipts/
-
+upload/
 
 .env
 dist/
