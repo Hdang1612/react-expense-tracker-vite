@@ -28,6 +28,7 @@ const ExpenseItem = ({
     Entertainment: <GiftOutlined />,
     Unknown: <FileUnknownOutlined />,
   };
+  const BASE_PATH = import.meta.env.VITE_BASE_PATH;
   const isOpen = openItemId === transaction.id;
 
   const handleToggleDropdown = () => {
@@ -107,7 +108,7 @@ const ExpenseItem = ({
               </p>
               {transaction.receipt ? (
                 <img
-                  src={transaction.receipt}
+                  src={`${BASE_PATH}${transaction.receipt}`}
                   alt="Receipt"
                   className="object-cover md:w-[200px] md:h-[200px] w-[160px] h-[160px] mb-3 cursor-pointer"
                   onClick={showImage}
@@ -141,7 +142,11 @@ const ExpenseItem = ({
         height="600px"
         className=""
       >
-        <img src={transaction.receipt} alt="Receipt" className="" />
+        <img
+          src={`${BASE_PATH}${transaction.receipt}`}
+          alt="Receipt"
+          className=""
+        />
       </Modal>
     </div>
   );

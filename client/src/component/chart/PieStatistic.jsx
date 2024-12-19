@@ -59,14 +59,12 @@ const calculateMonthlyTotals = (transactions) => {
   transactions.forEach((transaction) => {
     const date = new Date(transaction.createAt);
     const monthIndex = date.getMonth();
-    console.log(monthIndex); // 0 = January, 11 = December
 
     if (transaction.transactionType === "income") {
       totals[monthIndex].income += Number(transaction.transactionAmount);
     } else if (transaction.transactionType === "expense") {
       totals[monthIndex].expense += Number(transaction.transactionAmount);
     }
-    console.log(totals[monthIndex]);
   });
 
   return totals.map((totals, index) => ({

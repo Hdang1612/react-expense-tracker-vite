@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import {
   EyeInvisibleOutlined,
@@ -19,10 +19,10 @@ import {
   WeeklyTransactionsList,
   MonthlyTransactionsList,
 } from "../component/TransactionList";
-// import { showErrorToast } from "../utils/Toaste";
 
 function HomePage() {
   const balance = useSelector((state) => state.transactions.totalBalance);
+  const modalStatus = useSelector((state) => state.modal);
   const dispatch = useDispatch();
   const [filter, setFilter] = useState("today");
   const [showBalance, setShowBalance] = useState(true);
@@ -35,13 +35,8 @@ function HomePage() {
     setFilter(filterType);
   };
 
-  const modalStatus = useSelector((state) => state.modal);
-  const errorConfirm = useSelector((state) => state.transactions.error);
-  const navigate = useNavigate();
   useEffect(() => {
-    if (errorConfirm) {
-      navigate("/forbidden");
-    } else dispatch(fetchTransactions());
+    dispatch(fetchTransactions());
   }, [dispatch]);
 
   return (

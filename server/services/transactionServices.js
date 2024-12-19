@@ -8,13 +8,12 @@ export const addTransactionService = async (transactionBody, email) => {
 
   const keys = Object.keys(transactionBody);
   const values = Object.values(transactionBody);
-
+  console.log(transactionBody)
   await db.query(
     `INSERT INTO transactions (${keys.join(", ")})
         VALUES (${keys.map(() => "?").join(", ")})`,
     values,
   );
-
   return transactionBody;
 };
 
