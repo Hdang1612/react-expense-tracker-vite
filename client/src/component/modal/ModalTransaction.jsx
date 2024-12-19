@@ -33,7 +33,6 @@ const ModalExpense = () => {
   const [amount, setAmount] = useState("");
   const [receipt, setReceipt] = useState(null);
   const [isExpense, setIsExpense] = useState(true);
-  const [uploadError, setUploadError] = useState(false);
   const [receiptImage, setReceiptImage] = useState("");
 
   useEffect(() => {
@@ -62,24 +61,16 @@ const ModalExpense = () => {
 
   const handleFileUpload = async (file) => {
     if (!file.type.startsWith("image/")) {
-      showErrorToast("Chỉ cho phép upload tệp ảnh");
-      setUploadError(true);
       return;
     }
 
     setReceipt(file);
     setReceiptImage(URL.createObjectURL(file));
-    setUploadError(false);
   };
 
   const handleSave = async () => {
     if (!date || !category || !amount) {
       showErrorToast("Vui lòng nhập đầy đủ");
-      return;
-    }
-
-    if (uploadError) {
-      showErrorToast("Vui lòng tải lên tệp ảnh hợp lệ");
       return;
     }
 
@@ -223,7 +214,7 @@ const ModalExpense = () => {
             showUploadList={false}
             beforeUpload={(file) => {
               if (!file.type.startsWith("image/")) {
-                alert("Please upload an image file!");
+                showErrorToast("Chỉ cho phép upload tệp ảnh");
                 return false;
               }
               handleFileUpload(file);

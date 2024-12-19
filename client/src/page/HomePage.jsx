@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import {
   EyeInvisibleOutlined,
@@ -36,12 +36,8 @@ function HomePage() {
   };
 
   const modalStatus = useSelector((state) => state.modal);
-  const errorConfirm = useSelector((state) => state.transactions.error);
-  const navigate = useNavigate();
   useEffect(() => {
-    if (errorConfirm) {
-      navigate("/forbidden");
-    } else dispatch(fetchTransactions());
+    dispatch(fetchTransactions());
   }, [dispatch]);
 
   return (

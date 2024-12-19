@@ -10,6 +10,7 @@ import ForbiddenPage from "./page/ForbiddenPage";
 import ResetPassword from "./page/ResetPassword";
 function App() {
   const token = useSelector((state) => state.auth.isAuthenticated);
+  const errorConfirm = useSelector((state) => state.transactions.error);
   return (
     <BrowserRouter>
       <Routes>
@@ -22,17 +23,41 @@ function App() {
 
         <Route
           path="/home"
-          element={token ? <HomePage /> : <Navigate to="/auth" />}
+          element={
+            errorConfirm ? (
+              <Navigate to="/forbidden" />
+            ) : token ? (
+              <HomePage />
+            ) : (
+              <Navigate to="/auth" />
+            )
+          }
         />
         <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="/auth" element={<RegisterPage />} />
         <Route
           path="/transactions"
-          element={token ? <TransactionPage /> : <Navigate to="/auth" />}
+          element={
+            errorConfirm ? (
+              <Navigate to="/forbidden" />
+            ) : token ? (
+              <TransactionPage />
+            ) : (
+              <Navigate to="/auth" />
+            )
+          }
         />
         <Route
           path="/statistics"
-          element={token ? <Report /> : <Navigate to="/auth" />}
+          element={
+            errorConfirm ? (
+              <Navigate to="/forbidden" />
+            ) : token ? (
+              <Report />
+            ) : (
+              <Navigate to="/auth" />
+            )
+          }
         />
       </Routes>
     </BrowserRouter>
