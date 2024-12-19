@@ -1,12 +1,16 @@
 import db from "../config/db.js";
 import { v4 as uuidv4 } from "uuid";
+import { update } from "../controller/userController.js";
 
 export const addCategoryService = async (categoryBody, email) => {
   categoryBody.userEmail = email;
   categoryBody.id = uuidv4();
   const keys = Object.keys(categoryBody);
   const values = Object.values(categoryBody);
-
+  const [categoryExist] = await db.query("SELECT * FROM categories WHERE name =? AND userEmail=?",[categoryBody.name,categoryBody.userEmail] )
+  if( categoryExist.length > 0) {
+    throw new Error("Category name existed")
+  }
   await db.query(
     `INSERT INTO categories (${keys.join(", ")})
         VALUES (${keys.map(() => "?").join(", ")})`,
@@ -29,12 +33,17 @@ export const updateCategoryService = async (id, body) => {
     "SELECT * FROM categories WHERE id =?",
     [id],
   );
-  if (categoryExist.length == 0) return null;
+  
   const updateCategory = {
     name: body.name || categoryExist[0].name,
     type: body.type || categoryExist[0].type,
     id: categoryExist[0].id,
   };
+  const [categoryExisting] = await db.query("SELECT * FROM categories WHERE name =?",[updateCategory.name] )
+  if( categoryExisting.length > 0) {
+    throw new Error("Category name existed")
+  }
+  
   await db.query("UPDATE categories SET name= ?, type= ? WHERE id = ?", [
     updateCategory.name,
     updateCategory.type,
