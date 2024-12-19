@@ -19,10 +19,10 @@ import {
   WeeklyTransactionsList,
   MonthlyTransactionsList,
 } from "../component/TransactionList";
-// import { showErrorToast } from "../utils/Toaste";
 
 function HomePage() {
   const balance = useSelector((state) => state.transactions.totalBalance);
+  const modalStatus = useSelector((state) => state.modal);
   const dispatch = useDispatch();
   const [filter, setFilter] = useState("today");
   const [showBalance, setShowBalance] = useState(true);
@@ -35,7 +35,6 @@ function HomePage() {
     setFilter(filterType);
   };
 
-  const modalStatus = useSelector((state) => state.modal);
   useEffect(() => {
     dispatch(fetchTransactions());
   }, [dispatch]);

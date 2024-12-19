@@ -11,10 +11,9 @@ import {
   removeTransactions,
   addTransactions,
   updateTransactions,
-  fetchTransactions,
+  addReceiptImage
 } from "../../feature/transactionSlice.js";
 import {
-  addReceipt,
   updateReceipt,
   removeReceipt,
 } from "../../services/receiptServices.js";
@@ -34,6 +33,7 @@ const ModalExpense = () => {
   const [receipt, setReceipt] = useState(null);
   const [isExpense, setIsExpense] = useState(true);
   const [receiptImage, setReceiptImage] = useState("");
+  const [isUpdateReceipt,setIsUpdateReceipt] =useState(false)
 
   useEffect(() => {
     if (transactionData) {
@@ -63,7 +63,7 @@ const ModalExpense = () => {
     if (!file.type.startsWith("image/")) {
       return;
     }
-
+    setIsUpdateReceipt(true)
     setReceipt(file);
     setReceiptImage(URL.createObjectURL(file));
   };
@@ -95,12 +95,13 @@ const ModalExpense = () => {
 
     try {
       if (transactionData) {
-        await updateReceipt({ id: id, receipt });
+        if(receipt && isUpdateReceipt ) {
+          await updateReceipt({ id: id, receipt });
+        }
         dispatch(updateTransactions(updateTrans));
       } else {
         const response = await dispatch(addTransactions(newTransaction));
-        await addReceipt(receipt, response.payload.data.id);
-        dispatch(fetchTransactions());
+        dispatch(addReceiptImage({ data: receipt, id: response.payload.data.id }));
       }
       dispatch(toggleModal(false));
       dispatch(resetTransactionData());

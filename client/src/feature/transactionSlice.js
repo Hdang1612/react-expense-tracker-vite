@@ -9,6 +9,7 @@ import {
   removeTransaction,
   filterTransactions,
 } from "../services/transactionServices.js";
+import { addReceipt } from "../services/receiptServices.js";
 
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
@@ -67,6 +68,18 @@ export const removeTransactions = createAsyncThunk(
       const res = await removeTransaction(id);
       console.log(res);
       return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const addReceiptImage = createAsyncThunk(
+  "transaction/addReceiptImage",
+  async ({ data, id }, { rejectWithValue }) => {
+    try {
+      const receipt = await addReceipt(data, id); 
+      return { id, receipt };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -170,7 +183,6 @@ const transactionSlice = createSlice({
         };
         state.refresh = true;
         updateTotalBalance(state);
-        state.error = action.payload;
         showSuccessToast(action.payload.message);
       })
       .addCase(updateTransactions.rejected, (state, action) => {
@@ -194,6 +206,27 @@ const transactionSlice = createSlice({
       })
       .addCase(removeTransactions.rejected, (state, action) => {
         state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    builder
+      .addCase(addReceiptImage.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addReceiptImage.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const { id, receipt } = action.payload;
+        const transactionIndex = state.transactions.findIndex(
+          (transaction) => transaction.id === id,
+        );
+        if (transactionIndex !== -1) {
+          state.transactions[transactionIndex].receipt = receipt; 
+        }
+        // state.refresh = true;
+      })
+      .addCase(addReceiptImage.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
         showErrorToast(action.payload);
       });
   },
