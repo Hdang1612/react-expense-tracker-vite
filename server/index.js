@@ -8,7 +8,12 @@ import route from "./routes/userRoute.js";
 import routeTransaction from "./routes/transactionRoute.js";
 import routeUpload from "./routes/uploadRoute.js";
 
+import path from "path";
+import { fileURLToPath } from "url";
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
@@ -29,3 +34,4 @@ db.query("SELECT 1")
 app.use("/api/user", route);
 app.use("/api/transaction", routeTransaction);
 app.use("/api/receipt", routeUpload);
+app.use("/upload", express.static(path.join(__dirname, "upload")));
