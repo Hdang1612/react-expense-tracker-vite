@@ -1,11 +1,11 @@
 import express from "express";
 
-import  {
-    uploadReceipt,
+import {
+  uploadReceipt,
   updateReceipt,
   deleteReceipt,
   fetchReceipt,
-} from "../controller/uploadController.js"
+} from "../controller/uploadController.js";
 const routeUpload = express.Router();
 routeUpload.post("/upload/:id", uploadReceipt);
 routeUpload.put("/update/:id", updateReceipt);

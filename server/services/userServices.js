@@ -5,8 +5,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
-const EXPIRATION_TOKEN_LOGIN= process.env.EXPIRATION_TOKEN_LOGIN
-const EXPIRATION_TOKEN_EMAIL= process.env.EXPIRATION_TOKEN_EMAIL
+const EXPIRATION_TOKEN_LOGIN = process.env.EXPIRATION_TOKEN_LOGIN;
+const EXPIRATION_TOKEN_EMAIL = process.env.EXPIRATION_TOKEN_EMAIL;
 
 // Sign Up Service
 export const signUpService = async (email, password, name, phoneNumber) => {
