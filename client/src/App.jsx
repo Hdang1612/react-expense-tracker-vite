@@ -33,7 +33,7 @@ function App() {
             )
           }
         />
-        <Route path="/forbidden" element={<ForbiddenPage />} />
+        <Route path="/forbidden" element={errorConfirm ? <ForbiddenPage/> : <Navigate to="/home"/>} />
         <Route path="/auth" element={<RegisterPage />} />
         <Route
           path="/transactions"
