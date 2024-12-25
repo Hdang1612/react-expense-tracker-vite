@@ -1,3 +1,4 @@
+import multer from "multer";
 import {
   addCategoryService,
   updateCategoryService,
@@ -6,17 +7,38 @@ import {
   fetchCategoryService,
 } from "../services/categoryServices.js";
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "upload/categories");
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
+
 export const addCategory = async (req, res) => {
-  try {
-    const { categoryBody } = req.body;
-    const email = req.user.email;
-    const category = await addCategoryService(categoryBody, email);
-    res
-      .status(200)
-      .json({ message: "Add category successful", data: category });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
+  upload.single("image")(req, res, async (err) => {
+    if (err) return res.status(400).json({ error: "Error uploading file" });
+    try {
+      const { name } = req.body;
+      const email = req.user.email;
+      const categoryBody = { name };
+      console.log(req.body);
+      if (req.file) {
+        categoryBody.image = `/upload/categories/${req.file.filename}`;
+      } else {
+        categoryBody.image = null;
+      }
+      const category = await addCategoryService(categoryBody, email);
+      res
+        .status(200)
+        .json({ message: "Add category successful", data: category });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
 };
 
 export const deleteCategory = async (req, res) => {
@@ -29,24 +51,31 @@ export const deleteCategory = async (req, res) => {
     }
     res.status(200).json({ message: "Delete successful" });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server error" });
+    return res.status(400).json({ message: error.message });
   }
 };
 
 export const updateCategory = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const body = req.body;
-    const updateCategory = await updateCategoryService(id, body);
-    if (!updateCategory) {
-      return res.status(400).json({ message: "category not found" });
+  upload.single("image")(req, res, async (err) => {
+    if (err) return res.status(400).json({ error: "Error uploading file" });
+    try {
+      const id = req.params.id;
+      const body = req.body;
+      if (req.file) {
+        body.image = `/upload/categories/${req.file.filename}`;
+      }
+      const updateCategory = await updateCategoryService(id, body);
+
+      if (!updateCategory) {
+        return res.status(400).json({ message: "category not found" });
+      }
+      res
+        .status(200)
+        .json({ message: "Update successful", data: updateCategory });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-    res
-      .status(200)
-      .json({ message: "Update successful", data: updateCategory });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  });
 };
 
 export const fetchAllCategories = async (req, res) => {
