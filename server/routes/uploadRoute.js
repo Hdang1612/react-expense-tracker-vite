@@ -1,5 +1,5 @@
 import express from "express";
-
+import { verifyToken } from "../middlewares/authMiddleware.js";
 import {
   uploadReceipt,
   updateReceipt,
@@ -7,9 +7,9 @@ import {
   fetchReceipt,
 } from "../controller/uploadController.js";
 const routeUpload = express.Router();
-routeUpload.post("/upload/:id", uploadReceipt);
-routeUpload.put("/update/:id", updateReceipt);
-routeUpload.delete("/delete/:id", deleteReceipt);
-routeUpload.get("/:id", fetchReceipt);
+routeUpload.post("/upload/:id",verifyToken, uploadReceipt);
+routeUpload.put("/update/:id",verifyToken, updateReceipt);
+routeUpload.delete("/delete/:id",verifyToken, deleteReceipt);
+routeUpload.get("/:id",verifyToken, fetchReceipt);
 
 export default routeUpload;

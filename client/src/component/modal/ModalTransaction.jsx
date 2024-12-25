@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Modal, Button, Upload } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 
 import { showErrorToast } from "../../utils/Toaste.js";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
@@ -10,13 +11,19 @@ import {
   removeTransactions,
   addTransactions,
   updateTransactions,
+  addReceiptImage
 } from "../../feature/transactionSlice.js";
-
+import {
+  updateReceipt,
+  removeReceipt,
+} from "../../services/receiptServices.js";
 const ModalExpense = () => {
   const dispatch = useDispatch();
   const { isShow, title, transactionData } = useSelector(
     (state) => state.modal,
   );
+
+  const BASE_PATH = import.meta.env.VITE_BASE_PATH;
 
   const [id, setId] = useState("");
   const [date, setDate] = useState("");
@@ -25,7 +32,9 @@ const ModalExpense = () => {
   const [amount, setAmount] = useState("");
   const [receipt, setReceipt] = useState(null);
   const [isExpense, setIsExpense] = useState(true);
-  const [uploadError, setUploadError] = useState(false);
+  const [receiptImage, setReceiptImage] = useState("");
+  const [isUpdateReceipt,setIsUpdateReceipt] =useState(false)
+
   useEffect(() => {
     if (transactionData) {
       setId(transactionData.id || "");
@@ -33,12 +42,12 @@ const ModalExpense = () => {
       setCategory(transactionData.transactionCategory || "Shopping");
       setDescription(transactionData.transactionDescription || "");
       setAmount(transactionData.transactionAmount || "");
-      setIsExpense(
-        transactionData.transactionType === "income" ? false : true,
-      );
+      setIsExpense(transactionData.transactionType === "income" ? false : true);
       setReceipt(transactionData.receipt || null);
+      setReceiptImage(`${BASE_PATH}${transactionData.receipt} `);
     } else {
-      const today = new Date().toISOString().split("T");
+      const today = new Date().toISOString().split("T")[0];
+      console.log(today);
       setDate(today);
     }
   }, [transactionData]);
@@ -50,40 +59,18 @@ const ModalExpense = () => {
     }
   };
 
-  const convertToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleFileUpload = async (file) => {
     if (!file.type.startsWith("image/")) {
-      showErrorToast("Chỉ cho phép upload tệp ảnh ");
-      setUploadError(true);
       return;
     }
-
-    try {
-      const fileBase64 = await convertToBase64(file);
-      setReceipt(fileBase64);
-      setUploadError(false);
-    } catch (error) {
-      setUploadError(true);
-      console.error("Có lỗi khi upload ảnh:", error);
-    }
+    setIsUpdateReceipt(true)
+    setReceipt(file);
+    setReceiptImage(URL.createObjectURL(file));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!date || !category || !amount) {
       showErrorToast("Vui lòng nhập đầy đủ");
-      return;
-    }
-
-    if (uploadError) {
-      showErrorToast("Vui lòng tải lên tệp ảnh hợp lệ");
       return;
     }
 
@@ -93,8 +80,8 @@ const ModalExpense = () => {
         transactionCategory: category,
         transactionDescription: description,
         transactionAmount: amount,
-        receipt,
         transactionType: isExpense ? "expense" : "income",
+        // receipt:receipt,
       },
     };
     const updateTrans = {
@@ -103,28 +90,53 @@ const ModalExpense = () => {
       transactionCategory: category,
       transactionDescription: description,
       transactionAmount: amount,
-      receipt,
       transactionType: isExpense ? "expense" : "income",
     };
 
-    if (transactionData) {
-      dispatch(updateTransactions(updateTrans));
-    } else {
-      dispatch(addTransactions(newTransaction));
+    try {
+      if (transactionData) {
+        if(receipt && isUpdateReceipt ) {
+          await updateReceipt({ id: id, receipt });
+        }
+        dispatch(updateTransactions(updateTrans));
+      } else {
+        const response = await dispatch(addTransactions(newTransaction));
+        dispatch(addReceiptImage({ data: receipt, id: response.payload.data.id }));
+      }
+      dispatch(toggleModal(false));
+      dispatch(resetTransactionData());
+    } catch (error) {
+      showErrorToast(error.message);
     }
-
-    dispatch(toggleModal(false));
-    dispatch(resetTransactionData());
   };
 
   const handleDelete = () => {
     if (transactionData) {
-      dispatch(removeTransactions(transactionData[0].id));
+      dispatch(removeTransactions(transactionData.id));
       dispatch(toggleModal(false));
       dispatch(resetTransactionData());
     }
   };
 
+  const handleDeleteImage = async () => {
+    try {
+      if (transactionData && transactionData.receipt) {
+        await removeReceipt(transactionData.id);
+        setReceipt(null);
+      }
+    } catch (error) {
+      showErrorToast(error.message || "Error deleting receipt.");
+    }
+  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showImage = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   return (
     <Modal
       title={title || "Transaction"}
@@ -200,13 +212,34 @@ const ModalExpense = () => {
             {isExpense ? "Expense upload receipt" : "Income upload receipt"}
           </label>
           <Upload
+            showUploadList={false}
             beforeUpload={(file) => {
+              if (!file.type.startsWith("image/")) {
+                showErrorToast("Chỉ cho phép upload tệp ảnh");
+                return false;
+              }
               handleFileUpload(file);
               return false;
             }}
           >
             <Button className="ms-4">Upload Receipt</Button>
           </Upload>
+          {receipt && (
+            <div className="mt-4 relative w-[128px]">
+              <img
+                src={receiptImage}
+                alt="receipt"
+                className="w-32 h-32 object-cover rounded-md"
+                onClick={showImage}
+              />
+              <span
+                onClick={handleDeleteImage}
+                className="absolute top-[-10px] right-[-16px] flex items-center justify-center text-black  w-[32px] h-[32px] rounded-full bg-[#EF8767] cursor-pointer"
+              >
+                <CloseOutlined />
+              </span>
+            </div>
+          )}
         </div>
         <div className="flex justify-between mt-4">
           {transactionData ? (
@@ -235,6 +268,16 @@ const ModalExpense = () => {
           </Button>
         </div>
       </div>
+      <Modal
+        visible={isModalOpen}
+        footer={null}
+        onCancel={handleCancel}
+        width="600px"
+        height="600px"
+        className=""
+      >
+        <img src={receiptImage} alt="Receipt" className="" />
+      </Modal>
     </Modal>
   );
 };
