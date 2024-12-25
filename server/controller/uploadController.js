@@ -28,7 +28,7 @@ export const uploadReceipt = (req, res) => {
       const receiptPath = await uploadReceiptService(transactionId, req.file);
       res.status(200).json({ receipt: receiptPath });
     } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
       res.status(400).json({ error: error.message });
     }
   });
