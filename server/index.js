@@ -7,6 +7,7 @@ import db from "./config/db.js";
 import route from "./routes/userRoute.js";
 import routeTransaction from "./routes/transactionRoute.js";
 import routeUpload from "./routes/uploadRoute.js";
+import routeCategory from "./routes/categoryRoute.js";
 
 import path from "path";
 import { fileURLToPath } from "url";
@@ -35,3 +36,4 @@ app.use("/api/user", route);
 app.use("/api/transaction", routeTransaction);
 app.use("/api/receipt", routeUpload);
 app.use("/upload", express.static(path.join(__dirname, "upload")));
+app.use("/api/category", routeCategory);
