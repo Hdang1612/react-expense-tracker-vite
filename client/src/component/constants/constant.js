@@ -5,4 +5,4 @@ export const transactionCategory = [
   { type: "Food" },
   { type: "Entertainment" },
   { type: "Unknown" },
-];
+  { type: "New"}]
