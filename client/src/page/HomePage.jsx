@@ -13,7 +13,7 @@ import Menu from "../layout/Menu";
 import { logout } from "../feature/authSlice";
 import ModalExpense from "../component/modal/ModalTransaction";
 import { formatCurrency } from "../utils/number";
-import { fetchTransactions } from "../feature/transactionSlice";
+import { fetchAllCategory, fetchTransactions } from "../feature/transactionSlice";
 import {
   TodayTransactionsList,
   WeeklyTransactionsList,
@@ -37,6 +37,7 @@ function HomePage() {
 
   useEffect(() => {
     dispatch(fetchTransactions());
+    dispatch(fetchAllCategory())
   }, [dispatch]);
 
   return (

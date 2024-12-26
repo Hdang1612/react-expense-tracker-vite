@@ -6,12 +6,12 @@ import { CloseOutlined } from "@ant-design/icons";
 
 import { showErrorToast } from "../../utils/Toaste.js";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
-import { transactionCategory } from "../constants/constant.js";
 import {
   removeTransactions,
   addTransactions,
   updateTransactions,
   addReceiptImage,
+  deleteCategory,
 } from "../../feature/transactionSlice.js";
 import {
   updateReceipt,
@@ -24,6 +24,7 @@ const ModalExpense = () => {
   const { isShow, title, transactionData } = useSelector(
     (state) => state.modal,
   );
+  const {categoriesList}=useSelector((state)=> state.transactions)
 
   const BASE_PATH = import.meta.env.VITE_BASE_PATH;
 
@@ -36,12 +37,13 @@ const ModalExpense = () => {
   const [isExpense, setIsExpense] = useState(true);
   const [receiptImage, setReceiptImage] = useState("");
   const [isUpdateReceipt, setIsUpdateReceipt] = useState(false);
-
+  // const [categoryList,setCategoryList]=useState([])
   useEffect(() => {
     if (transactionData) {
+      const categoryName = categoriesList.find((category) => category.id === transactionData.transactionCategory)
       setId(transactionData.id || "");
       setDate(transactionData.createAt || "");
-      setCategory(transactionData.transactionCategory || "Shopping");
+      setCategory(categoryName);
       setDescription(transactionData.transactionDescription || "");
       setAmount(transactionData.transactionAmount || "");
       setIsExpense(transactionData.transactionType === "income" ? false : true);
@@ -49,10 +51,10 @@ const ModalExpense = () => {
       setReceiptImage(`${BASE_PATH}${transactionData.receipt} `);
     } else {
       const today = new Date().toISOString().split("T")[0];
-      console.log(today);
       setDate(today);
     }
-  }, [transactionData]);
+  }, [transactionData, categoriesList]);
+
 
   const handleAmountChange = (e) => {
     const value = e.target.value;
@@ -133,6 +135,11 @@ const ModalExpense = () => {
       showErrorToast(error.message || "Error deleting receipt.");
     }
   };
+
+  const handleDeleteCategory= (id) => {
+    dispatch (deleteCategory(id))
+  }
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCateOpen,setIsModalCateOpen]=useState(false)
 
@@ -141,10 +148,12 @@ const ModalExpense = () => {
   }
   const showModalCateAdd = () => {
     setIsModalCateOpen(true)
-    setCategory("")
+    setCategory({})
+    // console.log(category)
   }
   const hideModalCate =() => {
     setIsModalCateOpen(false)
+    // console.log(category)
   }
 
   const showImage = () => {
@@ -226,17 +235,17 @@ const ModalExpense = () => {
             </div>
           </div>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-3 ">
-            {transactionCategory.map((item) => (
+            {categoriesList.map((item) => (
               <div
-                className={`flex relative cursor-pointer flex-col  h-[70px] md:h-[90px] rounded-lg ${category==item.type ? "border-4 border-[#CFBBD4]" :"border border-[#CFBBD4]"}  items-center py-2 `}
-                key={item.type}
+                className={`flex relative cursor-pointer flex-col  h-[70px] md:h-[90px] rounded-lg ${category.name==item.name ? "border-4 border-[#CFBBD4]" :"border border-[#CFBBD4]"}  items-center py-2 `}
+                key={item.name}
                 onClick={()=>{
-                  setCategory(item.type)
+                  setCategory(item)
                 }}
               >
-                {category== item.type && (
+                {category.name == item.name && (
                 <span
-                  onClick={handleDeleteImage}
+                  onClick={() => handleDeleteCategory(item.id)}
                   className="absolute top-[-10px] right-[-10px] flex items-center justify-center text-black  w-[28px] h-[28px] rounded-full bg-[#EF8767] cursor-pointer"
                 >
                   <CloseOutlined />
@@ -244,11 +253,11 @@ const ModalExpense = () => {
 
                 )}
                 <img
-                  className="w-8 h-8 rounded-full text-black  md:w-12 md:h-12"
-                  src=""
-                  alt=""
+                  className="w-8 h-8 rounded-full text-black  md:w-12 md:h-12 mb-2"
+                  src={item.image ? `${BASE_PATH}${item.image}` : `${BASE_PATH}upload/categories/1735118176357-unknown_8199110.png`}
+                  alt="image"
                 />
-                <p>{item.type}</p>
+                <p>{item.name}</p>
               </div>
             ))}
           </div>

@@ -51,7 +51,16 @@ export const fetchCategoryById = async (id) => {
 
 export const addCategory = async (data) => {
   try {
-    const response = await api.post(ADD_URL, data);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    if (data.image) {
+      formData.append("image", data.image); 
+    }
+    const response = await api.post(ADD_URL, formData,{
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message;
@@ -62,7 +71,11 @@ export const addCategory = async (data) => {
 export const updateCategory = async (data) => {
   try {
     const url = `${UPDATE_URL}/${data.id}`;
-    const response = await api.put(url, data);
+    const response = await api.put(url, data,{
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message;

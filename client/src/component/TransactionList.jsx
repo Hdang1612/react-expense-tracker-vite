@@ -1,11 +1,9 @@
 import { useState } from "react";
-// import { useEffect } from "react";
 import { Empty } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 
 import ExpenseItem from "./transaction_item/TransactionItem";
 import { setTransactionData, toggleModal } from "../feature/modalSlice";
-// import { groupTransaction } from "../feature/transactionSlice";
 
 import {
   selectTodayTransactions,
@@ -27,6 +25,7 @@ export const TransactionListPagination = ({ transactions }) => {
             key={transaction.id}
             transaction={transaction}
             updateAction={() => handleItemClick(transaction)}
+            // categoryName={categoryName}
             openItemId={openItemId}
             setOpenItemId={setOpenItemId}
           />
@@ -37,7 +36,7 @@ export const TransactionListPagination = ({ transactions }) => {
     </div>
   );
 };
-export const TransactionList = ({ transactions }) => {
+export const TransactionList = ({ transactions,categories }) => {
   const dispatch = useDispatch();
   const [openItemId, setOpenItemId] = useState(null);
   const handleItemClick = (transaction) => {
@@ -54,24 +53,35 @@ export const TransactionList = ({ transactions }) => {
             return (
               <div key={index}>
                 <h3>{group.name}</h3>
-                {group.transactions.map((transaction) => (
-                  <ExpenseItem
-                    key={transaction.id}
-                    transaction={transaction}
-                    updateAction={() => handleItemClick(transaction)}
-                    openItemId={openItemId}
-                    setOpenItemId={setOpenItemId}
-                  />
-                ))}
+                {group.transactions.map((transaction) => {
+                  const categoryName = categories.find(
+                    (cat) => cat.id === transaction.transactionCategory
+                  )?.name;
+
+                  return (
+                    <ExpenseItem
+                      key={transaction.id}
+                      transaction={transaction}
+                      categoryName={categoryName}
+                      updateAction={() => handleItemClick(transaction)}
+                      openItemId={openItemId}
+                      setOpenItemId={setOpenItemId}
+                    />
+                  );
+                })}
               </div>
             );
           } else {
             // Nếu là danh sách giao dịch đơn lẻ, render mỗi giao dịch
+            const categoryName = categories.find(
+              (cat) => cat.id === group.transactionCategory
+            )?.name;
             return (
               <div key={index}>
                 <ExpenseItem
                   key={group.id}
                   transaction={group}
+                  categoryName={categoryName}
                   updateAction={() => handleItemClick(group)}
                   openItemId={openItemId}
                   setOpenItemId={setOpenItemId}
@@ -89,76 +99,18 @@ export const TransactionList = ({ transactions }) => {
 
 export const TodayTransactionsList = () => {
   const transactions = useSelector(selectTodayTransactions);
-  return <TransactionList transactions={transactions} />;
+  const category = useSelector((state)=>state.transactions.categoriesList)
+  return <TransactionList transactions={transactions} categories={category} />;
 };
 
 export const WeeklyTransactionsList = () => {
   const transactions = useSelector(selectWeeklyTransactions);
-
-  return <TransactionList transactions={transactions} />;
+  const category = useSelector((state)=>state.transactions.categoriesList)
+  return <TransactionList transactions={transactions} categories={category} />;
 };
 
 export const MonthlyTransactionsList = () => {
   const transactions = useSelector(selectMonthlyTransactions);
-
-  return <TransactionList transactions={transactions} />;
+  const category = useSelector((state)=>state.transactions.categoriesList)
+  return <TransactionList transactions={transactions} categories={category} />;
 };
-
-// export const TodayTransactionsList = () => {
-//   const [transactions, setTransactions] = useState(useSelector((state) =>state.transactions));
-//   // const transactions = useSelector((state) =>state.transactions.todayTransaction)
-//   // console.log(transactions)
-//   const dispatch=useDispatch()
-//   useEffect(() => {
-//     const fetchTransactions = async () => {
-//       try {
-//         const result = await dispatch(groupTransaction("today")).unwrap();
-//         setTransactions(result);
-//       } catch (error) {
-//         console.error("Failed to fetch transactions:", error);
-//       }
-//     };
-
-//     fetchTransactions();
-//   }, [dispatch]);
-
-//   return <TransactionList transactions={transactions} />;
-// };
-
-// export const WeeklyTransactionsList = () => {
-//   const [transactions, setTransactions] = useState([]);
-//   const dispatch=useDispatch()
-//   useEffect(() => {
-//     const fetchTransactions = async () => {
-//       try {
-//         const result = await dispatch(groupTransaction("weekly")).unwrap();
-//         setTransactions(result);
-//       } catch (error) {
-//         console.error("Failed to fetch transactions:", error);
-//       }
-//     };
-
-//     fetchTransactions();
-//   }, [dispatch]);
-
-//   return <TransactionList transactions={transactions} />;
-// };
-
-// export const MonthlyTransactionsList = () => {
-//   const [transactions, setTransactions] = useState([]);
-//   const dispatch=useDispatch()
-//   useEffect(() => {
-//     const fetchTransactions = async () => {
-//       try {
-//         const result = await dispatch(groupTransaction("monthly")).unwrap();
-//         setTransactions(result);
-//       } catch (error) {
-//         console.error("Failed to fetch transactions:", error);
-//       }
-//     };
-
-//     fetchTransactions();
-//   }, [dispatch]);
-
-//   return <TransactionList transactions={transactions} />;
-// };

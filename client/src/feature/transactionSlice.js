@@ -10,7 +10,7 @@ import {
   filterTransactions,
 } from "../services/transactionServices.js";
 import { addReceipt } from "../services/receiptServices.js";
-
+import { fetchAllCategories, removeCategory,addCategory } from "../services/categoryServices.js";
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
   async (_, { rejectWithValue }) => {
@@ -78,8 +78,46 @@ export const addReceiptImage = createAsyncThunk(
   "transaction/addReceiptImage",
   async ({ data, id }, { rejectWithValue }) => {
     try {
-      const receipt = await addReceipt(data, id); 
+      const receipt = await addReceipt(data, id);
       return { id, receipt };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const fetchAllCategory = createAsyncThunk(
+  "transaction/fetchAllCategory",
+  async ( _,{rejectWithValue }) => {
+    try {
+      const res = await fetchAllCategories();
+      console.log(res);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const deleteCategory = createAsyncThunk(
+  "transaction/deleteCategory",
+  async ( id,{rejectWithValue }) => {
+    try {
+      const res = await removeCategory(id);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const addCate = createAsyncThunk(
+  "transaction/addCate",
+  async ( data,{rejectWithValue }) => {
+    try {
+      const res = await addCategory(data);
+      console.log(res);
+      return res;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -88,6 +126,7 @@ export const addReceiptImage = createAsyncThunk(
 
 const initialState = {
   transactions: [],
+  categoriesList: [],
   totalBalance: 0,
   totalIncome: 0,
   totalExpense: 0,
@@ -220,13 +259,54 @@ const transactionSlice = createSlice({
           (transaction) => transaction.id === id,
         );
         if (transactionIndex !== -1) {
-          state.transactions[transactionIndex].receipt = receipt; 
+          state.transactions[transactionIndex].receipt = receipt;
         }
         // state.refresh = true;
       })
       .addCase(addReceiptImage.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+        showErrorToast(action.payload);
+      });
+
+    builder
+      .addCase(fetchAllCategory.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchAllCategory.fulfilled, (state, action) => {
+        state.categoriesList = action.payload.data;
+      })
+      .addCase(fetchAllCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    builder
+      .addCase(deleteCategory.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteCategory.fulfilled, (state, action) => {
+        state.categoriesList = state.categoriesList.filter(
+          (category) => category.id !== action.payload.id,
+        );
+        showSuccessToast(action.payload.message);
+      })
+      .addCase(deleteCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    builder
+      .addCase(addCate.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addCate.fulfilled, (state, action) => {
+        state.categoriesList.push(action.payload.data);
+        // state.refresh = true;
+        showSuccessToast(action.payload.message);
+      })
+      .addCase(addCate.rejected, (state, action) => {
+        state.isLoading = false;
         showErrorToast(action.payload);
       });
   },

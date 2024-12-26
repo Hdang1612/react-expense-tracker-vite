@@ -27,7 +27,7 @@ export const addCategory = async (req, res) => {
       const categoryBody = { name };
       console.log(req.body);
       if (req.file) {
-        categoryBody.image = `/upload/categories/${req.file.filename}`;
+        categoryBody.image = `upload/categories/${req.file.filename}`;
       } else {
         categoryBody.image = null;
       }
@@ -49,7 +49,7 @@ export const deleteCategory = async (req, res) => {
     if (result.affectedRows == 0) {
       return res.status(404).json({ message: "Category not found" });
     }
-    res.status(200).json({ message: "Delete successful" });
+    res.status(200).json({ message: "Delete successful",id:id });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
