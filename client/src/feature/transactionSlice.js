@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import { formatDate } from "../utils/date.js";
 import { showErrorToast, showSuccessToast } from "../utils/Toaste.js";
+import { addReceipt } from "../services/receiptServices.js";
 import {
   fetchAllTransaction,
   addTransaction,
@@ -9,8 +10,14 @@ import {
   removeTransaction,
   filterTransactions,
 } from "../services/transactionServices.js";
-import { addReceipt } from "../services/receiptServices.js";
-import { fetchAllCategories, removeCategory,addCategory } from "../services/categoryServices.js";
+import {
+  fetchAllCategories,
+  removeCategory,
+  addCategory,
+  updateCategory,
+} from "../services/categoryServices.js";
+
+
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
   async (_, { rejectWithValue }) => {
@@ -39,7 +46,6 @@ export const addTransactions = createAsyncThunk(
   "transaction/addTransactions",
   async (data, { rejectWithValue }) => {
     try {
-      console.log(data);
       const res = await addTransaction(data);
       return res;
     } catch (error) {
@@ -53,7 +59,6 @@ export const updateTransactions = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await updateTransaction(data);
-      console.log(res);
       return res;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -88,10 +93,9 @@ export const addReceiptImage = createAsyncThunk(
 
 export const fetchAllCategory = createAsyncThunk(
   "transaction/fetchAllCategory",
-  async ( _,{rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const res = await fetchAllCategories();
-      console.log(res);
       return res;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -101,7 +105,7 @@ export const fetchAllCategory = createAsyncThunk(
 
 export const deleteCategory = createAsyncThunk(
   "transaction/deleteCategory",
-  async ( id,{rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       const res = await removeCategory(id);
       return res;
@@ -113,10 +117,22 @@ export const deleteCategory = createAsyncThunk(
 
 export const addCate = createAsyncThunk(
   "transaction/addCate",
-  async ( data,{rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
       const res = await addCategory(data);
       console.log(res);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const updateCate = createAsyncThunk(
+  "transaction/updateCate",
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await updateCategory(data);
       return res;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -261,7 +277,6 @@ const transactionSlice = createSlice({
         if (transactionIndex !== -1) {
           state.transactions[transactionIndex].receipt = receipt;
         }
-        // state.refresh = true;
       })
       .addCase(addReceiptImage.rejected, (state, action) => {
         state.isLoading = false;
@@ -289,6 +304,14 @@ const transactionSlice = createSlice({
         state.categoriesList = state.categoriesList.filter(
           (category) => category.id !== action.payload.id,
         );
+        state.transactions = state.transactions.filter(
+          (transaction) =>
+            transaction.transactionCategory !== action.payload.id,
+        );
+        state.filteredTransaction = state.filteredTransaction.filter(
+          (transaction) =>
+            transaction.transactionCategory !== action.payload.id,
+        );
         showSuccessToast(action.payload.message);
       })
       .addCase(deleteCategory.rejected, (state, action) => {
@@ -306,6 +329,27 @@ const transactionSlice = createSlice({
         showSuccessToast(action.payload.message);
       })
       .addCase(addCate.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    builder
+      .addCase(updateCate.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateCate.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const categoryIndex = state.categoriesList.findIndex(
+          (category) => category.id === action.payload.data.id,
+        );
+        state.categoriesList[categoryIndex] = {
+          ...state.transactions[categoryIndex],
+          ...action.payload.data,
+        };
+
+        showSuccessToast(action.payload.message);
+      })
+      .addCase(updateCate.rejected, (state, action) => {
         state.isLoading = false;
         showErrorToast(action.payload);
       });

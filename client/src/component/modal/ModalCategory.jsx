@@ -1,51 +1,55 @@
-import { Modal, Upload, Button } from "antd";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { addCate } from "../../feature/transactionSlice";
+
+import { Modal, Upload, Button } from "antd";
+
+import { addCate, updateCate } from "../../feature/transactionSlice";
 import { showErrorToast } from "../../utils/Toaste";
+
 function ModalCategory({ isShowModalCate, hide, categoryData }) {
   const BASE_PATH = import.meta.env.VITE_BASE_PATH;
   const [categoryName, setCategoryName] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
   const [categoryImageDisplay, setCategoryImageDisplay] = useState("");
-  const [isUpdateCategoryImage, setIsUpdateCategoryImage] = useState(false);
   const dispatch = useDispatch();
+
   useEffect(() => {
+    console.log(categoryData);
     if (categoryData) {
-      setCategoryName(categoryData.name || "");
-      setCategoryImage(categoryData.image || null);
-      setCategoryImage(`${BASE_PATH}${categoryData.image} `);
+      setCategoryName(categoryData.name);
+      setCategoryImage(categoryData.image);
+      setCategoryImageDisplay(`${BASE_PATH}${categoryData.image} `);
     }
   }, [categoryData]);
   const handleFileUpload = async (file) => {
     if (!file.type.startsWith("image/")) {
       return;
     }
-    setIsUpdateCategoryImage(true);
     setCategoryImage(file);
     setCategoryImageDisplay(URL.createObjectURL(file));
   };
-
   const handleSave = async () => {
+    if (!categoryName) {
+      showErrorToast("Enter category name");
+      return;
+    }
     const newCategory = {
       name: categoryName,
       image: categoryImage,
     };
     const updateCategory = {
-      id: categoryData.id,
+      id: categoryData?.id,
       name: categoryName,
       image: categoryImage,
     };
-    console.log(newCategory);
     try {
-      // if (categoryData) {
-      //   // dispatch(addCate(newCategory));
-      // } else {
-        const data= await dispatch(addCate(newCategory));
-        console.log(data)
-        setCategoryName("")
-        setCategoryImageDisplay(null)
-      // }
+      if (categoryData) {
+        dispatch(updateCate(updateCategory));
+      } else {
+        await dispatch(addCate(newCategory));
+        setCategoryName("");
+        setCategoryImage(null);
+      }
     } catch (error) {
       showErrorToast(error.message);
     }

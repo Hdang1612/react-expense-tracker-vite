@@ -10,6 +10,8 @@ import {
   setCurrentPages,
   setFilteredTransactions,
   filterTransaction,
+  fetchAllCategory,
+  fetchTransactions,
 } from "../feature/transactionSlice";
 import { TransactionListPagination } from "../component/TransactionList";
 import { toggleModal, resetTransactionData } from "../feature/modalSlice";
@@ -27,7 +29,8 @@ function TransactionPage() {
     totalPage,
     refresh,
   } = useSelector((state) => state.transactions);
-
+  const categories = useSelector((state) => state.transactions.categoriesList);
+  
   const [searchValue, setSearchValue] = useState();
   const [itemPerPage, setItemPerPage] = useState(itemsPerPage);
   const [currentP, setCurrentP] = useState(currentPage);
@@ -78,8 +81,9 @@ function TransactionPage() {
   };
 
   useEffect(() => {
+    dispatch(fetchTransactions());
+    dispatch(fetchAllCategory());
     dispatch(filterTransaction(params));
-    console.log(params.page);
     const pageNumbers = [];
     let startPage = currentP - 2 > 0 ? currentP - 2 : 1;
     let endPage = currentP + 2 <= totalPage ? currentP + 2 : totalPage;
@@ -235,7 +239,7 @@ function TransactionPage() {
             </div>
           </div>
           <div className="overflow-y-auto h-[440px] md:h-[460px]">
-            <TransactionListPagination transactions={paginatedTransactions} />
+            <TransactionListPagination transactions={paginatedTransactions} categories={categories} />
           </div>
           <div className="mt-6 flex justify-center m-0  space-x-2">
             <div></div>

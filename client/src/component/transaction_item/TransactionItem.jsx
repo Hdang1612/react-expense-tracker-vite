@@ -1,10 +1,8 @@
 import { useState } from "react";
-
 import { useDispatch, useSelector } from "react-redux";
+
 import { Modal } from "antd";
-import {
-  DownOutlined,
-} from "@ant-design/icons";
+import { DownOutlined } from "@ant-design/icons";
 
 import { removeTransactions } from "../../feature/transactionSlice";
 import { formatCurrency } from "../../utils/number";
@@ -16,7 +14,7 @@ const ExpenseItem = ({
   setOpenItemId,
   categoryName,
 }) => {
-  const {categoriesList}= useSelector ((state)=> state.transactions)
+  const { categoriesList } = useSelector((state) => state.transactions);
 
   const BASE_PATH = import.meta.env.VITE_BASE_PATH;
   const isOpen = openItemId === transaction.id;
@@ -65,7 +63,15 @@ const ExpenseItem = ({
           <div
             className={`w-[47px] h-[47px] flex items-center justify-center  md:w-[70px] md:h-[70px] `}
           >
-            <img className="md:w-[60px] md:h-[60px] w-[47px] h-[47px]  rounded-full" src={`${BASE_PATH}${image}`} alt="category"/>
+            <img
+              className="md:w-[60px] md:h-[60px] w-[47px] h-[47px]  rounded-full"
+              src={
+                image
+                  ? `${BASE_PATH}${image}`
+                  : `${BASE_PATH}upload/categories/1735118176357-unknown_8199110.png`
+              }
+              alt="category"
+            />
           </div>
           <div className="ml-3">
             <p className="text-[16px] md:text-2xl font-regular text-[#000000]">

@@ -51,7 +51,7 @@ export const deleteCategory = async (req, res) => {
     }
     res.status(200).json({ message: "Delete successful",id:id });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
 
@@ -62,7 +62,7 @@ export const updateCategory = async (req, res) => {
       const id = req.params.id;
       const body = req.body;
       if (req.file) {
-        body.image = `/upload/categories/${req.file.filename}`;
+        body.image = `upload/categories/${req.file.filename}`;
       }
       const updateCategory = await updateCategoryService(id, body);
 

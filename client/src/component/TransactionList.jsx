@@ -1,16 +1,17 @@
 import { useState } from "react";
-import { Empty } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+
+import { Empty } from "antd";
 
 import ExpenseItem from "./transaction_item/TransactionItem";
 import { setTransactionData, toggleModal } from "../feature/modalSlice";
-
 import {
   selectTodayTransactions,
   selectMonthlyTransactions,
   selectWeeklyTransactions,
 } from "../feature/transactionSlice";
-export const TransactionListPagination = ({ transactions }) => {
+
+export const TransactionListPagination = ({ transactions, categories }) => {
   const [openItemId, setOpenItemId] = useState(null);
   const dispatch = useDispatch();
   const handleItemClick = (transaction) => {
@@ -20,23 +21,28 @@ export const TransactionListPagination = ({ transactions }) => {
   return (
     <div>
       {transactions.length > 0 ? (
-        transactions.map((transaction) => (
-          <ExpenseItem
-            key={transaction.id}
-            transaction={transaction}
-            updateAction={() => handleItemClick(transaction)}
-            // categoryName={categoryName}
-            openItemId={openItemId}
-            setOpenItemId={setOpenItemId}
-          />
-        ))
+        transactions.map((transaction) => {
+          const categoryName = categories.find(
+            (cat) => cat.id === transaction.transactionCategory,
+          )?.name;
+          return (
+            <ExpenseItem
+              key={transaction.id}
+              transaction={transaction}
+              updateAction={() => handleItemClick(transaction)}
+              categoryName={categoryName}
+              openItemId={openItemId}
+              setOpenItemId={setOpenItemId}
+            />
+          );
+        })
       ) : (
         <Empty className="mt-[80px]" description="No transaction " />
       )}
     </div>
   );
 };
-export const TransactionList = ({ transactions,categories }) => {
+export const TransactionList = ({ transactions, categories }) => {
   const dispatch = useDispatch();
   const [openItemId, setOpenItemId] = useState(null);
   const handleItemClick = (transaction) => {
@@ -55,7 +61,7 @@ export const TransactionList = ({ transactions,categories }) => {
                 <h3>{group.name}</h3>
                 {group.transactions.map((transaction) => {
                   const categoryName = categories.find(
-                    (cat) => cat.id === transaction.transactionCategory
+                    (cat) => cat.id === transaction.transactionCategory,
                   )?.name;
 
                   return (
@@ -74,7 +80,7 @@ export const TransactionList = ({ transactions,categories }) => {
           } else {
             // Nếu là danh sách giao dịch đơn lẻ, render mỗi giao dịch
             const categoryName = categories.find(
-              (cat) => cat.id === group.transactionCategory
+              (cat) => cat.id === group.transactionCategory,
             )?.name;
             return (
               <div key={index}>
@@ -99,18 +105,18 @@ export const TransactionList = ({ transactions,categories }) => {
 
 export const TodayTransactionsList = () => {
   const transactions = useSelector(selectTodayTransactions);
-  const category = useSelector((state)=>state.transactions.categoriesList)
+  const category = useSelector((state) => state.transactions.categoriesList);
   return <TransactionList transactions={transactions} categories={category} />;
 };
 
 export const WeeklyTransactionsList = () => {
   const transactions = useSelector(selectWeeklyTransactions);
-  const category = useSelector((state)=>state.transactions.categoriesList)
+  const category = useSelector((state) => state.transactions.categoriesList);
   return <TransactionList transactions={transactions} categories={category} />;
 };
 
 export const MonthlyTransactionsList = () => {
   const transactions = useSelector(selectMonthlyTransactions);
-  const category = useSelector((state)=>state.transactions.categoriesList)
+  const category = useSelector((state) => state.transactions.categoriesList);
   return <TransactionList transactions={transactions} categories={category} />;
 };

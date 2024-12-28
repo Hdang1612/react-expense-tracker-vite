@@ -31,14 +31,13 @@ export const fetchAllCategories = async () => {
     const errorMessage = error.response?.data.message;
     throw new Error(errorMessage);
   }
-   
-}
+};
 
 export const fetchCategoryById = async (id) => {
   try {
     const url = `${FETCH_TRANSACTION_URL}/${id}`;
-    const response= await api.get(url);
-    return response.data
+    const response = await api.get(url);
+    return response.data;
   } catch (error) {
     const errorMessage =
       error.response?.data?.message ||
@@ -46,24 +45,23 @@ export const fetchCategoryById = async (id) => {
       "An unknown error occurred";
     throw new Error(errorMessage);
   }
-}
-
+};
 
 export const addCategory = async (data) => {
   try {
     const formData = new FormData();
     formData.append("name", data.name);
     if (data.image) {
-      formData.append("image", data.image); 
+      formData.append("image", data.image);
     }
-    const response = await api.post(ADD_URL, formData,{
+    const response = await api.post(ADD_URL, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data?.message;
+    const errorMessage = error.response?.data?.error;
     throw new Error(errorMessage);
   }
 };
@@ -71,14 +69,19 @@ export const addCategory = async (data) => {
 export const updateCategory = async (data) => {
   try {
     const url = `${UPDATE_URL}/${data.id}`;
-    const response = await api.put(url, data,{
+    const formData = new FormData();
+    formData.append("name", data.name);
+    if (data.image) {
+      formData.append("image", data.image);
+    }
+    const response = await api.put(url, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data?.message;
+    const errorMessage = error.response?.data?.error;
     throw new Error(errorMessage);
   }
 };
@@ -89,10 +92,7 @@ export const removeCategory = async (id) => {
     const response = await api.delete(url);
     return response.data;
   } catch (error) {
-    const errorMessage = error.response?.data?.message;
-    console.log(errorMessage);
+    const errorMessage = error.response?.data?.error;
     throw new Error(errorMessage);
   }
 };
-
-
