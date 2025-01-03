@@ -2,44 +2,54 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Modal, Button, Upload } from "antd";
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 
 import { showErrorToast } from "../../utils/Toaste.js";
 import { toggleModal, resetTransactionData } from "../../feature/modalSlice.js";
-import { transactionCategory } from "../constants/constant.js";
-import {
-  removeTransactions,
-  addTransactions,
-  updateTransactions,
-  addReceiptImage
-} from "../../feature/transactionSlice.js";
+import ModalCategory from "./ModalCategory.jsx";
 import {
   updateReceipt,
   removeReceipt,
 } from "../../services/receiptServices.js";
+import {
+  removeTransactions,
+  addTransactions,
+  updateTransactions,
+  addReceiptImage,
+  deleteCategory,
+} from "../../feature/transactionSlice.js";
+
 const ModalExpense = () => {
   const dispatch = useDispatch();
   const { isShow, title, transactionData } = useSelector(
     (state) => state.modal,
   );
+  const { categoriesList } = useSelector((state) => state.transactions);
 
   const BASE_PATH = import.meta.env.VITE_BASE_PATH;
 
   const [id, setId] = useState("");
   const [date, setDate] = useState("");
-  const [category, setCategory] = useState("Shopping");
+  const [category, setCategory] = useState(null);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [receipt, setReceipt] = useState(null);
   const [isExpense, setIsExpense] = useState(true);
   const [receiptImage, setReceiptImage] = useState("");
-  const [isUpdateReceipt,setIsUpdateReceipt] =useState(false)
+  const [isUpdateReceipt, setIsUpdateReceipt] = useState(false);
+  const [categoryData, setCategoryData] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalCateOpen, setIsModalCateOpen] = useState(false);
+
 
   useEffect(() => {
     if (transactionData) {
+      const categoryName = categoriesList.find(
+        (category) => category.id === transactionData.transactionCategory,
+      );
       setId(transactionData.id || "");
       setDate(transactionData.createAt || "");
-      setCategory(transactionData.transactionCategory || "Shopping");
+      setCategory(categoryName);
       setDescription(transactionData.transactionDescription || "");
       setAmount(transactionData.transactionAmount || "");
       setIsExpense(transactionData.transactionType === "income" ? false : true);
@@ -47,10 +57,9 @@ const ModalExpense = () => {
       setReceiptImage(`${BASE_PATH}${transactionData.receipt} `);
     } else {
       const today = new Date().toISOString().split("T")[0];
-      console.log(today);
       setDate(today);
     }
-  }, [transactionData]);
+  }, [transactionData, categoriesList]);
 
   const handleAmountChange = (e) => {
     const value = e.target.value;
@@ -63,7 +72,7 @@ const ModalExpense = () => {
     if (!file.type.startsWith("image/")) {
       return;
     }
-    setIsUpdateReceipt(true)
+    setIsUpdateReceipt(true);
     setReceipt(file);
     setReceiptImage(URL.createObjectURL(file));
   };
@@ -77,17 +86,16 @@ const ModalExpense = () => {
     const newTransaction = {
       transactionBody: {
         createAt: date,
-        transactionCategory: category,
+        transactionCategory: category.id,
         transactionDescription: description,
         transactionAmount: amount,
         transactionType: isExpense ? "expense" : "income",
-        // receipt:receipt,
       },
     };
     const updateTrans = {
       id: id,
       createAt: date,
-      transactionCategory: category,
+      transactionCategory: category.id,
       transactionDescription: description,
       transactionAmount: amount,
       transactionType: isExpense ? "expense" : "income",
@@ -95,13 +103,15 @@ const ModalExpense = () => {
 
     try {
       if (transactionData) {
-        if(receipt && isUpdateReceipt ) {
+        if (receipt && isUpdateReceipt) {
           await updateReceipt({ id: id, receipt });
         }
         dispatch(updateTransactions(updateTrans));
       } else {
         const response = await dispatch(addTransactions(newTransaction));
-        dispatch(addReceiptImage({ data: receipt, id: response.payload.data.id }));
+        dispatch(
+          addReceiptImage({ data: receipt, id: response.payload.data.id }),
+        );
       }
       dispatch(toggleModal(false));
       dispatch(resetTransactionData());
@@ -128,7 +138,35 @@ const ModalExpense = () => {
       showErrorToast(error.message || "Error deleting receipt.");
     }
   };
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { confirm } = Modal;
+  const handleDeleteCategory = (id) => {
+    confirm({
+      title: "Confirm delete",
+      icon: <ExclamationCircleOutlined />,
+      content: "Confirm delete category? (Combine Transaction?)",
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      className: "modal-confirm-delete",
+      onOk() {
+        dispatch(deleteCategory(id));
+      },
+    });
+  };
+
+
+  const showModalCateUpdate = () => {
+    setIsModalCateOpen(true);
+    setCategoryData(category);
+  };
+  const showModalCateAdd = () => {
+    setCategoryData(null);
+    setIsModalCateOpen(true);
+  };
+  const hideModalCate = () => {
+    setIsModalCateOpen(false);
+  };
 
   const showImage = () => {
     setIsModalOpen(true);
@@ -179,17 +217,6 @@ const ModalExpense = () => {
             onChange={(e) => setDate(e.target.value)}
           />
         </div>
-        <select
-          className="w-full rounded-[15px] h-[32px] md:h-[60px] md:rounded-full md:text-2xl md:ps-5 bg-[#D9D9D9] font-bold text-[14px] px-3"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          {transactionCategory.map((item) => (
-            <option key={item.type} value={item.type}>
-              {item.type}
-            </option>
-          ))}
-        </select>
         <div>
           <input
             type="text"
@@ -208,7 +235,57 @@ const ModalExpense = () => {
           />
         </div>
         <div>
-          <label className="text-sm font-semibold md-text-xl">
+          <div className="mb-3 flex items-center justify-between">
+            <label className=" text-sm md:text-[20px]">Category</label>
+            <div>
+              <Button
+                onClick={showModalCateUpdate}
+                disabled = {category ? false : true}
+                className="w-[60px] md:w-[120px] h-[20px] bg-[#CFBBD4] rounded-[15px] md:h-[40px] md:rounded-full md:text-[18px] font-bold text-[14px] text-black"
+              >
+                Edit
+              </Button>
+              <Button
+                onClick={showModalCateAdd}
+                className="w-[60px] md:w-[120px] h-[20px] bg-[#EF8767] rounded-[15px] md:h-[40px] md:rounded-full md:text-[18px] font-bold text-[14px] text-white ms-3"
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 ">
+            {categoriesList.map((item) => (
+              <div
+                className={`flex relative cursor-pointer flex-col  h-[70px] md:h-[90px] rounded-lg ${category ? (category.name == item.name ? "border-4 border-[#CFBBD4]" : "border border-[#CFBBD4]") : "border border-[#CFBBD4]"}  items-center py-2 `}
+                key={item.name}
+                onClick={() => {
+                  setCategory(item);
+                }}
+              >
+                {category && category.name == item.name && (
+                  <span
+                    onClick={() => handleDeleteCategory(item.id)}
+                    className="absolute top-[-10px] right-[-10px] flex items-center justify-center text-black  w-[28px] h-[28px] rounded-full bg-[#EF8767] cursor-pointer"
+                  >
+                    <CloseOutlined />
+                  </span>
+                )}
+                <img
+                  className="w-8 h-8 rounded-full text-black  md:w-12 md:h-12 mb-2"
+                  src={
+                    item.image
+                      ? `${BASE_PATH}${item.image}`
+                      : `${BASE_PATH}upload/categories/1735118176357-unknown_8199110.png`
+                  }
+                  alt="image"
+                />
+                <p>{item.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="text-sm font-semibold md:text-[20px] ">
             {isExpense ? "Expense upload receipt" : "Income upload receipt"}
           </label>
           <Upload
@@ -268,6 +345,13 @@ const ModalExpense = () => {
           </Button>
         </div>
       </div>
+      {isModalCateOpen && (
+        <ModalCategory
+          isShowModalCate={isModalCateOpen}
+          hide={hideModalCate}
+          categoryData={categoryData}
+        />
+      )}
       <Modal
         visible={isModalOpen}
         footer={null}

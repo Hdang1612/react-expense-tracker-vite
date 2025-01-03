@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import { formatDate } from "../utils/date.js";
 import { showErrorToast, showSuccessToast } from "../utils/Toaste.js";
+import { addReceipt } from "../services/receiptServices.js";
 import {
   fetchAllTransaction,
   addTransaction,
@@ -9,7 +10,13 @@ import {
   removeTransaction,
   filterTransactions,
 } from "../services/transactionServices.js";
-import { addReceipt } from "../services/receiptServices.js";
+import {
+  fetchAllCategories,
+  removeCategory,
+  addCategory,
+  updateCategory,
+} from "../services/categoryServices.js";
+
 
 export const fetchTransactions = createAsyncThunk(
   "transaction/fetchTransactions",
@@ -39,7 +46,6 @@ export const addTransactions = createAsyncThunk(
   "transaction/addTransactions",
   async (data, { rejectWithValue }) => {
     try {
-      console.log(data);
       const res = await addTransaction(data);
       return res;
     } catch (error) {
@@ -53,7 +59,6 @@ export const updateTransactions = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await updateTransaction(data);
-      console.log(res);
       return res;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -78,8 +83,57 @@ export const addReceiptImage = createAsyncThunk(
   "transaction/addReceiptImage",
   async ({ data, id }, { rejectWithValue }) => {
     try {
-      const receipt = await addReceipt(data, id); 
+      const receipt = await addReceipt(data, id);
       return { id, receipt };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const fetchAllCategory = createAsyncThunk(
+  "transaction/fetchAllCategory",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await fetchAllCategories();
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const deleteCategory = createAsyncThunk(
+  "transaction/deleteCategory",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await removeCategory(id);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const addCate = createAsyncThunk(
+  "transaction/addCate",
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await addCategory(data);
+      console.log(res);
+      return res;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const updateCate = createAsyncThunk(
+  "transaction/updateCate",
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await updateCategory(data);
+      return res;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -88,6 +142,7 @@ export const addReceiptImage = createAsyncThunk(
 
 const initialState = {
   transactions: [],
+  categoriesList: [],
   totalBalance: 0,
   totalIncome: 0,
   totalExpense: 0,
@@ -220,13 +275,82 @@ const transactionSlice = createSlice({
           (transaction) => transaction.id === id,
         );
         if (transactionIndex !== -1) {
-          state.transactions[transactionIndex].receipt = receipt; 
+          state.transactions[transactionIndex].receipt = receipt;
         }
-        // state.refresh = true;
       })
       .addCase(addReceiptImage.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+        showErrorToast(action.payload);
+      });
+
+    builder
+      .addCase(fetchAllCategory.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchAllCategory.fulfilled, (state, action) => {
+        state.categoriesList = action.payload.data;
+      })
+      .addCase(fetchAllCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    builder
+      .addCase(deleteCategory.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteCategory.fulfilled, (state, action) => {
+        state.categoriesList = state.categoriesList.filter(
+          (category) => category.id !== action.payload.id,
+        );
+        state.transactions = state.transactions.filter(
+          (transaction) =>
+            transaction.transactionCategory !== action.payload.id,
+        );
+        state.filteredTransaction = state.filteredTransaction.filter(
+          (transaction) =>
+            transaction.transactionCategory !== action.payload.id,
+        );
+        showSuccessToast(action.payload.message);
+      })
+      .addCase(deleteCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    builder
+      .addCase(addCate.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(addCate.fulfilled, (state, action) => {
+        state.categoriesList.push(action.payload.data);
+        // state.refresh = true;
+        showSuccessToast(action.payload.message);
+      })
+      .addCase(addCate.rejected, (state, action) => {
+        state.isLoading = false;
+        showErrorToast(action.payload);
+      });
+
+    builder
+      .addCase(updateCate.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateCate.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const categoryIndex = state.categoriesList.findIndex(
+          (category) => category.id === action.payload.data.id,
+        );
+        state.categoriesList[categoryIndex] = {
+          ...state.transactions[categoryIndex],
+          ...action.payload.data,
+        };
+
+        showSuccessToast(action.payload.message);
+      })
+      .addCase(updateCate.rejected, (state, action) => {
+        state.isLoading = false;
         showErrorToast(action.payload);
       });
   },

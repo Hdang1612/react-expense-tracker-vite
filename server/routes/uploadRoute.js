@@ -7,9 +7,9 @@ import {
   fetchReceipt,
 } from "../controller/uploadController.js";
 const routeUpload = express.Router();
-routeUpload.post("/upload/:id",verifyToken, uploadReceipt);
-routeUpload.put("/update/:id",verifyToken, updateReceipt);
-routeUpload.delete("/delete/:id",verifyToken, deleteReceipt);
-routeUpload.get("/:id",verifyToken, fetchReceipt);
+routeUpload.post("/upload/:id", verifyToken, uploadReceipt);
+routeUpload.put("/update/:id", verifyToken, updateReceipt);
+routeUpload.delete("/delete/:id", verifyToken, deleteReceipt);
+routeUpload.get("/:id", verifyToken, fetchReceipt);
 
 export default routeUpload;

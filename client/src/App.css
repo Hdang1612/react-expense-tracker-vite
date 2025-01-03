@@ -1,0 +1,5 @@
+.modal-confirm-delete .ant-modal-confirm-btns {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
