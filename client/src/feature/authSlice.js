@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
-  // saveToStorage,
-  // getFromStorage,
   removeFromStorage,
 } from "./localStorage";
 import { login } from "../services/authServices";
