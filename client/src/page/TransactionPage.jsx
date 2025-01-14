@@ -15,14 +15,20 @@ import {
 } from '../feature/transactionSlice'
 import { TransactionListPagination } from '../component/TransactionList'
 import { toggleModal, resetTransactionData } from '../feature/modalSlice'
-import { transactionCategory } from '../component/constants/constant'
 
 function TransactionPage() {
   const dispatch = useDispatch()
   const { Search } = Input
   const modalStatus = useSelector((state) => state.modal)
-  const { currentPage, itemsPerPage, transactions, filteredTransaction, totalPage, refresh } =
-    useSelector((state) => state.transactions)
+  const {
+    currentPage,
+    itemsPerPage,
+    transactions,
+    filteredTransaction,
+    totalPage,
+    refresh,
+    categoriesList,
+  } = useSelector((state) => state.transactions)
   const categories = useSelector((state) => state.transactions.categoriesList)
 
   const [searchValue, setSearchValue] = useState()
@@ -174,16 +180,16 @@ function TransactionPage() {
               id='itemsPerPage'
               value={itemPerPage}
               onChange={handleItemsPerPageChange}
-              className='bg-gray-50 border border-gray-300 rounded-lg py-2 px-3'
+              className='bg-gray-50 border border-gray-300 rounded-xl py-2 px-3'
             >
               <option value={3}>3</option>
               <option value={5}>5</option>
               <option value={10}>10</option>
             </select>
           </div>
-          <div className='mb-5 flex lg:flex-row  flex-col lg:items-center items-start justify-start gap-5  '>
+          <div className='mb-5 flex xl:flex-row  flex-col xl:items-center items-start justify-start gap-5  '>
             <Search
-              className='lg:w-min-[40rem] lg:w-1/3 w-full'
+              className='xl:w-min-[40rem] xl:w-1/3 w-full'
               onSearch={handleSearchDescription}
               placeholder='Input description ...'
               value={searchValue}
@@ -191,19 +197,19 @@ function TransactionPage() {
             />
             <div className='w-full flex gap-3 '>
               <select
-                className=' lg:w-1/4  w-1/3 rounded-[1.5rem] h-[3.2rem] md:h-[4rem] md:rounded-full md:text-[1.6rem] md:ps-5 bg-transparent font-semibold text-[1.2rem] px-3 border-[0.1rem] '
+                className=' xl:w-1/4  w-1/3 rounded-[1.5rem] h-[3.2rem] xl:h-[4rem] xl:rounded-full xl:text-[1.6rem] xl:ps-5 bg-transparent font-semibold text-[1.2rem] px-3 border-[0.1rem] '
                 value={category}
                 onChange={handleCategoryChange}
               >
                 <option value='all'>All Categories</option>
-                {transactionCategory.map((item) => (
-                  <option key={item.type} value={item.type}>
-                    {item.type}
+                {categoriesList.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
                   </option>
                 ))}
               </select>
               <select
-                className=' lg:w-1/4  w-1/3 rounded-[1.5rem]  h-[3.2rem] md:h-[4rem] md:rounded-full md:text-[1.6rem] md:ps-5 bg-transparent font-semibold text-[1.2rem] px-3 border-[0.1rem]'
+                className=' xl:w-1/4  w-1/3 rounded-[1.5rem]  h-[3.2rem] xl:h-[4rem] xl:rounded-full xl:text-[1.6rem] xl:ps-5 bg-transparent font-semibold text-[1.2rem] px-3 border-[0.1rem]'
                 value={transactionType}
                 onChange={handleTransactionTypeChange}
               >
@@ -212,7 +218,7 @@ function TransactionPage() {
                 <option value='expense'>Expense</option>
               </select>
               <select
-                className=' lg:w-1/4  w-1/3 rounded-[1.5rem] h-[3.2rem] md:h-[4rem] md:rounded-full md:text-[1.6rem] md:ps-5 bg-transparent font-semibold text-[1.2rem] px-3 border-[0.1rem]'
+                className=' xl:w-1/4  w-1/3 rounded-[1.5rem] h-[3.2rem] xl:h-[4rem] xl:rounded-full xl:text-[1.6rem] xl:ps-5 bg-transparent font-semibold text-[1.2rem] px-3 border-[0.1rem]'
                 onChange={handleAmountChange}
               >
                 <option value='all'>All Amounts</option>
@@ -223,14 +229,14 @@ function TransactionPage() {
                 <option value='over1000000'>Over 1.000.000</option>
               </select>
               <button
-                className='bg-[#CFBBD4] lg:w-1/6  w-1/3 rounded-[1.5rem]  h-[3.2rem] md:h-[4rem] md:rounded-full md:text-[1.6rem] md:ps-5 font-semibold text-[1.2rem] px-3 border-[0.1rem]'
+                className='bg-[#CFBBD4] xl:w-1/6  w-1/3 rounded-[1.5rem]  h-[3.2rem] xl:h-[4rem] xl:rounded-full xl:text-[1.6rem] xl:ps-5 font-semibold text-[1.2rem] px-3 border-[0.1rem]'
                 onClick={handleFilter}
               >
                 Lọc
               </button>
             </div>
           </div>
-          <div className='overflow-y-auto h-[40rem] md:h-[40rem]'>
+          <div className='overflow-y-auto h-[40rem] xl:h-[40rem]'>
             <TransactionListPagination
               transactions={paginatedTransactions}
               categories={categories}
@@ -241,7 +247,7 @@ function TransactionPage() {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`px-4 py-2 text-lg font-semibold rounded-lg transition-colors duration-200 ${
+              className={`px-4 py-2 text-xl font-semibold rounded-xl transition-colors duration-200 ${
                 currentPage === 1
                   ? 'bg-gray-300 text-gray-700 cursor-not-allowed'
                   : 'bg-white border border-gray-300 hover:bg-gray-200'
@@ -250,12 +256,12 @@ function TransactionPage() {
               <ArrowLeftOutlined />
             </button>
             <div className='flex space-x-2'>
-              {showEllipsisBefore && <span className='px-3 py-2 text-lg font-semibold'>...</span>}
+              {showEllipsisBefore && <span className='px-3 py-2 text-xl font-semibold'>...</span>}
               {pageNumbers.map((pageNumber) => (
                 <button
                   key={pageNumber}
                   onClick={() => handlePageChange(pageNumber)}
-                  className={`px-3 py-2 text-lg font-semibold rounded-lg transition-colors duration-200 ${
+                  className={`px-3 py-2 text-xl font-semibold rounded-xl transition-colors duration-200 ${
                     currentPage === pageNumber
                       ? 'bg-blue-500 text-white'
                       : 'bg-white border border-gray-300 hover:bg-gray-200'
@@ -264,12 +270,12 @@ function TransactionPage() {
                   {pageNumber}
                 </button>
               ))}
-              {showEllipsisAfter && <span className='px-3 py-2 text-lg font-semibold'>...</span>}
+              {showEllipsisAfter && <span className='px-3 py-2 text-xl font-semibold'>...</span>}
             </div>
             <button
               onClick={() => handlePageChange(currentP + 1)}
               disabled={currentP === totalPage}
-              className={`px-4 py-2 text-lg font-semibold rounded-lg transition-colors duration-200 ${
+              className={`px-4 py-2 text-xl font-semibold rounded-xl transition-colors duration-200 ${
                 currentP === totalPage
                   ? 'bg-gray-300 text-gray-700 cursor-not-allowed'
                   : 'bg-white border border-gray-300 hover:bg-gray-200'
