@@ -1,98 +1,96 @@
-import axios from "axios";
+import axios from 'axios'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-});
+})
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token')
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`
     }
-    return config;
+    return config
   },
   (error) => {
-    return Promise.reject(error);
-  },
-);
+    return Promise.reject(error)
+  }
+)
 
-const ADD_URL = import.meta.env.VITE_API_URL_ADD_CATEGORY;
-const UPDATE_URL = import.meta.env.VITE_API_URL_UPDATE_CATEGORY;
-const REMOVE_URL = import.meta.env.VITE_API_URL_DELETE_CATEGORY;
-const FETCH_ALL_TRANSACTION_URL = import.meta.env.VITE_API_URL_FETCH_CATEGORY;
-const FETCH_TRANSACTION_URL = import.meta.env.VITE_API_URL_FETCH_CATEGORY_BY_ID;
+const ADD_URL = import.meta.env.VITE_API_URL_ADD_CATEGORY
+const UPDATE_URL = import.meta.env.VITE_API_URL_UPDATE_CATEGORY
+const REMOVE_URL = import.meta.env.VITE_API_URL_DELETE_CATEGORY
+const FETCH_ALL_TRANSACTION_URL = import.meta.env.VITE_API_URL_FETCH_CATEGORY
+const FETCH_TRANSACTION_URL = import.meta.env.VITE_API_URL_FETCH_CATEGORY_BY_ID
 
 export const fetchAllCategories = async () => {
   try {
-    const response = await api.get(FETCH_ALL_TRANSACTION_URL);
-    return response.data;
+    const response = await api.get(FETCH_ALL_TRANSACTION_URL)
+    return response.data
   } catch (error) {
-    const errorMessage = error.response?.data.message;
-    throw new Error(errorMessage);
+    const errorMessage = error.response?.data.message
+    throw new Error(errorMessage)
   }
-};
+}
 
 export const fetchCategoryById = async (id) => {
   try {
-    const url = `${FETCH_TRANSACTION_URL}/${id}`;
-    const response = await api.get(url);
-    return response.data;
+    const url = `${FETCH_TRANSACTION_URL}/${id}`
+    const response = await api.get(url)
+    return response.data
   } catch (error) {
     const errorMessage =
-      error.response?.data?.message ||
-      error.message ||
-      "An unknown error occurred";
-    throw new Error(errorMessage);
+      error.response?.data?.message || error.message || 'An unknown error occurred'
+    throw new Error(errorMessage)
   }
-};
+}
 
 export const addCategory = async (data) => {
   try {
-    const formData = new FormData();
-    formData.append("name", data.name);
+    const formData = new FormData()
+    formData.append('name', data.name)
     if (data.image) {
-      formData.append("image", data.image);
+      formData.append('image', data.image)
     }
     const response = await api.post(ADD_URL, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
-    });
-    return response.data;
+    })
+    return response.data
   } catch (error) {
-    const errorMessage = error.response?.data?.error;
-    throw new Error(errorMessage);
+    const errorMessage = error.response?.data?.error
+    throw new Error(errorMessage)
   }
-};
+}
 
 export const updateCategory = async (data) => {
   try {
-    const url = `${UPDATE_URL}/${data.id}`;
-    const formData = new FormData();
-    formData.append("name", data.name);
+    const url = `${UPDATE_URL}/${data.id}`
+    const formData = new FormData()
+    formData.append('name', data.name)
     if (data.image) {
-      formData.append("image", data.image);
+      formData.append('image', data.image)
     }
     const response = await api.put(url, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
-    });
-    return response.data;
+    })
+    return response.data
   } catch (error) {
-    const errorMessage = error.response?.data?.error;
-    throw new Error(errorMessage);
+    const errorMessage = error.response?.data?.error
+    throw new Error(errorMessage)
   }
-};
+}
 
 export const removeCategory = async (id) => {
   try {
-    const url = `${REMOVE_URL}/${id}`;
-    const response = await api.delete(url);
-    return response.data;
+    const url = `${REMOVE_URL}/${id}`
+    const response = await api.delete(url)
+    return response.data
   } catch (error) {
-    const errorMessage = error.response?.data?.error;
-    throw new Error(errorMessage);
+    const errorMessage = error.response?.data?.error
+    throw new Error(errorMessage)
   }
-};
+}

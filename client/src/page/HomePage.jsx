@@ -1,121 +1,111 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react'
 
-import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
 
-import {
-  EyeInvisibleOutlined,
-  EyeOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { EyeInvisibleOutlined, EyeOutlined, UserOutlined } from '@ant-design/icons'
 
-import Menu from "../layout/Menu";
-import { logout } from "../feature/authSlice";
-import ModalExpense from "../component/modal/ModalTransaction";
-import { formatCurrency } from "../utils/number";
-import {
-  fetchAllCategory,
-  fetchTransactions,
-} from "../feature/transactionSlice";
+import Menu from '../layout/Menu'
+import { logout } from '../feature/authSlice'
+import ModalExpense from '../component/modal/ModalTransaction'
+import { formatCurrency } from '../utils/number'
+import { fetchAllCategory, fetchTransactions } from '../feature/transactionSlice'
 import {
   TodayTransactionsList,
   WeeklyTransactionsList,
   MonthlyTransactionsList,
-} from "../component/TransactionList";
+} from '../component/TransactionList'
 
 function HomePage() {
-  const balance = useSelector((state) => state.transactions.totalBalance);
-  const modalStatus = useSelector((state) => state.modal);
-  const dispatch = useDispatch();
-  const [filter, setFilter] = useState("today");
-  const [showBalance, setShowBalance] = useState(true);
+  const balance = useSelector((state) => state.transactions.totalBalance)
+  const modalStatus = useSelector((state) => state.modal)
+  const dispatch = useDispatch()
+  const [filter, setFilter] = useState('today')
+  const [showBalance, setShowBalance] = useState(true)
 
   const handleToggleBalance = () => {
-    setShowBalance(!showBalance);
-  };
+    setShowBalance(!showBalance)
+  }
 
   const handleFilterChange = (filterType) => {
-    setFilter(filterType);
-  };
+    setFilter(filterType)
+  }
 
   useEffect(() => {
-    dispatch(fetchTransactions());
-    dispatch(fetchAllCategory());
-  }, [dispatch]);
+    dispatch(fetchTransactions())
+    dispatch(fetchAllCategory())
+  }, [dispatch])
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="w-full  h-[100vh] bg-white relative ">
-        <div className="h-full px-4 py-5 sm:px-[18px] sm:py-[22px] ">
-          <div className="flex items-center justify-between">
+    <div className='min-h-screen bg-gray-100 flex items-center justify-center'>
+      <div className='w-full  h-[100vh] bg-white relative '>
+        <div className='h-full px-4 py-5 sm:px-[18px] sm:py-[22px] '>
+          <div className='flex items-center justify-between'>
             <div>
-              <p className="font-sans font-normal text-[16px] text-start text-black md:text-2xl">
+              <p className='font-sans font-normal text-[1.6rem] text-start text-black md:text-[2rem]'>
                 Balance
               </p>
-              <div className="flex items-center text-[#42224A] ">
-                <span className="font-extrabold text-[28px] sm:text-[46px] mr-3">
+              <div className='flex items-center text-[#42224A] '>
+                <span className='font-extrabold text-[28px] sm:text-[46px] mr-3'>
                   {showBalance
                     ? balance !== null
                       ? formatCurrency(balance)
-                      : "0.00"
-                    : "**********"}
+                      : '0.00'
+                    : '**********'}
                 </span>
-                <button
-                  onClick={handleToggleBalance}
-                  className="text-[#42224A] "
-                >
+                <button onClick={handleToggleBalance} className='text-[#42224A] '>
                   {showBalance ? (
-                    <EyeInvisibleOutlined className="text-[20px] md:text-[32px]" />
+                    <EyeInvisibleOutlined className='text-[20px] md:text-[32px]' />
                   ) : (
-                    <EyeOutlined className="text-[20px] md:text-[32px]" />
+                    <EyeOutlined className='text-[20px] md:text-[32px]' />
                   )}
                 </button>
               </div>
             </div>
             <div>
-              <Link to="/auth" onClick={() => dispatch(logout())}>
-                <UserOutlined className="text-xl md:text-[36px] me-5" />
+              <Link to='/auth' onClick={() => dispatch(logout())}>
+                <UserOutlined className='text-xl md:text-[36px] me-5' />
               </Link>
             </div>
           </div>
           <div>
-            <div className="flex justify-between mt-4 gap-2 md:gap-5 ">
+            <div className='flex justify-between mt-4 gap-2 md:gap-5 '>
               <button
                 className={`flex-1   ${
-                  filter === "today" ? "bg-[#CFBBD4]" : "bg-[#EEEFEF]"
+                  filter === 'today' ? 'bg-[#CFBBD4]' : 'bg-[#EEEFEF]'
                 } text-[#1E1E1E] rounded-[15px] text-sm font-medium md:text-xl md:py-1`}
-                onClick={() => handleFilterChange("today")}
+                onClick={() => handleFilterChange('today')}
               >
                 Today
               </button>
 
               <button
                 className={`flex-1   ${
-                  filter === "weekly" ? "bg-[#CFBBD4]" : "bg-[#EEEFEF]"
+                  filter === 'weekly' ? 'bg-[#CFBBD4]' : 'bg-[#EEEFEF]'
                 } text-[#1E1E1E] rounded-[15px] text-sm font-medium md:text-xl md:py-1`}
-                onClick={() => handleFilterChange("weekly")}
+                onClick={() => handleFilterChange('weekly')}
               >
                 Weekly
               </button>
 
               <button
                 className={`flex-1   ${
-                  filter === "monthly" ? "bg-[#CFBBD4]" : "bg-[#EEEFEF]"
+                  filter === 'monthly' ? 'bg-[#CFBBD4]' : 'bg-[#EEEFEF]'
                 } text-[#1E1E1E] rounded-[15px] text-sm font-medium md:text-xl md:py-1`}
-                onClick={() => handleFilterChange("monthly")}
+                onClick={() => handleFilterChange('monthly')}
               >
                 Monthly
               </button>
             </div>
-            <div className="mt-4  flex-1  overflow-y-auto">
-              {filter === "today" && <TodayTransactionsList />}
-              {filter === "weekly" && <WeeklyTransactionsList />}
-              {filter === "monthly" && <MonthlyTransactionsList />}
+            <div className='mt-4  flex-1  overflow-y-auto'>
+              {filter === 'today' && <TodayTransactionsList />}
+              {filter === 'weekly' && <WeeklyTransactionsList />}
+              {filter === 'monthly' && <MonthlyTransactionsList />}
             </div>
           </div>
         </div>
       </div>
-      <Menu className="absolute bottom-0 left-0 w-full "></Menu>
+      <Menu className='absolute bottom-0 left-0 w-full '></Menu>
       <div>
         {modalStatus.isShow && (
           <ModalExpense
@@ -126,7 +116,7 @@ function HomePage() {
         )}
       </div>
     </div>
-  );
+  )
 }
 
-export default HomePage;
+export default HomePage

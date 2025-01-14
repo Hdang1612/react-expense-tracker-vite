@@ -1,3 +1,6 @@
+html {
+  font-size: 10px; 
+}
 .modal-confirm-delete .ant-modal-confirm-btns {
   display: flex;
   justify-content: center;
