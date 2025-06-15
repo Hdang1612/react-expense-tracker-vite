@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 
 import { Link, useLocation } from 'react-router-dom'
 import {
-  BellOutlined,
+  UserOutlined,
   InfoCircleOutlined,
   PlusOutlined,
   BarChartOutlined,
@@ -24,12 +24,13 @@ function Menu() {
     <div className='absolute bottom-0 left-0 w-full bg-[#EDEDED] shadow-lg z-50 py-1 px-5 xl:px-[120px]'>
       <div className='flex justify-between items-center'>
         <Link
+          to='/profile'
           className={`flex flex-col w-[60px] xl:w-[100px] items-center xl:py-3 ${
-            isActive('/reminder') ? 'text-[#EF8767]' : ''
+            isActive('/profile') ? 'text-[#EF8767]' : ''
           }`}
         >
-          <BellOutlined className='text-xl xl:text-[24px]' />
-          <span className='text-[10px] sm:text-xl'>Reminder</span>
+          <UserOutlined className='text-xl xl:text-[24px]' />
+          <span className='text-[10px] sm:text-xl'>Profile</span>
         </Link>
         <Link
           to='/transactions'

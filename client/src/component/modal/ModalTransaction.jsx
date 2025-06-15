@@ -241,7 +241,7 @@ const ModalExpense = () => {
             </div>
           </div>
           <div className='grid grid-cols-3 md:grid-cols-6 gap-3 '>
-            {categoriesList.map((item) => (
+            {categoriesList?.map((item) => (
               <div
                 className={`flex relative cursor-pointer flex-col  h-[70px] md:h-[90px] rounded-lg ${category ? (category.name == item.name ? 'border-4 border-[#CFBBD4]' : 'border border-[#CFBBD4]') : 'border border-[#CFBBD4]'}  items-center py-2 `}
                 key={item.name}

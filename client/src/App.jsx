@@ -8,6 +8,7 @@ import RegisterPage from './page/RegisterPage'
 import TransactionPage from './page/TransactionPage'
 import ForbiddenPage from './page/ForbiddenPage'
 import ResetPassword from './page/ResetPassword'
+import ProfilePage from './page/ProfilePage'
 function App() {
   const token = useSelector((state) => state.auth.isAuthenticated)
   const errorConfirm = useSelector((state) => state.transactions.error)
@@ -54,6 +55,18 @@ function App() {
               <Navigate to='/forbidden' />
             ) : token ? (
               <Report />
+            ) : (
+              <Navigate to='/auth' />
+            )
+          }
+        />
+        <Route
+          path='/profile'
+          element={
+            errorConfirm ? (
+              <Navigate to='/forbidden' />
+            ) : token ? (
+              <ProfilePage />
             ) : (
               <Navigate to='/auth' />
             )
